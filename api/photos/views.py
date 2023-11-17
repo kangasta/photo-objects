@@ -19,6 +19,7 @@ def has_permission(request):
 
     # TODO: define allowed sizes
 
+    # TODO: handle not found
     album = Album.objects.get(key=album_key)
 
     if not request.user.is_authenticated and (size == 'original' or album.public == False):

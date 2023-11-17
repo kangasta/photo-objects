@@ -10,6 +10,29 @@ services:
       - 5432:5432
     volumes:
       - pgdata:/var/lib/postgresql/data
+  front:
+    build: front/
+    ports:
+      - 8080:80
+  api:
+    build: api/
+    environment:
+      DB_HOST: db
+    ports:
+      - 8000:8000
+  objsto:
+    image: minio/minio
+    command: server /data --console-address ":9001"
+    environment:
+      - MINIO_ROOT_USER=user
+      - MINIO_ROOT_PASSWORD=password
+      - MINIO_DEFAULT_BUCKETS=photos
+    ports:
+      - 9000:9000
+      - 9001:9001
+    volumes:
+      - 'miniodata:/data'
 
 volumes:
   pgdata:
+  miniodata:
