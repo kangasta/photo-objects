@@ -12,12 +12,16 @@ def get_albums(request):
 
 def has_permission(request):
     path = request.GET.get('path')
-    if not path:
+    try:
+        size, album_key, _ = path.lstrip('/').split('/')
+    except (AttributeError, ValueError):
         return HttpResponse(status=400)
 
-    album_key, _ = path.split('/')
+    # TODO: define allowed sizes
+
     album = Album.objects.get(key=album_key)
-    if album.public == False and not request.user.is_authenticated:
+
+    if not request.user.is_authenticated and (size == 'original' or album.public == False):
         return HttpResponse(status=403)
 
     return HttpResponse(status=204)

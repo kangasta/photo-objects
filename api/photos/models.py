@@ -20,7 +20,7 @@ class Album(models.Model):
 
 class Photo(models.Model):
     key = models.CharField(primary_key=True)
-    collection = models.ForeignKey(Album, null=True, on_delete=models.SET_NULL)
+    album = models.ForeignKey(Album, null=True, on_delete=models.SET_NULL)
 
     timestamp = models.DateTimeField()
     title = models.CharField(blank=True)
