@@ -19,10 +19,15 @@ def has_permission(request):
 
     # TODO: define allowed sizes
 
-    # TODO: handle not found
-    album = Album.objects.get(key=album_key)
+    try:
+        album = Album.objects.get(key=album_key)
+    except Album.DoesNotExist:
+        return HttpResponse(status=404)
 
-    if not request.user.is_authenticated and (size == 'original' or album.public == False):
-        return HttpResponse(status=403)
+    if not request.user.is_authenticated:
+        if album.public == False:
+            return HttpResponse(status=404)
+        if size == 'original':
+            return HttpResponse(status=401)
 
     return HttpResponse(status=204)

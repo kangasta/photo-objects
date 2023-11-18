@@ -18,6 +18,7 @@ class AuthViewTests(TestCase):
         private_photo = Photo.objects.create(key='tower.jpeg', album=private_album, timestamp=timezone.now())
         self.private_path = f"{private_album.key}/{private_photo.key}"
 
+        self.not_found_path = "madrid/hotel.jpeg"
 
     def test_auth_returns_400_on_no_path(self):
         response = self.client.get("/api/_auth")
@@ -43,10 +44,13 @@ class AuthViewTests(TestCase):
         self._test_access([
             ['256', self.public_path, 204],
             ['2048', self.public_path, 204],
-            ['original', self.public_path, 403],
-            ['256', self.private_path, 403],
-            ['2048', self.private_path, 403],
-            ['original', self.private_path, 403],
+            ['original', self.public_path, 401],
+            ['256', self.private_path, 404],
+            ['2048', self.private_path, 404],
+            ['original', self.private_path, 404],
+            ['256', self.not_found_path, 404],
+            ['2048', self.not_found_path, 404],
+            ['original', self.not_found_path, 404],
         ])
 
     def test_authenticated_user_can_access_all_photos(self):
@@ -60,6 +64,9 @@ class AuthViewTests(TestCase):
             ['256', self.private_path, 204],
             ['2048', self.private_path, 204],
             ['original', self.private_path, 204],
+            ['256', self.not_found_path, 404],
+            ['2048', self.not_found_path, 404],
+            ['original', self.not_found_path, 404],
         ])
 
 
