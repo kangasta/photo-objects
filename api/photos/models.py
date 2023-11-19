@@ -6,7 +6,7 @@ class Album(models.Model):
     public = models.BooleanField(default=False)
 
     title = models.CharField(blank=True)
-    description = models.CharField(blank=True)
+    description = models.TextField(blank=True)
 
     def to_json(self):
         return dict(
@@ -24,7 +24,7 @@ class Photo(models.Model):
 
     timestamp = models.DateTimeField()
     title = models.CharField(blank=True)
-    description = models.CharField(blank=True)
+    description = models.TextField(blank=True)
 
     def to_json(self):
         collection_key = self.collection.key if self.collection else None

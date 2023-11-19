@@ -42,13 +42,13 @@ class AuthViewTests(TestCase):
 
     def test_anonymous_user_can_access_scaled_photos_in_public_album(self):
         self._test_access([
-            ['256', self.public_path, 204],
+            ['384', self.public_path, 204],
             ['2048', self.public_path, 204],
             ['original', self.public_path, 401],
-            ['256', self.private_path, 404],
+            ['384', self.private_path, 404],
             ['2048', self.private_path, 404],
             ['original', self.private_path, 404],
-            ['256', self.not_found_path, 404],
+            ['384', self.not_found_path, 404],
             ['2048', self.not_found_path, 404],
             ['original', self.not_found_path, 404],
         ])
@@ -58,13 +58,13 @@ class AuthViewTests(TestCase):
         self.assertTrue(login_success)
 
         self._test_access([
-            ['256', self.public_path, 204],
+            ['384', self.public_path, 204],
             ['2048', self.public_path, 204],
             ['original', self.public_path, 204],
-            ['256', self.private_path, 204],
+            ['384', self.private_path, 204],
             ['2048', self.private_path, 204],
             ['original', self.private_path, 204],
-            ['256', self.not_found_path, 404],
+            ['384', self.not_found_path, 404],
             ['2048', self.not_found_path, 404],
             ['original', self.not_found_path, 404],
         ])
