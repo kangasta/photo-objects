@@ -5,6 +5,10 @@ from django.utils import timezone
 from .models import Album, Photo
 
 
+CANAL_BASE64 = "iVBORw0KGgoAAAANSUhEUgAAAAMAAAAFBAMAAAByX0uRAAAALVBMVEW1no/d4OiTc2jAoozGvbaOZ06igXB5alqJYEFXUUJ6fn9zVT9PVUBhe4U4LyJRWPqlAAAAF0lEQVQI12NgVGAwCWBIb2CYtYHh7AMAFg0EhKs+JLkAAAAASUVORK5CYII="
+TOWER_BASE64 = "iVBORw0KGgoAAAANSUhEUgAAAAMAAAAFBAMAAAByX0uRAAAALVBMVEVZl898sOJgm9CSvuucpraRtdqer8OTdWWcrL+Zb06UZUaOkZpeSTtpRzBbXmMTFH6IAAAAF0lEQVQI12NgVGAwCWBIb2CYtYHh7AMAFg0EhKs+JLkAAAAASUVORK5CYII="
+
+
 class AuthViewTests(TestCase):
     def setUp(self):
         User = get_user_model()
@@ -70,14 +74,19 @@ class AuthViewTests(TestCase):
         ])
 
 
-class GetAlbumsViewTests(TestCase):
+class ViewTests(TestCase):
     def setUp(self):
         User = get_user_model()
         User.objects.create_user(username='test', password='test')
 
-        Album.objects.create(key="venice", public=True)
+        album = Album.objects.create(key="venice", public=True)
         Album.objects.create(key="paris", public=True)
         Album.objects.create(key="london", public=False)
+
+        Photo.objects.create(key='tower.jpeg', album=album, timestamp=timezone.now(), tiny_base64=TOWER_BASE64)
+        Photo.objects.create(key='canal.jpeg', album=album, timestamp=timezone.now(), tiny_base64=CANAL_BASE64)
+        Photo.objects.create(key='gondola.jpeg', album=album, timestamp=timezone.now())
+        Photo.objects.create(key='church.jpeg', album=album, timestamp=timezone.now())
 
     def test_anonymous_user_can_see_public_albums(self):
         response = self.client.get("/api/albums")
@@ -89,3 +98,17 @@ class GetAlbumsViewTests(TestCase):
 
         response = self.client.get("/api/albums")
         self.assertEqual(len(response.json()), 3)
+
+    def test_get_albums_lists_processed_photos(self):
+        data = self.client.get("/api/albums").json()
+        album = next(i for i in data if i.get('key') == 'venice')
+
+        photos = album.get('photos')
+        self.assertEqual(len(photos), 2)
+
+        photo = next(i for i in photos if i.get('key') == 'tower.jpeg')
+        self.assertEqual(photo.get('album'), 'venice')
+
+    def test_get_pending_photos(self):
+        data = self.client.get("/api/photos/pending").json()
+        self.assertEqual(len(data), 2)

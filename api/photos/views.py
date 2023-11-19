@@ -1,6 +1,6 @@
 from django.http import HttpResponse, JsonResponse
 
-from .models import Album
+from .models import Album, Photo
 
 def get_albums(request):
     albums = Album.objects.all()
@@ -9,6 +9,11 @@ def get_albums(request):
         albums = Album.objects.exclude(public=False)
 
     return JsonResponse([i.to_json() for i in albums], safe=False)
+
+def get_pending_photos(_):
+    photos = Photo.objects.filter(tiny_base64="")
+
+    return JsonResponse([i.to_json() for i in photos], safe=False)
 
 def has_permission(request):
     path = request.GET.get('path')

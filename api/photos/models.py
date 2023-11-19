@@ -14,7 +14,7 @@ class Album(models.Model):
             public=self.public,
             title=self.title,
             description=self.description,
-            photos=[i.to_json() for i in self.photo_set.all()]
+            photos=[i.to_json() for i in self.photo_set.exclude(tiny_base64="")]
         )
 
 
@@ -26,12 +26,14 @@ class Photo(models.Model):
     title = models.CharField(blank=True)
     description = models.TextField(blank=True)
 
+    tiny_base64 = models.CharField(blank=True)
+
     def to_json(self):
-        collection_key = self.collection.key if self.collection else None
+        album_key = self.album.key if self.album else None
 
         return dict(
             key=self.key,
-            collection=collection_key,
+            album=album_key,
             timestamp=f'{self.timestamp.isoformat()}Z',
             title=self.title,
             description=self.description,
