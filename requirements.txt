@@ -1,0 +1,4 @@
+# Static analysis
+pycodestyle
+pylint
+pylint-django
