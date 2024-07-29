@@ -14,7 +14,7 @@ autopep8 -aaar --in-place api
 Run static analysis with:
 
 ```bash
-pylint -E --enable=invalid-name,unused-import,useless-object-inheritance api
+pylint -E --enable=invalid-name,unused-import,useless-object-inheritance api/api api/photo_objects
 ```
 
 <!--
