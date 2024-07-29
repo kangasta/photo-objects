@@ -7,7 +7,7 @@ Application for storing photos in S3 compatible object-storage.
 Check and automatically fix formatting with:
 
 ```bash
-pycodestyle api
+pycodestyle --exclude api/api/settings.py,*/migrations/*.py api
 autopep8 -aaar --in-place api
 ```
 
