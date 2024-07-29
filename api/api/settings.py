@@ -33,7 +33,7 @@ ALLOWED_HOSTS = ["localhost","api"]
 # Application definition
 
 INSTALLED_APPS = [
-    'photos.apps.PhotosConfig',
+    'photo_objects.apps.PhotoObjectsConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
