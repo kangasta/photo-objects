@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
 from secrets import token_urlsafe
 
+
 class Command(BaseCommand):
     help = "Create initial admin user account."
 

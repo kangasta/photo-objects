@@ -2,6 +2,7 @@ from django.http import HttpResponse, JsonResponse
 
 from .models import Album
 
+
 def get_albums(request):
     albums = Album.objects.all()
 
@@ -9,6 +10,7 @@ def get_albums(request):
         albums = Album.objects.filter(visibility=Album.Visibility.PUBLIC)
 
     return JsonResponse([i.to_json() for i in albums], safe=False)
+
 
 def has_permission(request):
     path = request.GET.get('path')
