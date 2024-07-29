@@ -25,6 +25,7 @@ jobs:
     - name: Install dependencies
       run: |
         pip install -r requirements.txt
+        pip install -r api/requirements.txt
     - name: Run static analysis and unittests
       run: |
         pycodestyle --exclude api/api/settings.py,*/migrations/*.py api
