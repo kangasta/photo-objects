@@ -1,0 +1,10 @@
+[MASTER]
+load-plugins=pylint_django
+django-settings-module=api.settings
+
+[BASIC]
+good-names=a,b,c,
+           d,e,f,
+           i,j,k,
+           ok,
+           _

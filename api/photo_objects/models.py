@@ -1,9 +1,15 @@
-from django.contrib.auth.models import Group
 from django.db import models
+from django.utils.translation import gettext_lazy as _
+
 
 class Album(models.Model):
+    class Visibility(models.TextChoices):
+        PUBLIC = "public", _("Public")
+        HIDDEN = "hidden", _("Hidden")
+        PRIVATE = "private", _("Private")
+
     key = models.CharField(primary_key=True)
-    public = models.BooleanField(default=False)
+    visibility = models.CharField(default=Visibility.PRIVATE)
 
     title = models.CharField(blank=True)
     description = models.TextField(blank=True)
@@ -11,10 +17,10 @@ class Album(models.Model):
     def to_json(self):
         return dict(
             key=self.key,
-            public=self.public,
+            visibility=self.visibility,
             title=self.title,
             description=self.description,
-            photos=[i.to_json() for i in self.photo_set.exclude(tiny_base64="")]
+            photos=[i.to_json() for i in self.photo_set.all()]
         )
 
 
