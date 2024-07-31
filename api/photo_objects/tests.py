@@ -1,4 +1,7 @@
+import json
+
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Permission
 from django.test import TestCase
 from django.utils import timezone
 
@@ -100,7 +103,7 @@ class AuthViewTests(TestCase):
         ])
 
 
-class ViewTests(TestCase):
+class ViewVisibilityTests(TestCase):
     def setUp(self):
         User = get_user_model()
         User.objects.create_user(username='test', password='test')
@@ -149,3 +152,70 @@ class ViewTests(TestCase):
 
         photo = next(i for i in photos if i.get('key') == 'tower.jpeg')
         self.assertEqual(photo.get('album'), 'venice')
+
+class AlbumViewTests(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        User.objects.create_user(username='no_permission', password='test')
+
+        has_permission = User.objects.create_user(username='has_permission', password='test')
+        has_permission.user_permissions.add(Permission.objects.get(content_type__app_label='photo_objects', codename='add_album'))
+
+    def test_post_album_with_non_json_data_fails(self):
+        login_success = self.client.login(username='has_permission', password='test')
+        self.assertTrue(login_success)
+
+        data = self.client.post("/api/albums", "key=venice", content_type="text/plain")
+        self.assertEqual(data.status_code, 415, json.dumps(data.json()))
+
+    def test_post_album_with_invalid_json_data_fails(self):
+        login_success = self.client.login(username='has_permission', password='test')
+        self.assertTrue(login_success)
+
+        data = self.client.post("/api/albums", "key: venice", content_type="application/json")
+        self.assertEqual(data.status_code, 400, json.dumps(data.json()))
+
+    def test_put_album_fails(self):
+        data = self.client.put("/api/albums")
+        self.assertEqual(data.status_code, 405, json.dumps(data.json()))
+
+    def test_cannot_create_album_without_permission(self):
+        data = self.client.post("/api/albums", content_type="application/json", data=dict(key="oslo"))
+        self.assertEqual(data.status_code, 401, json.dumps(data.json()))
+
+        login_success = self.client.login(username='no_permission', password='test')
+        self.assertTrue(login_success)
+
+        data = self.client.post("/api/albums", content_type="application/json", data=dict(key="oslo"))
+        self.assertEqual(data.status_code, 403, json.dumps(data.json()))
+
+        login_success = self.client.login(username='has_permission', password='test')
+        self.assertTrue(login_success)
+
+        data = self.client.post("/api/albums", content_type="application/json", data=dict(key="oslo"))
+        self.assertEqual(data.status_code, 201, json.dumps(data.json()))
+
+    def test_create_album(self):
+        login_success = self.client.login(username='has_permission', password='test')
+        self.assertTrue(login_success)
+
+        data = self.client.post("/api/albums", content_type="application/json", data=dict(key="oslo", visibility="hidden", title="title", description="description"))
+        self.assertEqual(data.status_code, 201, json.dumps(data.json()))
+
+        album = Album.objects.get(key="oslo")
+        self.assertEqual(album.visibility, Album.Visibility.HIDDEN)
+        self.assertEqual(album.title, "title")
+        self.assertEqual(album.description, "description")
+
+    def test_create_album_key_validation(self):
+        login_success = self.client.login(username='has_permission', password='test')
+        self.assertTrue(login_success)
+
+        data = self.client.post("/api/albums", content_type="application/json", data=dict(key=""))
+        self.assertEqual(data.status_code, 400, json.dumps(data.json()))
+
+        data = self.client.post("/api/albums", content_type="application/json", data=dict(key="oslo"))
+        self.assertEqual(data.status_code, 201, json.dumps(data.json()))
+
+        data = self.client.post("/api/albums", content_type="application/json", data=dict(key="oslo"))
+        self.assertEqual(data.status_code, 409, json.dumps(data.json()))
