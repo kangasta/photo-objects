@@ -1,18 +1,9 @@
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpRequest, HttpResponse
 
-from .models import Album
-
-
-def get_albums(request):
-    albums = Album.objects.all()
-
-    if not request.user.is_authenticated:
-        albums = Album.objects.filter(visibility=Album.Visibility.PUBLIC)
-
-    return JsonResponse([i.to_json() for i in albums], safe=False)
+from photo_objects.models import Album
 
 
-def has_permission(request):
+def has_permission(request: HttpRequest):
     path = request.GET.get('path')
     try:
         album_key, size, _ = path.lstrip('/').split('/')

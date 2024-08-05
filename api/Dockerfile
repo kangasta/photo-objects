@@ -6,6 +6,6 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 COPY api/ ./api/
-COPY photos/ ./photos/
-COPY entrypoint.sh manage.py .
+COPY photo_objects/ ./photo_objects/
+COPY entrypoint.sh manage.py ./
 ENTRYPOINT ["./entrypoint.sh"]

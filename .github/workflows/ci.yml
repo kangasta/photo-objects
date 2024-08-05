@@ -8,15 +8,24 @@ on:
     - main
 
 jobs:
-  unittest:
+  test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version:
-        - "3.8"
         - "3.9"
         - "3.10"
         - "3.11"
+        # TODO Add 3.12 when it's supported by pylint_django
+    services:
+      db:
+        image: postgres:16
+        env:
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: pass
+          POSTGRES_DB: django
+        ports:
+          - 5432:5432
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-python@v2
@@ -26,13 +35,15 @@ jobs:
       run: |
         pip install -r requirements.txt
         pip install -r api/requirements.txt
-    - name: Run static analysis and unittests
+    - name: Run static analysis
       run: |
         pycodestyle --exclude api/api/settings.py,*/migrations/*.py api
         pylint -E --enable=invalid-name,unused-import,useless-object-inheritance api/api api/photo_objects
-        # TODO: run tests
-        # coverage run --branch --source yaml_requests/ -m unittest discover -s tst/
-        # coverage report -m
+    - name: Run tests
+      run: |
+        cd api/
+        coverage run --branch --source . manage.py test
+        coverage report -m
     # - name: Push coverage
     #   uses: paambaati/codeclimate-action@v2.7.5
     #   with:

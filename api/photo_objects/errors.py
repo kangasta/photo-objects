@@ -1,0 +1,2 @@
+class PhotoObjectsError(Exception):
+    pass
