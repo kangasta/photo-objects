@@ -2,13 +2,18 @@ from django.http import HttpRequest, HttpResponse, JsonResponse
 
 from photo_objects.models import Album
 
-from ._utils import JsonProblem, MethodNotAllowed, _check_permission, _parse_json_body
+from ._utils import (
+    JsonProblem,
+    MethodNotAllowed,
+    _check_permission,
+    _parse_json_body
+)
 
 
 def albums(request: HttpRequest):
     if request.method == "GET":
         return get_albums(request)
-    elif request.method =="POST":
+    elif request.method == "POST":
         return create_album(request)
     else:
         return MethodNotAllowed(["GET", "POST"], request.method).json_response

@@ -62,15 +62,16 @@ def _check_permission(request: HttpRequest, permission: str):
 
 def _parse_json_body(request: HttpRequest):
     if request.content_type != APPLICATION_JSON:
+        actual = request.content_type
         raise JsonProblem(
-            f"Expected {APPLICATION_JSON} content-type, got {request.content_type}.",
+            f"Expected {APPLICATION_JSON} content-type, got {actual}.",
             415,
-            headers=dict(Accept=APPLICATION_JSON)
-        )
+            headers=dict(
+                Accept=APPLICATION_JSON))
 
     try:
         return json.loads(request.body)
-    except:
+    except BaseException:
         raise JsonProblem(
             "Could not parse JSON data from request body.",
             400,
