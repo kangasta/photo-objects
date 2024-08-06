@@ -1,12 +1,18 @@
 import json
 
 from django.http import HttpRequest, JsonResponse
-
+from django.core.files.uploadedfile import UploadedFile
 from photo_objects.errors import PhotoObjectsError
 
 
 APPLICATION_JSON = "application/json"
+MULTIPART_FORMDATA = "multipart/form-data"
 APPLICATION_PROBLEM = "application/problem+json"
+
+
+def _pretty_list(in_: list, conjunction: str):
+    return f' {conjunction} '.join(
+        i for i in (', '.join(in_[:-1]), in_[-1],) if i)
 
 
 class JsonProblem(PhotoObjectsError):
@@ -34,10 +40,14 @@ class JsonProblem(PhotoObjectsError):
         )
 
 
+class Conflict(JsonProblem):
+    def __init__(self, title):
+        super().__init__(title, 409)
+
+
 class MethodNotAllowed(JsonProblem):
     def __init__(self, expected: list[str], actual: str):
-        expected_human = ' or '.join(
-            i for i in (', '.join(expected[:-1]), expected[-1],) if i)
+        expected_human = _pretty_list(expected, "or")
 
         super().__init__(
             f"Expected {expected_human} method, got {actual}.",
@@ -46,15 +56,24 @@ class MethodNotAllowed(JsonProblem):
         )
 
 
-def _check_permission(request: HttpRequest, permission: str):
+class UnsupportedMediaType(JsonProblem):
+    def __init__(self, expected: str, actual: str):
+        super().__init__(
+            f"Expected {expected} content-type, got {actual}.",
+            415,
+            headers=dict(Accept=expected)
+        )
+
+
+def _check_permissions(request: HttpRequest, *permissions: str):
     if not request.user.is_authenticated:
         raise JsonProblem(
             "Not authenticated.",
             401,
         )
-    if not request.user.has_perm(permission):
+    if not request.user.has_perms(permissions):
         raise JsonProblem(
-            f"Expected {permission} permission",
+            f"Expected {_pretty_list(permissions, 'and')} permissions",
             403,
             headers=dict(Allow="GET, POST")
         )
@@ -62,12 +81,10 @@ def _check_permission(request: HttpRequest, permission: str):
 
 def _parse_json_body(request: HttpRequest):
     if request.content_type != APPLICATION_JSON:
-        actual = request.content_type
-        raise JsonProblem(
-            f"Expected {APPLICATION_JSON} content-type, got {actual}.",
-            415,
-            headers=dict(
-                Accept=APPLICATION_JSON))
+        raise UnsupportedMediaType(
+            APPLICATION_JSON,
+            request.content_type
+        )
 
     try:
         return json.loads(request.body)
@@ -76,3 +93,20 @@ def _parse_json_body(request: HttpRequest):
             "Could not parse JSON data from request body.",
             400,
         )
+
+
+def _parse_single_file(request: HttpRequest) -> UploadedFile:
+    if request.content_type != MULTIPART_FORMDATA:
+        raise UnsupportedMediaType(
+            MULTIPART_FORMDATA,
+            request.content_type
+        )
+
+    if len(request.FILES) < 1:
+        raise JsonProblem(
+            f"Expected exactly one file, got {len(request.FILES)}.",
+            400,
+        )
+
+    for _, f in request.FILES.items():
+        return f
