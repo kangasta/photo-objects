@@ -16,15 +16,6 @@ jobs:
         - "3.10"
         - "3.11"
         - "3.12"
-    services:
-      db:
-        image: postgres:16
-        env:
-          POSTGRES_USER: user
-          POSTGRES_PASSWORD: pass
-          POSTGRES_DB: django
-        ports:
-          - 5432:5432
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-python@v2
@@ -43,6 +34,12 @@ jobs:
       if: matrix.python-version != '3.12' # TODO: Remove this exclusion when pylint-django supports Python 3.12
     - name: Run tests
       run: |
+        docker compose up -d db objsto
+
+        until docker compose logs db | grep "listening on .* address" -q; do
+          sleep 5;
+        done
+
         cd api/
         coverage run --branch --source . manage.py test
         coverage report -m

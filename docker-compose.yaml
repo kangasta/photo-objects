@@ -24,9 +24,9 @@ services:
     image: minio/minio
     command: server /data --console-address ":9001"
     environment:
-      - MINIO_ROOT_USER=access_key
-      - MINIO_ROOT_PASSWORD=secret_key
-      - MINIO_DEFAULT_BUCKETS=photos
+      MINIO_ROOT_USER: access_key
+      MINIO_ROOT_PASSWORD: secret_key
+      MINIO_DEFAULT_BUCKETS: photos
     ports:
       - 9000:9000
       - 9001:9001
