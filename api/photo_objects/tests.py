@@ -19,7 +19,7 @@ PHOTOS_DIRECTORY = "photos"
 
 
 def _path_fn(album, photo):
-    return lambda size: f"{album}/{size}/{photo}"
+    return lambda size: f"{album}/{photo}/{size}"
 
 
 class AuthViewTests(TestCase):
@@ -53,11 +53,11 @@ class AuthViewTests(TestCase):
 
         self.not_found_path = _path_fn("madrid", "hotel")
 
-    def test_auth_returns_400_on_no_path(self):
+    def test_auth_returns_403_on_no_path(self):
         response = self.client.get("/api/_auth")
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 403)
 
-    def test_auth_returns_400_on_invalid_path(self):
+    def test_auth_returns_403_on_invalid_path(self):
         testdata = [
             '/image.jpeg',
             'paris/landbus.jpeg',
@@ -65,7 +65,7 @@ class AuthViewTests(TestCase):
 
         for path in testdata:
             response = self.client.get(f"/api/_auth?path=/{path}")
-            self.assertEqual(response.status_code, 400)
+            self.assertEqual(response.status_code, 403)
 
     def _test_access(self, testdata):
         for path, status in testdata:
@@ -75,18 +75,19 @@ class AuthViewTests(TestCase):
 
     def test_anonymous_user_access(self):
         self._test_access([
-            [self.public_path('384'), 204],
-            [self.public_path('2048'), 204],
-            [self.public_path('original'), 401],
-            [self.hidden_path('384'), 204],
-            [self.hidden_path('2048'), 204],
-            [self.hidden_path('original'), 401],
-            [self.private_path('384'), 404],
-            [self.private_path('2048'), 404],
-            [self.private_path('original'), 404],
-            [self.not_found_path('384'), 404],
-            [self.not_found_path('2048'), 404],
-            [self.not_found_path('original'), 404],
+            [self.public_path('asd'), 403],
+            [self.public_path('sm'), 204],
+            [self.public_path('lg'), 204],
+            [self.public_path('og'), 403],
+            [self.hidden_path('sm'), 204],
+            [self.hidden_path('lg'), 204],
+            [self.hidden_path('og'), 403],
+            [self.private_path('sm'), 403],
+            [self.private_path('lg'), 403],
+            [self.private_path('og'), 403],
+            [self.not_found_path('sm'), 403],
+            [self.not_found_path('lg'), 403],
+            [self.not_found_path('og'), 403],
         ])
 
     def test_authenticated_user_can_access_all_photos(self):
@@ -94,18 +95,19 @@ class AuthViewTests(TestCase):
         self.assertTrue(login_success)
 
         self._test_access([
-            [self.public_path('384'), 204],
-            [self.public_path('2048'), 204],
-            [self.public_path('original'), 204],
-            [self.hidden_path('384'), 204],
-            [self.hidden_path('2048'), 204],
-            [self.hidden_path('original'), 204],
-            [self.private_path('384'), 204],
-            [self.private_path('2048'), 204],
-            [self.private_path('original'), 204],
-            [self.not_found_path('384'), 404],
-            [self.not_found_path('2048'), 404],
-            [self.not_found_path('original'), 404],
+            [self.public_path('asd'), 403],
+            [self.public_path('sm'), 204],
+            [self.public_path('lg'), 204],
+            [self.public_path('og'), 204],
+            [self.hidden_path('sm'), 204],
+            [self.hidden_path('lg'), 204],
+            [self.hidden_path('og'), 204],
+            [self.private_path('sm'), 204],
+            [self.private_path('lg'), 204],
+            [self.private_path('og'), 204],
+            [self.not_found_path('sm'), 403],
+            [self.not_found_path('lg'), 403],
+            [self.not_found_path('og'), 403],
         ])
 
 

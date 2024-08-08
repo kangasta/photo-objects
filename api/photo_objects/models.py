@@ -9,7 +9,7 @@ class Album(models.Model):
         PRIVATE = "private", _("Private")
 
     key = models.CharField(primary_key=True)
-    visibility = models.CharField(default=Visibility.PRIVATE)
+    visibility = models.CharField(default=Visibility.PRIVATE, choices=Visibility)
 
     title = models.CharField(blank=True)
     description = models.TextField(blank=True)

@@ -1,10 +1,23 @@
+import json
 import os
 
 from minio import Minio
 
 
 MEGABYTE = 1 << 20
-
+def _anonymous_readonly_policy(bucket: str):
+    policy = {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Effect": "Allow",
+                "Principal": {"AWS": "*"},
+                "Action": "s3:GetObject",
+                "Resource": f"arn:aws:s3:::{bucket}/*",
+            },
+        ],
+    }
+    return json.dumps(policy)
 
 def _objsto_access() -> tuple[Minio, str]:
     client = Minio(
@@ -18,12 +31,13 @@ def _objsto_access() -> tuple[Minio, str]:
     # TODO: move this to management command
     if not client.bucket_exists(bucket):
         client.make_bucket(bucket)
+        client.set_bucket_policy(bucket, _anonymous_readonly_policy(bucket))
 
     return client, bucket
 
 
 def photo_path(album_key, photo_key, size_key):
-    return f"{album_key}/{size_key}/{photo_key}"
+    return f"{album_key}/{photo_key}/{size_key}"
 
 
 def put_photo(album_key, photo_key, size_key, photo_file):
