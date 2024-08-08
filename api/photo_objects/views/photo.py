@@ -36,8 +36,10 @@ def _read_original_datetime(image: Image) -> timezone.datetime:
         subsec = info.get(ExifTags.Base.SubsecTimeOriginal) or "0"
         offset = info.get(ExifTags.Base.OffsetTimeOriginal) or "+00:00"
 
-        return timezone.datetime.strptime(f"{time}.{subsec}{offset}", "%Y:%m:%d %H:%M:%S.%f%z")
-    except:
+        return timezone.datetime.strptime(
+            f"{time}.{subsec}{offset}",
+            "%Y:%m:%d %H:%M:%S.%f%z")
+    except BaseException:
         return None
 
 
@@ -84,7 +86,7 @@ def upload_photo(request: HttpRequest, album_key: str):
     photo_file.seek(0)
     try:
         put_photo(album.key, photo.key, "og", photo_file)
-    except:
+    except BaseException:
         # TODO: logging
         return JsonProblem(
             "Could not save photo to object storage.",

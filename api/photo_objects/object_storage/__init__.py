@@ -5,6 +5,8 @@ from minio import Minio
 
 
 MEGABYTE = 1 << 20
+
+
 def _anonymous_readonly_policy(bucket: str):
     policy = {
         "Version": "2012-10-17",
@@ -18,6 +20,7 @@ def _anonymous_readonly_policy(bucket: str):
         ],
     }
     return json.dumps(policy)
+
 
 def _objsto_access() -> tuple[Minio, str]:
     client = Minio(
@@ -42,9 +45,24 @@ def photo_path(album_key, photo_key, size_key):
 
 def put_photo(album_key, photo_key, size_key, photo_file):
     client, bucket = _objsto_access()
-    return client.put_object(bucket, photo_path(album_key, photo_key, size_key), photo_file, length=-1, part_size=10*MEGABYTE)
+    return client.put_object(
+        bucket,
+        photo_path(
+            album_key,
+            photo_key,
+            size_key),
+        photo_file,
+        length=-
+        1,
+        part_size=10 *
+        MEGABYTE)
 
 
 def get_photo(album_key, photo_key, size_key):
     client, bucket = _objsto_access()
-    return client.get_object(bucket, photo_path(album_key, photo_key, size_key))
+    return client.get_object(
+        bucket,
+        photo_path(
+            album_key,
+            photo_key,
+            size_key))

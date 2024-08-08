@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class Size(Enum):
     TINY = "xs"
     SMALL = "sm"

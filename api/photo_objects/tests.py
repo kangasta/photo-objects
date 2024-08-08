@@ -278,8 +278,13 @@ class AlbumViewTests(TestCase):
 
 
 def _open_test_photo(filename):
-    path = os.path.join(os.path.dirname(os.path.realpath(__file__)), PHOTOS_DIRECTORY, filename)
-    return  open(path, "rb")
+    path = os.path.join(
+        os.path.dirname(
+            os.path.realpath(__file__)),
+        PHOTOS_DIRECTORY,
+        filename)
+    return open(path, "rb")
+
 
 class PhotoViewTests(TestCase):
     def setUp(self):
@@ -356,11 +361,15 @@ class PhotoViewTests(TestCase):
         self.assertEqual(data.status_code, 201, json.dumps(data.json()))
 
         photo = Photo.objects.get(key=filename)
-        self.assertEqual(photo.timestamp, timezone.datetime(2024, 3, 20, 14, 28, 4, 0, datetime.timezone.utc))
+        self.assertEqual(photo.timestamp, timezone.datetime(
+            2024, 3, 20, 14, 28, 4, 0, datetime.timezone.utc))
 
         file.seek(0)
         photo_response = get_photo("test", filename, "og")
-        self.assertEqual(photo_response.read(), file.read(), "Photo in the file system does not match photo uploaded to the object storage")
+        self.assertEqual(
+            photo_response.read(),
+            file.read(),
+            "Photo in the file system does not match photo uploaded to the object storage")  # noqa
 
         file.seek(0)
         data = self.client.post(
