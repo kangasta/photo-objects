@@ -1,11 +1,12 @@
-from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.http import HttpRequest, JsonResponse
 
 from photo_objects.models import Album
 
 from ._utils import (
+    Conflict,
     JsonProblem,
     MethodNotAllowed,
-    _check_permission,
+    _check_permissions,
     _parse_json_body
 )
 
@@ -21,7 +22,7 @@ def albums(request: HttpRequest):
 
 def create_album(request: HttpRequest):
     try:
-        _check_permission(request, 'photo_objects.add_album')
+        _check_permissions(request, 'photo_objects.add_album')
         data = _parse_json_body(request)
     except JsonProblem as e:
         return e.json_response
@@ -33,9 +34,8 @@ def create_album(request: HttpRequest):
             400,
         ).json_response
     if Album.objects.filter(key=key).exists():
-        return JsonProblem(
-            f"Album with given key already exists.",
-            409,
+        return Conflict(
+            f"Album with {key} key already exists.",
         ).json_response
 
     album = Album.objects.create(
