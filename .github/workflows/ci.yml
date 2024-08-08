@@ -13,10 +13,9 @@ jobs:
     strategy:
       matrix:
         python-version:
-        - "3.9"
         - "3.10"
         - "3.11"
-        # TODO Add 3.12 when it's supported by pylint_django
+        - "3.12"
     services:
       db:
         image: postgres:16
@@ -35,10 +34,13 @@ jobs:
       run: |
         pip install -r requirements.txt
         pip install -r api/requirements.txt
-    - name: Run static analysis
+    - name: Run pycodestyle
       run: |
         pycodestyle --exclude api/api/settings.py,*/migrations/*.py api
+    - name: Run pylint
+      run: |
         pylint -E --enable=invalid-name,unused-import,useless-object-inheritance api/api api/photo_objects
+      if: matrix.python-version != '3.12' # TODO: Remove this exclusion when pylint-django supports Python 3.12
     - name: Run tests
       run: |
         cd api/

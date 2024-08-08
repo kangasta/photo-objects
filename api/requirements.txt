@@ -1,4 +1,4 @@
-django
-minio
-pillow
-psycopg[binary]
+django~=5.0
+minio~=7.2
+pillow~=10.4
+psycopg[binary]~=3.2
