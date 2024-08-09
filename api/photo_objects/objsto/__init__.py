@@ -47,22 +47,16 @@ def put_photo(album_key, photo_key, size_key, photo_file):
     client, bucket = _objsto_access()
     return client.put_object(
         bucket,
-        photo_path(
-            album_key,
-            photo_key,
-            size_key),
+        photo_path(album_key, photo_key, size_key),
         photo_file,
-        length=-
-        1,
-        part_size=10 *
-        MEGABYTE)
+        length=-1,
+        part_size=10 * MEGABYTE
+    )
 
 
 def get_photo(album_key, photo_key, size_key):
     client, bucket = _objsto_access()
     return client.get_object(
         bucket,
-        photo_path(
-            album_key,
-            photo_key,
-            size_key))
+        photo_path(album_key, photo_key, size_key)
+    )

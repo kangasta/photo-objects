@@ -2,7 +2,8 @@ import json
 
 from django.http import HttpRequest, JsonResponse
 from django.core.files.uploadedfile import UploadedFile
-from photo_objects.errors import PhotoObjectsError
+from photo_objects.error import PhotoObjectsError
+from photo_objects import Size
 
 
 APPLICATION_JSON = "application/json"
@@ -65,12 +66,43 @@ class UnsupportedMediaType(JsonProblem):
         )
 
 
-def _check_permissions(request: HttpRequest, *permissions: str):
-    if not request.user.is_authenticated:
-        raise JsonProblem(
+class Unauthorized(JsonProblem):
+    def __init__(self):
+        super().__init__(
             "Not authenticated.",
             401,
         )
+
+
+class InvalidSize(JsonProblem):
+    def __init__(self, actual: str):
+        expected = _pretty_list([i.value for i in Size], "or")
+
+        super().__init__(
+            f"Expected {expected} size, got {actual or 'none'}.",
+            400,
+        )
+
+
+class AlbumNotFound(JsonProblem):
+    def __init__(self, album_key: str):
+        super().__init__(
+            f"Album with {album_key} key does not exist.",
+            404,
+        )
+
+
+class PhotoNotFound(JsonProblem):
+    def __init__(self, album_key: str, photo_key: str):
+        super().__init__(
+            f"Photo with {photo_key} key does not exist in {album_key} album.",
+            404,
+        )
+
+
+def _check_permissions(request: HttpRequest, *permissions: str):
+    if not request.user.is_authenticated:
+        raise Unauthorized()
     if not request.user.has_perms(permissions):
         raise JsonProblem(
             f"Expected {_pretty_list(permissions, 'and')} permissions",

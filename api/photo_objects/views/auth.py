@@ -3,6 +3,26 @@ from django.http import HttpRequest, HttpResponse
 from photo_objects import Size
 from photo_objects.models import Album
 
+from ._utils import AlbumNotFound, InvalidSize, JsonProblem, Unauthorized
+
+
+def _check_album_access(request: HttpRequest, album_key: str, size_key):
+    try:
+        size = Size(size_key)
+    except ValueError:
+        raise InvalidSize(size_key)
+
+    try:
+        album = Album.objects.get(key=album_key)
+    except Album.DoesNotExist:
+        raise AlbumNotFound(album_key)
+
+    if not request.user.is_authenticated:
+        if album.visibility == Album.Visibility.PRIVATE:
+            raise AlbumNotFound(album_key)
+        if size == Size.ORIGINAL:
+            raise Unauthorized()
+
 
 def has_permission(request: HttpRequest):
     '''Check if user has permission to access photo in given path.
@@ -18,19 +38,7 @@ def has_permission(request: HttpRequest):
         return HttpResponse(status=403)
 
     try:
-        size = Size(raw_size)
-    except ValueError:
+        _check_album_access(request, album_key, raw_size)
+        return HttpResponse(status=204)
+    except JsonProblem:
         return HttpResponse(status=403)
-
-    try:
-        album = Album.objects.get(key=album_key)
-    except Album.DoesNotExist:
-        return HttpResponse(status=403)
-
-    if not request.user.is_authenticated:
-        if album.visibility == Album.Visibility.PRIVATE:
-            return HttpResponse(status=403)
-        if size == Size.ORIGINAL:
-            return HttpResponse(status=403)
-
-    return HttpResponse(status=204)
