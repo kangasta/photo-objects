@@ -1,4 +1,5 @@
 import json
+import re
 
 from django.http import HttpRequest, JsonResponse
 from django.core.files.uploadedfile import UploadedFile
@@ -142,3 +143,19 @@ def _parse_single_file(request: HttpRequest) -> UploadedFile:
 
     for _, f in request.FILES.items():
         return f
+
+
+def validate_key(key: str):
+    if len(key) == 0:
+        raise JsonProblem(
+            "Key can not be empty.",
+            400,
+        )
+
+    valid_pattern = re.compile(r"^[a-zA-Z0-9._-]+$")
+    if not valid_pattern.match(key):
+        raise JsonProblem(
+            "Key can only contain alphanumeric characters, dots, underscores "
+            "and hyphens.",
+            400,
+        )

@@ -14,6 +14,7 @@ from ._utils import (
     Conflict,
     JsonProblem,
     MethodNotAllowed,
+    validate_key,
     _check_permissions,
     _parse_single_file,
 )
@@ -54,6 +55,10 @@ def upload_photo(request: HttpRequest, album_key: str):
         return AlbumNotFound(album_key).json_response
 
     key = photo_file.name
+    try:
+        validate_key(key)
+    except JsonProblem as e:
+        return e.json_response
     if Photo.objects.filter(key=key).exists():
         return Conflict(
             f"Photo with {key} key already exists in {album_key} album.",

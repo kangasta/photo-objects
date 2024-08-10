@@ -8,6 +8,7 @@ from ._utils import (
     Conflict,
     JsonProblem,
     MethodNotAllowed,
+    validate_key,
     _check_permissions,
     _parse_json_body
 )
@@ -39,11 +40,11 @@ def create_album(request: HttpRequest):
         return e.json_response
 
     key = data.get("key")
-    if len(key) == 0:
-        return JsonProblem(
-            f"Key must be specified.",
-            400,
-        ).json_response
+    try:
+        validate_key(key)
+    except JsonProblem as e:
+        return e.json_response
+
     if Album.objects.filter(key=key).exists():
         return Conflict(
             f"Album with {key} key already exists.",
