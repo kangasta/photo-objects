@@ -23,6 +23,7 @@ class ViewVisibilityTests(TestCase):
             key="venice", visibility=Album.Visibility.PUBLIC)
         Album.objects.create(key="paris", visibility=Album.Visibility.PUBLIC)
         Album.objects.create(key="london", visibility=Album.Visibility.PRIVATE)
+        Album.objects.create(key="berlin", visibility=Album.Visibility.HIDDEN)
 
         Photo.objects.create(
             key='tower.jpeg',
@@ -52,13 +53,25 @@ class ViewVisibilityTests(TestCase):
         self.assertTrue(login_success)
 
         response = self.client.get("/api/albums")
-        self.assertEqual(len(response.json()), 3)
+        self.assertEqual(len(response.json()), 4)
 
-    def test_get_albums_lists_all_photos(self):
-        data = self.client.get("/api/albums").json()
-        album = next(i for i in data if i.get('key') == 'venice')
+    def test_anonymous_user_get_album_get_photos(self):
+        checks = [
+            ("/api/albums/paris/photos", 200),
+            ("/api/albums/london/photos", 404),
+            ("/api/albums/berlin/photos", 404),
+            ("/api/albums/paris", 200),
+            ("/api/albums/london", 404),
+            ("/api/albums/berlin", 404),
+        ]
 
-        photos = album.get('photos')
+        for path, status in checks:
+            with self.subTest(path=path, status=status):
+                response = self.client.get(path)
+                self.assertEqual(response.status_code, status)
+
+    def test_get_photos_lists_all_photos(self):
+        photos = self.client.get("/api/albums/venice/photos").json()
         self.assertEqual(len(photos), 4)
 
         photo = next(i for i in photos if i.get('key') == 'tower.jpeg')
@@ -148,10 +161,12 @@ class AlbumViewTests(TestCase):
                 description="description"))
         self.assertEqual(data.status_code, 201, json.dumps(data.json()))
 
-        album = Album.objects.get(key="oslo")
-        self.assertEqual(album.visibility, Album.Visibility.HIDDEN)
-        self.assertEqual(album.title, "title")
-        self.assertEqual(album.description, "description")
+        album = self.client.get("/api/albums/oslo").json()
+        self.assertEqual(
+            album.get("visibility"),
+            Album.Visibility.HIDDEN.value)
+        self.assertEqual(album.get("title"), "title")
+        self.assertEqual(album.get("description"), "description")
 
     def test_create_album_key_validation(self):
         login_success = self.client.login(

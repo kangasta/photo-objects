@@ -22,7 +22,6 @@ class Album(models.Model):
             visibility=self.visibility,
             title=self.title,
             description=self.description,
-            photos=[i.to_json() for i in self.photo_set.all()]
         )
 
 

@@ -8,10 +8,9 @@ from photo_objects.img import photo_details, scale_photo
 from photo_objects.models import Album, Photo
 from photo_objects import objsto
 
-from .auth import _check_album_access
+from .auth import _check_album_access, _check_photo_access
 from ._utils import (
     AlbumNotFound,
-    PhotoNotFound,
     Conflict,
     JsonProblem,
     MethodNotAllowed,
@@ -21,10 +20,22 @@ from ._utils import (
 
 
 def photos(request: HttpRequest, album_key: str):
+    if request.method == "GET":
+        return get_photos(request, album_key)
     if request.method == "POST":
         return upload_photo(request, album_key)
     else:
-        return MethodNotAllowed(["POST"], request.method).json_response
+        return MethodNotAllowed(["GET", "POST"], request.method).json_response
+
+
+def get_photos(request: HttpRequest, album_key: str):
+    try:
+        _check_album_access(request, album_key)
+    except JsonProblem as e:
+        return e.json_response
+
+    photos = Photo.objects.filter(album__key=album_key)
+    return JsonResponse([i.to_json() for i in photos], safe=False)
 
 
 def upload_photo(request: HttpRequest, album_key: str):
@@ -81,27 +92,18 @@ def photo(request: HttpRequest, album_key: str, photo_key: str):
 
 def get_photo(request: HttpRequest, album_key: str, photo_key: str):
     try:
-        _check_album_access(request, album_key, 'xs')
+        photo = _check_photo_access(request, album_key, photo_key, 'xs')
+        return JsonResponse(photo.to_json())
     except JsonProblem as e:
         return e.json_response
-    try:
-        photo = Photo.objects.get(key=photo_key, album__key=album_key)
-        return JsonResponse(photo.to_json())
-    except Photo.DoesNotExist:
-        return PhotoNotFound(album_key, photo_key).json_response
 
 
 def get_img(request: HttpRequest, album_key: str, photo_key: str):
     try:
         size = request.GET.get("size")
-        _check_album_access(request, album_key, size)
+        _check_photo_access(request, album_key, photo_key, size)
     except JsonProblem as e:
         return e.json_response
-
-    try:
-        Photo.objects.get(key=photo_key, album__key=album_key)
-    except Photo.DoesNotExist:
-        return PhotoNotFound(album_key, photo_key).json_response
 
     content_type = mimetypes.guess_type(photo_key)[0]
 
