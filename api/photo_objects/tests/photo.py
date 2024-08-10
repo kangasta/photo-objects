@@ -5,20 +5,12 @@ import os
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
-from django.test import TestCase
 from PIL import Image
 
 from photo_objects.models import Album
 from photo_objects.objsto import get_photo, _objsto_access
 
-
-def _open_test_photo(filename):
-    path = os.path.join(
-        os.path.dirname(
-            os.path.realpath(__file__)),
-        "photos",
-        filename)
-    return open(path, "rb")
+from .utils import TestCase, open_test_photo
 
 
 class PhotoViewTests(TestCase):
@@ -89,7 +81,7 @@ class PhotoViewTests(TestCase):
         self.assertTrue(login_success)
 
         filename = "tower.jpg"
-        file = _open_test_photo(filename)
+        file = open_test_photo(filename)
         data = self.client.post(
             "/api/albums/test/photos",
             {filename: file})
@@ -120,7 +112,7 @@ class PhotoViewTests(TestCase):
             username='has_permission', password='test')
         self.assertTrue(login_success)
 
-        file = _open_test_photo("tower.jpg")
+        file = open_test_photo("tower.jpg")
         data = self.client.post(
             "/api/albums/test/photos",
             {"": file})
@@ -132,7 +124,7 @@ class PhotoViewTests(TestCase):
         self.assertTrue(login_success)
 
         filename = "tower.jpg"
-        file = _open_test_photo(filename)
+        file = open_test_photo(filename)
         data = self.client.post(
             "/api/albums/test/photos",
             {filename: file})
@@ -141,21 +133,13 @@ class PhotoViewTests(TestCase):
         # Scales image down from the original size
         small_response = self.client.get(
             "/api/albums/test/photos/tower.jpg/img?size=sm")
-        self.assertEqual(
-            small_response.status_code,
-            200,
-            json.dumps(
-                data.json()))
+        self.assertStatus(small_response, 200)
         _, height = Image.open(BytesIO(small_response.content)).size
         self.assertEqual(height, 256)
 
         # Does not scale image up from the original size
         large_response = self.client.get(
             "/api/albums/test/photos/tower.jpg/img?size=lg")
-        self.assertEqual(
-            large_response.status_code,
-            200,
-            json.dumps(
-                data.json()))
+        self.assertStatus(large_response, 200)
         _, height = Image.open(BytesIO(large_response.content)).size
         self.assertEqual(height, 512)
