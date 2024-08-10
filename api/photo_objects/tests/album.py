@@ -90,7 +90,8 @@ class AlbumViewTests(TestCase):
             'add_album',
             'add_photo',
             'change_album',
-            'delete_album']
+            'delete_album',
+            'delete_photo']
         for permission in permissions:
             has_permission.user_permissions.add(
                 Permission.objects.get(
@@ -249,3 +250,10 @@ class AlbumViewTests(TestCase):
 
         response = self.client.delete("/api/albums/copenhagen")
         self.assertStatus(response, 409)
+
+        response = self.client.delete(
+            "/api/albums/copenhagen/photos/havfrue.jpg")
+        self.assertStatus(response, 204)
+
+        response = self.client.delete("/api/albums/copenhagen")
+        self.assertStatus(response, 204)

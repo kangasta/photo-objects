@@ -60,3 +60,16 @@ def get_photo(album_key, photo_key, size_key):
         bucket,
         photo_path(album_key, photo_key, size_key)
     )
+
+
+def delete_photo(album_key, photo_key):
+    client, bucket = _objsto_access()
+
+    for i in client.list_objects(
+            bucket,
+            prefix=photo_path(
+                album_key,
+                photo_key,
+                ""),
+            recursive=True):
+        client.remove_object(bucket, i.object_name)
