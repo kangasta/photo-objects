@@ -86,6 +86,8 @@ def upload_photo(request: HttpRequest, album_key: str):
 def photo(request: HttpRequest, album_key: str, photo_key: str):
     if request.method == "GET":
         return get_photo(request, album_key, photo_key)
+    if request.method == "DELETE":
+        return delete_photo(request, album_key, photo_key)
     else:
         return MethodNotAllowed(["GET"], request.method).json_response
 
@@ -96,6 +98,31 @@ def get_photo(request: HttpRequest, album_key: str, photo_key: str):
         return JsonResponse(photo.to_json())
     except JsonProblem as e:
         return e.json_response
+
+
+def delete_photo(request: HttpRequest, album_key: str, photo_key: str):
+    try:
+        _check_permissions(request, 'photo_objects.delete_photo')
+        photo = _check_photo_access(request, album_key, photo_key, 'xs')
+    except JsonProblem as e:
+        return e.json_response
+
+    try:
+        objsto.delete_photo(album_key, photo_key)
+    except S3Error:
+        return JsonProblem(
+            "Could not delete photo from object storage.",
+            500,
+        ).json_response
+
+    try:
+        photo.delete()
+    except Exception:
+        return JsonProblem(
+            "Could not delete photo from database.",
+            500,
+        ).json_response
+    return HttpResponse(status=204)
 
 
 def get_img(request: HttpRequest, album_key: str, photo_key: str):

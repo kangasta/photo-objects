@@ -2,10 +2,11 @@ import json
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
-from django.test import TestCase
 from django.utils import timezone
 
 from photo_objects.models import Album, Photo
+
+from .utils import TestCase, open_test_photo
 
 
 CANAL_BASE64 = "iVBORw0KGgoAAAANSUhEUgAAAAMAAAAFBAMAAAByX0uRAAAALVBMVEW1no/d4OiTc2jAoozGvbaOZ06igXB5alqJYEFXUUJ6fn9zVT9PVUBhe4U4LyJRWPqlAAAAF0lEQVQI12NgVGAwCWBIb2CYtYHh7AMAFg0EhKs+JLkAAAAASUVORK5CYII="  # noqa
@@ -68,7 +69,7 @@ class ViewVisibilityTests(TestCase):
         for path, status in checks:
             with self.subTest(path=path, status=status):
                 response = self.client.get(path)
-                self.assertEqual(response.status_code, status)
+                self.assertStatus(response, status)
 
     def test_get_photos_lists_all_photos(self):
         photos = self.client.get("/api/albums/venice/photos").json()
@@ -85,10 +86,17 @@ class AlbumViewTests(TestCase):
 
         has_permission = User.objects.create_user(
             username='has_permission', password='test')
-        has_permission.user_permissions.add(
-            Permission.objects.get(
-                content_type__app_label='photo_objects',
-                codename='add_album'))
+        permissions = [
+            'add_album',
+            'add_photo',
+            'change_album',
+            'delete_album',
+            'delete_photo']
+        for permission in permissions:
+            has_permission.user_permissions.add(
+                Permission.objects.get(
+                    content_type__app_label='photo_objects',
+                    codename=permission))
 
     def test_post_album_with_non_json_data_fails(self):
         login_success = self.client.login(
@@ -193,3 +201,59 @@ class AlbumViewTests(TestCase):
             data=dict(
                 key="oslo"))
         self.assertEqual(data.status_code, 409, json.dumps(data.json()))
+
+    def test_crud_actions(self):
+        login_success = self.client.login(
+            username='has_permission', password='test')
+        self.assertTrue(login_success)
+
+        data = dict(
+            key="copenhagen",
+            visibility="hidden",
+            title="title",
+            description="description")
+        response = self.client.post(
+            "/api/albums",
+            content_type="application/json",
+            data=data)
+        self.assertStatus(response, 201)
+
+        req_data = dict(
+            title="Copenhagen",
+            description="Copenhagen (København) is the capital of Denmark.")
+        response = self.client.patch(
+            "/api/albums/copenhagen",
+            content_type="application/json",
+            data=req_data)
+        self.assertStatus(response, 200)
+
+        response = self.client.get("/api/albums/copenhagen")
+        self.assertStatus(response, 200)
+        data = {**data, **req_data}
+        self.assertDictEqual(response.json(), data)
+
+        req_data = dict(visibility="public")
+        response = self.client.patch(
+            "/api/albums/copenhagen",
+            content_type="application/json",
+            data=req_data)
+        self.assertStatus(response, 200)
+        data = {**data, **req_data}
+        self.assertDictEqual(response.json(), data)
+
+        filename = "havfrue.jpg"
+        file = open_test_photo(filename)
+        response = self.client.post(
+            "/api/albums/copenhagen/photos",
+            {filename: file})
+        self.assertStatus(response, 201)
+
+        response = self.client.delete("/api/albums/copenhagen")
+        self.assertStatus(response, 409)
+
+        response = self.client.delete(
+            "/api/albums/copenhagen/photos/havfrue.jpg")
+        self.assertStatus(response, 204)
+
+        response = self.client.delete("/api/albums/copenhagen")
+        self.assertStatus(response, 204)

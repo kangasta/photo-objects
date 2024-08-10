@@ -1,4 +1,5 @@
-from django.http import HttpRequest, JsonResponse
+from django.db.models.deletion import ProtectedError
+from django.http import HttpRequest, HttpResponse, JsonResponse
 
 from photo_objects.models import Album
 
@@ -61,8 +62,13 @@ def create_album(request: HttpRequest):
 def album(request: HttpRequest, album_key: str):
     if request.method == "GET":
         return get_album(request, album_key)
+    elif request.method == "PATCH":
+        return modify_album(request, album_key)
+    elif request.method == "DELETE":
+        return delete_album(request, album_key)
     else:
-        return MethodNotAllowed(["GET"], request.method).json_response
+        return MethodNotAllowed(
+            ["GET", "PATCH", "DELETE"], request.method).json_response
 
 
 def get_album(request: HttpRequest, album_key: str):
@@ -71,3 +77,39 @@ def get_album(request: HttpRequest, album_key: str):
         return JsonResponse(album.to_json())
     except JsonProblem as e:
         return e.json_response
+
+
+def modify_album(request: HttpRequest, album_key: str):
+    try:
+        _check_permissions(request, 'photo_objects.change_album')
+        album = _check_album_access(request, album_key)
+        data = _parse_json_body(request)
+    except JsonProblem as e:
+        return e.json_response
+
+    modifiable_fields = ('visibility', 'title', 'description')
+    for field in modifiable_fields:
+        if field in data:
+            setattr(album, field, data[field])
+
+    # TODO: handle error
+    album.save()
+    return JsonResponse(album.to_json())
+
+
+def delete_album(request: HttpRequest, album_key: str):
+    try:
+        _check_permissions(request, 'photo_objects.delete_album')
+        album = _check_album_access(request, album_key)
+    except JsonProblem as e:
+        return e.json_response
+
+    try:
+        album.delete()
+    except ProtectedError:
+        return JsonProblem(
+            f"Album with {album_key} key can not be deleted because it "
+            "contains photos.",
+            409,
+        ).json_response
+    return HttpResponse(status=204)
