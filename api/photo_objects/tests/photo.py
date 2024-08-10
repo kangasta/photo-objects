@@ -87,6 +87,18 @@ class PhotoViewTests(TestCase):
             {"The Eiffel Tower!": file})
         self.assertStatus(response, 400)
 
+    def test_upload_photo_album_not_found(self):
+        login_success = self.client.login(
+            username='has_permission', password='test')
+        self.assertTrue(login_success)
+
+        filename = "tower.jpg"
+        file = open_test_photo(filename)
+        response = self.client.post(
+            "/api/albums/not-found/photos",
+            {filename: file})
+        self.assertStatus(response, 404)
+
     def test_upload_photo(self):
         login_success = self.client.login(
             username='has_permission', password='test')
