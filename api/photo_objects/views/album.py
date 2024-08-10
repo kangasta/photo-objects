@@ -2,6 +2,7 @@ from django.http import HttpRequest, JsonResponse
 
 from photo_objects.models import Album
 
+from .auth import _check_album_access
 from ._utils import (
     Conflict,
     JsonProblem,
@@ -18,6 +19,15 @@ def albums(request: HttpRequest):
         return create_album(request)
     else:
         return MethodNotAllowed(["GET", "POST"], request.method).json_response
+
+
+def get_albums(request: HttpRequest):
+    if not request.user.is_authenticated:
+        albums = Album.objects.filter(visibility=Album.Visibility.PUBLIC)
+    else:
+        albums = Album.objects.all()
+
+    return JsonResponse([i.to_json() for i in albums], safe=False)
 
 
 def create_album(request: HttpRequest):
@@ -48,10 +58,16 @@ def create_album(request: HttpRequest):
     return JsonResponse(album.to_json(), status=201)
 
 
-def get_albums(request: HttpRequest):
-    if not request.user.is_authenticated:
-        albums = Album.objects.filter(visibility=Album.Visibility.PUBLIC)
+def album(request: HttpRequest, album_key: str):
+    if request.method == "GET":
+        return get_album(request, album_key)
     else:
-        albums = Album.objects.all()
+        return MethodNotAllowed(["GET"], request.method).json_response
 
-    return JsonResponse([i.to_json() for i in albums], safe=False)
+
+def get_album(request: HttpRequest, album_key: str):
+    try:
+        album = _check_album_access(request, album_key)
+        return JsonResponse(album.to_json())
+    except JsonProblem as e:
+        return e.json_response
