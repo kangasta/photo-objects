@@ -49,9 +49,9 @@ def create_album(request: HttpRequest):
 
 
 def get_albums(request: HttpRequest):
-    albums = Album.objects.all()
-
     if not request.user.is_authenticated:
         albums = Album.objects.filter(visibility=Album.Visibility.PUBLIC)
+    else:
+        albums = Album.objects.all()
 
     return JsonResponse([i.to_json() for i in albums], safe=False)

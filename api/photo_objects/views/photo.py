@@ -1,14 +1,17 @@
-from base64 import b64encode
-from io import BytesIO
+import mimetypes
 
-from django.http import HttpRequest, JsonResponse
-from django.utils import timezone
-from PIL import Image, ExifTags
+from django.http import HttpRequest, HttpResponse, JsonResponse
+from minio.error import S3Error
 
+from photo_objects import Size
+from photo_objects.img import photo_details, scale_photo
 from photo_objects.models import Album, Photo
-from photo_objects.object_storage import put_photo
+from photo_objects import objsto
 
+from .auth import _check_album_access
 from ._utils import (
+    AlbumNotFound,
+    PhotoNotFound,
     Conflict,
     JsonProblem,
     MethodNotAllowed,
@@ -24,25 +27,6 @@ def photos(request: HttpRequest, album_key: str):
         return MethodNotAllowed(["POST"], request.method).json_response
 
 
-def _read_original_datetime(image: Image) -> timezone.datetime:
-    try:
-        for key, value in ExifTags.TAGS.items():
-            if value == "ExifOffset":
-                break
-
-        info = image.getexif().get_ifd(key)
-
-        time = info.get(ExifTags.Base.DateTimeOriginal)
-        subsec = info.get(ExifTags.Base.SubsecTimeOriginal) or "0"
-        offset = info.get(ExifTags.Base.OffsetTimeOriginal) or "+00:00"
-
-        return timezone.datetime.strptime(
-            f"{time}.{subsec}{offset}",
-            "%Y:%m:%d %H:%M:%S.%f%z")
-    except BaseException:
-        return None
-
-
 def upload_photo(request: HttpRequest, album_key: str):
     try:
         _check_permissions(
@@ -56,10 +40,7 @@ def upload_photo(request: HttpRequest, album_key: str):
     try:
         album = Album.objects.get(key=album_key)
     except Album.DoesNotExist:
-        return JsonProblem(
-            f"Album with {album_key} key does not exist.",
-            404,
-        ).json_response
+        return AlbumNotFound(album_key).json_response
 
     key = photo_file.name
     if Photo.objects.filter(key=key).exists():
@@ -67,12 +48,7 @@ def upload_photo(request: HttpRequest, album_key: str):
             f"Photo with {key} key already exists in {album_key} album.",
         ).json_response
 
-    image = Image.open(photo_file)
-    timestamp = _read_original_datetime(image) or timezone.now()
-
-    b = BytesIO()
-    image.save(b, format='PNG')
-    tiny_base64 = b64encode(b.getvalue())
+    timestamp, tiny_base64 = photo_details(photo_file)
 
     photo = Photo.objects.create(
         key=key,
@@ -85,7 +61,7 @@ def upload_photo(request: HttpRequest, album_key: str):
 
     photo_file.seek(0)
     try:
-        put_photo(album.key, photo.key, "og", photo_file)
+        objsto.put_photo(album.key, photo.key, "og", photo_file)
     except BaseException:
         # TODO: logging
         return JsonProblem(
@@ -94,3 +70,57 @@ def upload_photo(request: HttpRequest, album_key: str):
         ).json_response
 
     return JsonResponse(photo.to_json(), status=201)
+
+
+def photo(request: HttpRequest, album_key: str, photo_key: str):
+    if request.method == "GET":
+        return get_photo(request, album_key, photo_key)
+    else:
+        return MethodNotAllowed(["GET"], request.method).json_response
+
+
+def get_photo(request: HttpRequest, album_key: str, photo_key: str):
+    try:
+        _check_album_access(request, album_key, 'xs')
+    except JsonProblem as e:
+        return e.json_response
+    try:
+        photo = Photo.objects.get(key=photo_key, album__key=album_key)
+        return JsonResponse(photo.to_json())
+    except Photo.DoesNotExist:
+        return PhotoNotFound(album_key, photo_key).json_response
+
+
+def get_img(request: HttpRequest, album_key: str, photo_key: str):
+    try:
+        size = request.GET.get("size")
+        _check_album_access(request, album_key, size)
+    except JsonProblem as e:
+        return e.json_response
+
+    try:
+        Photo.objects.get(key=photo_key, album__key=album_key)
+    except Photo.DoesNotExist:
+        return PhotoNotFound(album_key, photo_key).json_response
+
+    content_type = mimetypes.guess_type(photo_key)[0]
+
+    try:
+        photo_response = objsto.get_photo(album_key, photo_key, size)
+        return HttpResponse(photo_response.read(), content_type=content_type)
+    except S3Error:
+        original_photo = objsto.get_photo(
+            album_key, photo_key, Size.ORIGINAL.value)
+
+        # TODO: make configurable
+        sizes = dict(sm=(None, 256), md=(1024, 1024),
+                     lg=(2048, 2048), xl=(4096, 4096))
+        # TODO: handle error
+        scaled_photo = scale_photo(original_photo, photo_key, *sizes[size])
+
+        # TODO: handle error
+        scaled_photo.seek(0)
+        objsto.put_photo(album_key, photo_key, size, scaled_photo)
+
+        scaled_photo.seek(0)
+        return HttpResponse(scaled_photo.read(), content_type=content_type)

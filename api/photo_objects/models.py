@@ -34,7 +34,7 @@ class Photo(models.Model):
     title = models.CharField(blank=True)
     description = models.TextField(blank=True)
 
-    tiny_base64 = models.CharField(blank=True)
+    tiny_base64 = models.TextField(blank=True)
 
     def to_json(self):
         album_key = self.album.key if self.album else None
@@ -42,7 +42,8 @@ class Photo(models.Model):
         return dict(
             key=self.key,
             album=album_key,
-            timestamp=f'{self.timestamp.isoformat()}Z',
+            timestamp=self.timestamp.isoformat(),
+            tiny_base64=self.tiny_base64,
             title=self.title,
             description=self.description,
         )

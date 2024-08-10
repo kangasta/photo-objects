@@ -1,14 +1,15 @@
-import datetime
+from base64 import b64decode
+from io import BytesIO
 import json
 import os
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
 from django.test import TestCase
-from django.utils import timezone
+from PIL import Image
 
-from photo_objects.models import Album, Photo
-from photo_objects.object_storage import get_photo, _objsto_access
+from photo_objects.models import Album
+from photo_objects.objsto import get_photo, _objsto_access
 
 
 def _open_test_photo(filename):
@@ -94,9 +95,12 @@ class PhotoViewTests(TestCase):
             {filename: file})
         self.assertEqual(data.status_code, 201, json.dumps(data.json()))
 
-        photo = Photo.objects.get(key=filename)
-        self.assertEqual(photo.timestamp, timezone.datetime(
-            2024, 3, 20, 14, 28, 4, 0, datetime.timezone.utc))
+        photo = self.client.get("/api/albums/test/photos/tower.jpg").json()
+        self.assertEqual(photo.get("timestamp"), "2024-03-20T14:28:04+00:00")
+        tiny_base64 = photo.get("tiny_base64")
+        width, height = Image.open(BytesIO(b64decode(tiny_base64))).size
+        self.assertEqual(width, 3)
+        self.assertEqual(height, 3)
 
         file.seek(0)
         photo_response = get_photo("test", filename, "og")
@@ -121,3 +125,37 @@ class PhotoViewTests(TestCase):
             "/api/albums/test/photos",
             {"": file})
         self.assertEqual(data.status_code, 400, json.dumps(data.json()))
+
+    def test_get_image_scales_the_image(self):
+        login_success = self.client.login(
+            username='has_permission', password='test')
+        self.assertTrue(login_success)
+
+        filename = "tower.jpg"
+        file = _open_test_photo(filename)
+        data = self.client.post(
+            "/api/albums/test/photos",
+            {filename: file})
+        self.assertEqual(data.status_code, 201, json.dumps(data.json()))
+
+        # Scales image down from the original size
+        small_response = self.client.get(
+            "/api/albums/test/photos/tower.jpg/img?size=sm")
+        self.assertEqual(
+            small_response.status_code,
+            200,
+            json.dumps(
+                data.json()))
+        _, height = Image.open(BytesIO(small_response.content)).size
+        self.assertEqual(height, 256)
+
+        # Does not scale image up from the original size
+        large_response = self.client.get(
+            "/api/albums/test/photos/tower.jpg/img?size=lg")
+        self.assertEqual(
+            large_response.status_code,
+            200,
+            json.dumps(
+                data.json()))
+        _, height = Image.open(BytesIO(large_response.content)).size
+        self.assertEqual(height, 512)

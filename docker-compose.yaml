@@ -18,6 +18,7 @@ services:
     build: api/
     environment:
       DB_HOST: db
+      OBJSTO_URL: objsto:9000
     ports:
       - 8000:8000
   objsto:
