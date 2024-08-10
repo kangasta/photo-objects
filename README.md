@@ -1,5 +1,7 @@
 # Photo Objects
 
+[![CI](https://github.com/kangasta/photo-objects/actions/workflows/ci.yml/badge.svg)](https://github.com/kangasta/photo-objects/actions/workflows/ci.yml)
+
 Application for storing photos in S3 compatible object-storage.
 
 ## Testing
@@ -17,17 +19,17 @@ Run static analysis with:
 pylint -E --enable=invalid-name,unused-import,useless-object-inheritance api/api api/photo_objects
 ```
 
-<!--
-Run unit tests with command:
+Run integration tests (in the `api` directory) with:
 
 ```bash
-python3 -m unittest discover -s tst/
+cd api
+python3 manage.py test
 ```
 
-Get test coverage with commands:
+Get test coverage with:
 
 ```bash
-coverage run --branch --source yaml_requests/ -m unittest discover -s tst/
+cd api
+coverage run --branch --source . manage.py test
 coverage report -m
 ```
--->

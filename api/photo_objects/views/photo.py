@@ -94,7 +94,8 @@ def photo(request: HttpRequest, album_key: str, photo_key: str):
     if request.method == "DELETE":
         return delete_photo(request, album_key, photo_key)
     else:
-        return MethodNotAllowed(["GET"], request.method).json_response
+        return MethodNotAllowed(
+            ["GET", "DELETE"], request.method).json_response
 
 
 def get_photo(request: HttpRequest, album_key: str, photo_key: str):
