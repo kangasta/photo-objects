@@ -45,35 +45,47 @@ class PhotoViewTests(TestCase):
             username='has_permission', password='test')
         self.assertTrue(login_success)
 
-        data = self.client.post(
+        response = self.client.post(
             "/api/albums/test/photos",
             "key=venice",
             content_type="text/plain")
-        self.assertEqual(data.status_code, 415, json.dumps(data.json()))
+        self.assertStatus(response, 415)
 
     def test_post_photo_without_files_fails(self):
         login_success = self.client.login(
             username='has_permission', password='test')
         self.assertTrue(login_success)
 
-        data = self.client.post(
+        response = self.client.post(
             "/api/albums/test/photos",)
-        self.assertEqual(data.status_code, 400, json.dumps(data.json()))
+        self.assertStatus(response, 400)
 
     def test_put_photo_fails(self):
-        data = self.client.put("/api/albums/test/photos")
-        self.assertEqual(data.status_code, 405, json.dumps(data.json()))
+        response = self.client.put("/api/albums/test/photos")
+        self.assertStatus(response, 405)
 
     def test_cannot_upload_photo_without_permission(self):
-        data = self.client.post("/api/albums/test/photos")
-        self.assertEqual(data.status_code, 401, json.dumps(data.json()))
+        response = self.client.post("/api/albums/test/photos")
+        self.assertStatus(response, 401)
 
         login_success = self.client.login(
             username='no_permission', password='test')
         self.assertTrue(login_success)
 
-        data = self.client.post("/api/albums/test/photos")
-        self.assertEqual(data.status_code, 403, json.dumps(data.json()))
+        response = self.client.post("/api/albums/test/photos")
+        self.assertStatus(response, 403)
+
+    def test_upload_photo_key_validation(self):
+        login_success = self.client.login(
+            username='has_permission', password='test')
+        self.assertTrue(login_success)
+
+        filename = "The Eiffel Tower.JPG"
+        file = open_test_photo(filename)
+        response = self.client.post(
+            "/api/albums/test/photos",
+            {"The Eiffel Tower!": file})
+        self.assertStatus(response, 400)
 
     def test_upload_photo(self):
         login_success = self.client.login(
@@ -82,10 +94,10 @@ class PhotoViewTests(TestCase):
 
         filename = "tower.jpg"
         file = open_test_photo(filename)
-        data = self.client.post(
+        response = self.client.post(
             "/api/albums/test/photos",
             {filename: file})
-        self.assertEqual(data.status_code, 201, json.dumps(data.json()))
+        self.assertStatus(response, 201)
 
         photo = self.client.get("/api/albums/test/photos/tower.jpg").json()
         self.assertEqual(photo.get("timestamp"), "2024-03-20T14:28:04+00:00")
@@ -102,10 +114,10 @@ class PhotoViewTests(TestCase):
             "Photo in the file system does not match photo uploaded to the object storage")  # noqa
 
         file.seek(0)
-        data = self.client.post(
+        response = self.client.post(
             "/api/albums/test/photos",
             {filename: file})
-        self.assertEqual(data.status_code, 409, json.dumps(data.json()))
+        self.assertStatus(response, 409)
 
     def test_create_photo_key_validation(self):
         login_success = self.client.login(
@@ -113,10 +125,10 @@ class PhotoViewTests(TestCase):
         self.assertTrue(login_success)
 
         file = open_test_photo("tower.jpg")
-        data = self.client.post(
+        response = self.client.post(
             "/api/albums/test/photos",
             {"": file})
-        self.assertEqual(data.status_code, 400, json.dumps(data.json()))
+        self.assertStatus(response, 400)
 
     def test_get_image_scales_the_image(self):
         login_success = self.client.login(
@@ -125,10 +137,10 @@ class PhotoViewTests(TestCase):
 
         filename = "tower.jpg"
         file = open_test_photo(filename)
-        data = self.client.post(
+        response = self.client.post(
             "/api/albums/test/photos",
             {filename: file})
-        self.assertEqual(data.status_code, 201, json.dumps(data.json()))
+        self.assertStatus(response, 201)
 
         # Scales image down from the original size
         small_response = self.client.get(

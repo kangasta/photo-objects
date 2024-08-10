@@ -181,26 +181,27 @@ class AlbumViewTests(TestCase):
             username='has_permission', password='test')
         self.assertTrue(login_success)
 
-        data = self.client.post(
-            "/api/albums",
-            content_type="application/json",
-            data=dict(
-                key=""))
-        self.assertEqual(data.status_code, 400, json.dumps(data.json()))
+        for key in ["", "#invalid", "()"]:
+            response = self.client.post(
+                "/api/albums",
+                content_type="application/json",
+                data=dict(key=key)
+            )
+            self.assertStatus(response, 400)
 
-        data = self.client.post(
+        response = self.client.post(
             "/api/albums",
             content_type="application/json",
             data=dict(
                 key="oslo"))
-        self.assertEqual(data.status_code, 201, json.dumps(data.json()))
+        self.assertStatus(response, 201)
 
-        data = self.client.post(
+        response = self.client.post(
             "/api/albums",
             content_type="application/json",
             data=dict(
                 key="oslo"))
-        self.assertEqual(data.status_code, 409, json.dumps(data.json()))
+        self.assertStatus(response, 409)
 
     def test_crud_actions(self):
         login_success = self.client.login(
