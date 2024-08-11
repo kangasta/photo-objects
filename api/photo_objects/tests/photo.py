@@ -66,8 +66,14 @@ class PhotoViewTests(TestCase):
         response = self.client.put("/api/albums/test/photos")
         self.assertStatus(response, 405)
 
-    def test_cannot_upload_photo_without_permission(self):
+    def test_cannot_upload_modify_delete_photo_without_permission(self):
         response = self.client.post("/api/albums/test/photos")
+        self.assertStatus(response, 401)
+
+        response = self.client.patch("/api/albums/test/photos/tower.jpg")
+        self.assertStatus(response, 401)
+
+        response = self.client.delete("/api/albums/test/photos/tower.jpg")
         self.assertStatus(response, 401)
 
         login_success = self.client.login(
@@ -75,6 +81,12 @@ class PhotoViewTests(TestCase):
         self.assertTrue(login_success)
 
         response = self.client.post("/api/albums/test/photos")
+        self.assertStatus(response, 403)
+
+        response = self.client.patch("/api/albums/test/photos/tower.jpg")
+        self.assertStatus(response, 403)
+
+        response = self.client.delete("/api/albums/test/photos/tower.jpg")
         self.assertStatus(response, 403)
 
     def test_upload_photo_key_validation(self):
