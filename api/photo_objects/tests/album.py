@@ -57,19 +57,14 @@ class ViewVisibilityTests(TestCase):
         self.assertEqual(len(response.json()), 4)
 
     def test_anonymous_user_get_album_get_photos(self):
-        checks = [
-            ("/api/albums/paris/photos", 200),
-            ("/api/albums/london/photos", 404),
-            ("/api/albums/berlin/photos", 404),
-            ("/api/albums/paris", 200),
-            ("/api/albums/london", 404),
-            ("/api/albums/berlin", 404),
-        ]
-
-        for path, status in checks:
-            with self.subTest(path=path, status=status):
-                response = self.client.get(path)
-                self.assertStatus(response, status)
+        self.assertRequestStatuses([
+            ("GET", "/api/albums/paris/photos", 200),
+            ("GET", "/api/albums/london/photos", 404),
+            ("GET", "/api/albums/berlin/photos", 404),
+            ("GET", "/api/albums/paris", 200),
+            ("GET", "/api/albums/london", 404),
+            ("GET", "/api/albums/berlin", 404),
+        ])
 
     def test_get_photos_lists_all_photos(self):
         photos = self.client.get("/api/albums/venice/photos").json()
