@@ -20,14 +20,16 @@ class PhotoViewTests(TestCase):
 
         has_permission = User.objects.create_user(
             username='has_permission', password='test')
-        has_permission.user_permissions.add(
-            Permission.objects.get(
-                content_type__app_label='photo_objects',
-                codename='add_photo'))
-        has_permission.user_permissions.add(
-            Permission.objects.get(
-                content_type__app_label='photo_objects',
-                codename='change_album'))
+        permissions = [
+            'add_photo',
+            'change_album',
+            'change_photo',
+            'delete_photo']
+        for permission in permissions:
+            has_permission.user_permissions.add(
+                Permission.objects.get(
+                    content_type__app_label='photo_objects',
+                    codename=permission))
 
         Album.objects.create(key="test", visibility=Album.Visibility.PUBLIC)
 
@@ -167,3 +169,59 @@ class PhotoViewTests(TestCase):
         self.assertStatus(large_response, 200)
         _, height = Image.open(BytesIO(large_response.content)).size
         self.assertEqual(height, 512)
+
+    def test_crud_actions(self):
+        login_success = self.client.login(
+            username='has_permission', password='test')
+        self.assertTrue(login_success)
+
+        filename = "tower.jpg"
+        file = open_test_photo(filename)
+        response = self.client.post(
+            "/api/albums/test/photos",
+            {filename: file})
+        self.assertStatus(response, 201)
+
+        response = self.client.get("/api/albums/test/photos/tower.jpg")
+        self.assertStatus(response, 200)
+        data = response.json()
+        self.assertEqual(data.get("key"), "tower.jpg")
+        self.assertEqual(data.get("title"), "")
+        self.assertEqual(data.get("description"), "")
+        self.assertEqual(data.get("timestamp"), "2024-03-20T14:28:04+00:00")
+
+        req_data = dict(
+            title="The Eiffel Tower",
+            description="The Eiffel Tower in Paris, France")
+        response = self.client.patch(
+            "/api/albums/test/photos/tower.jpg",
+            content_type="application/json",
+            data=req_data)
+        self.assertStatus(response, 200)
+        data = {**data, **req_data}
+        self.assertDictEqual(response.json(), data)
+
+        filename = "havfrue.jpg"
+        file = open_test_photo(filename)
+        response = self.client.post(
+            "/api/albums/test/photos",
+            {filename: file})
+        self.assertStatus(response, 201)
+
+        response = self.client.get(
+            "/api/albums/test/photos/tower.jpg/img?size=og")
+        self.assertStatus(response, 200)
+
+        response = self.client.delete("/api/albums/test/photos/tower.jpg")
+        self.assertStatus(response, 204)
+
+        response = self.client.get(
+            "/api/albums/test/photos/havfrue.jpg/img?size=og")
+        self.assertStatus(response, 200)
+
+        response = self.client.get(
+            "/api/albums/test/photos/tower.jpg/img?size=og")
+        self.assertStatus(response, 404)
+
+        response = self.client.get("/api/albums/test/photos/tower.jpg")
+        self.assertStatus(response, 404)

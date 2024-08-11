@@ -16,6 +16,7 @@ from ._utils import (
     MethodNotAllowed,
     validate_key,
     _check_permissions,
+    _parse_json_body,
     _parse_single_file,
 )
 
@@ -91,11 +92,13 @@ def upload_photo(request: HttpRequest, album_key: str):
 def photo(request: HttpRequest, album_key: str, photo_key: str):
     if request.method == "GET":
         return get_photo(request, album_key, photo_key)
+    if request.method == "PATCH":
+        return modify_photo(request, album_key, photo_key)
     if request.method == "DELETE":
         return delete_photo(request, album_key, photo_key)
     else:
         return MethodNotAllowed(
-            ["GET", "DELETE"], request.method).json_response
+            ["GET", "PATCH", "DELETE"], request.method).json_response
 
 
 def get_photo(request: HttpRequest, album_key: str, photo_key: str):
@@ -104,6 +107,23 @@ def get_photo(request: HttpRequest, album_key: str, photo_key: str):
         return JsonResponse(photo.to_json())
     except JsonProblem as e:
         return e.json_response
+
+
+def modify_photo(request: HttpRequest, album_key: str, photo_key: str):
+    try:
+        _check_permissions(request, 'photo_objects.change_photo')
+        photo = _check_photo_access(request, album_key, photo_key, 'xs')
+        data = _parse_json_body(request)
+    except JsonProblem as e:
+        return e.json_response
+
+    modifiable_fields = ('title', 'description')
+    for field in modifiable_fields:
+        if field in data:
+            setattr(photo, field, data[field])
+
+    photo.save()
+    return JsonResponse(photo.to_json())
 
 
 def delete_photo(request: HttpRequest, album_key: str, photo_key: str):
