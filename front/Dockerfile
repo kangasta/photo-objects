@@ -1,3 +1,7 @@
 FROM nginx:alpine
 
-COPY ./nginx.conf /etc/nginx/nginx.conf
+ENV STATIC_ROOT=""
+ENV OBJSTO_BUCKET=photos
+
+RUN rm -f /etc/nginx/conf.d/*
+COPY default.conf.template /etc/nginx/templates/

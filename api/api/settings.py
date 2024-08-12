@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 from os import getenv
+from urllib.parse import urlparse
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,8 +27,9 @@ SECRET_KEY = 'django-insecure-50nz*=$!3_y-q()5x*9mk^e8uxb_^pn5h1h6+)a7d+lz!+#w-$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-# TODO envvar
-ALLOWED_HOSTS = ["localhost", "api"]
+if url := getenv("URL"):
+    ALLOWED_HOSTS = ["api", urlparse(url).hostname]
+    CSRF_TRUSTED_ORIGINS = [url]
 
 
 # Application definition
@@ -122,7 +124,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_ROOT = getenv("STATIC_ROOT")
+STATIC_URL = 'api/static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

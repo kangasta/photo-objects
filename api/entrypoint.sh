@@ -7,5 +7,8 @@ done;
 
 python3 manage.py create-initial-admin-account
 
-# TODO: replace with gunicorn server
-exec python3 manage.py runserver 0.0.0.0:8000
+if [ -n "$STATIC_ROOT" ]; then
+    python3 manage.py collectstatic --no-input;
+fi
+
+exec gunicorn -w 8 -b 0.0.0.0:8000 api.wsgi
