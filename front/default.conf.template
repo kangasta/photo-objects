@@ -1,0 +1,59 @@
+upstream api {
+  server api:8000;
+}
+
+upstream objsto {
+  server objsto:9000;
+}
+
+server {
+  set $static_root "${STATIC_ROOT}";
+  set $bucket "${OBJSTO_BUCKET}";
+
+  listen 80;
+  root /app;
+  server_name localhost;
+
+  gzip on;
+  gzip_comp_level 6;
+  gzip_types *;
+
+  location /api/static/ {
+    if ($static_root = "") {
+        return 404;
+    }
+
+    rewrite ^/api/static/(.+) /$1 break;
+    root /api/static/;
+  }
+
+  location /api {
+    proxy_set_header Referer $http_referer;
+    proxy_pass http://api;
+  }
+
+  location /_auth/ {
+    internal;
+    rewrite ^ /api/_auth?path=$key break;
+    proxy_pass http://api/;
+  }
+
+  location ~ /img/([^/]+)/([^/]+)/(.+) {
+    set $album $1;
+    set $photo $2;
+    set $size $3;
+
+    set $key $album/$photo/$size;
+    auth_request /_auth/;
+    add_header Content-Disposition 'inline; filename="$photo"';
+    proxy_intercept_errors on;
+    error_page 404 = @scale_photo;
+    proxy_pass http://objsto/$bucket/$key;
+  }
+
+  location @scale_photo {
+    rewrite_log on;
+    rewrite ^ /api/albums/$album/photos/$photo/img?size=$size break;
+    proxy_pass http://api;
+  }
+}

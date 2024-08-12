@@ -2,6 +2,11 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 
+def _str(key, **kwargs):
+    details = ', '.join(f'{k}={v}' for k, v in kwargs.items() if k and v)
+    return f'{key} ({details})' if details else key
+
+
 class Album(models.Model):
     class Visibility(models.TextChoices):
         PUBLIC = "public", _("Public")
@@ -15,6 +20,9 @@ class Album(models.Model):
 
     title = models.CharField(blank=True)
     description = models.TextField(blank=True)
+
+    def __str__(self):
+        return _str(self.key, title=self.title, visibility=self.visibility)
 
     def to_json(self):
         return dict(
@@ -34,6 +42,14 @@ class Photo(models.Model):
     description = models.TextField(blank=True)
 
     tiny_base64 = models.TextField(blank=True)
+
+    def __str__(self):
+        return _str(
+            self.key,
+            album=self.album.key,
+            title=self.title,
+            timestamp=self.timestamp.isoformat()
+        )
 
     def to_json(self):
         album_key = self.album.key if self.album else None
