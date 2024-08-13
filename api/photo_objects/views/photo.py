@@ -164,8 +164,15 @@ def get_img(request: HttpRequest, album_key: str, photo_key: str):
         photo_response = objsto.get_photo(album_key, photo_key, size)
         return HttpResponse(photo_response.read(), content_type=content_type)
     except S3Error:
-        original_photo = objsto.get_photo(
-            album_key, photo_key, Size.ORIGINAL.value)
+        try:
+            original_photo = objsto.get_photo(
+                album_key, photo_key, Size.ORIGINAL.value)
+        except S3Error as e:
+            # TODO logging
+            return JsonProblem(
+                f"Could not fetch photo from object storage ({e.code}).",
+                404 if e.code == "NoSuchKey" else 500,
+            ).json_response
 
         # TODO: make configurable
         sizes = dict(sm=(None, 256), md=(1024, 1024),
