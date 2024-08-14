@@ -1,6 +1,7 @@
 from django.db.models.deletion import ProtectedError
 from django.http import HttpRequest, HttpResponse, JsonResponse
 
+from photo_objects import api
 from photo_objects.models import Album
 from photo_objects.forms import CreateAlbumForm, ModifyAlbumForm
 
@@ -23,11 +24,7 @@ def albums(request: HttpRequest):
 
 
 def get_albums(request: HttpRequest):
-    if not request.user.is_authenticated:
-        albums = Album.objects.filter(visibility=Album.Visibility.PUBLIC)
-    else:
-        albums = Album.objects.all()
-
+    albums = api.get_albums(request)
     return JsonResponse([i.to_json() for i in albums], safe=False)
 
 
