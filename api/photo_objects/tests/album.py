@@ -145,9 +145,13 @@ class AlbumViewTests(TestCase):
         data = self.client.post(
             "/api/albums",
             content_type="application/json",
-            data=dict(
-                key="oslo"))
+            data=dict(key="oslo"))
         self.assertEqual(data.status_code, 201, json.dumps(data.json()))
+
+        album = self.client.get("/api/albums/oslo").json()
+        self.assertEqual(
+            album.get("visibility"),
+            Album.Visibility.PRIVATE.value)
 
     def test_create_album(self):
         login_success = self.client.login(
@@ -187,16 +191,14 @@ class AlbumViewTests(TestCase):
         response = self.client.post(
             "/api/albums",
             content_type="application/json",
-            data=dict(
-                key="oslo"))
+            data=dict(key="oslo"))
         self.assertStatus(response, 201)
 
         response = self.client.post(
             "/api/albums",
             content_type="application/json",
-            data=dict(
-                key="oslo"))
-        self.assertStatus(response, 409)
+            data=dict(key="oslo"))
+        self.assertStatus(response, 400)
 
     def test_crud_actions(self):
         login_success = self.client.login(

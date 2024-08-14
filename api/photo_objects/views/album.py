@@ -2,13 +2,12 @@ from django.db.models.deletion import ProtectedError
 from django.http import HttpRequest, HttpResponse, JsonResponse
 
 from photo_objects.models import Album
+from photo_objects.forms import CreateAlbumForm, ModifyAlbumForm
 
 from .auth import _check_album_access
 from ._utils import (
-    Conflict,
     JsonProblem,
     MethodNotAllowed,
-    validate_key,
     _check_permissions,
     _parse_json_body
 )
@@ -39,24 +38,15 @@ def create_album(request: HttpRequest):
     except JsonProblem as e:
         return e.json_response
 
-    key = data.get("key")
-    try:
-        validate_key(key)
-    except JsonProblem as e:
-        return e.json_response
-
-    if Album.objects.filter(key=key).exists():
-        return Conflict(
-            f"Album with {key} key already exists.",
+    f = CreateAlbumForm(data)
+    if not f.is_valid():
+        return JsonProblem(
+            "Album validation failed.",
+            400,
+            errors=f.errors.get_json_data(),
         ).json_response
 
-    album = Album.objects.create(
-        key=data.get("key"),
-        visibility=data.get("visibility", Album.Visibility.PRIVATE),
-        title=data.get("title", ""),
-        description=data.get("description", ""),
-    )
-
+    album = f.save()
     return JsonResponse(album.to_json(), status=201)
 
 
@@ -88,13 +78,15 @@ def modify_album(request: HttpRequest, album_key: str):
     except JsonProblem as e:
         return e.json_response
 
-    modifiable_fields = ('visibility', 'title', 'description')
-    for field in modifiable_fields:
-        if field in data:
-            setattr(album, field, data[field])
+    f = ModifyAlbumForm({**album.to_json(), **data}, instance=album)
+    if not f.is_valid():
+        return JsonProblem(
+            "Album validation failed.",
+            400,
+            errors=f.errors.get_json_data(),
+        ).json_response
 
-    # TODO: handle error
-    album.save()
+    album = f.save()
     return JsonResponse(album.to_json())
 
 
