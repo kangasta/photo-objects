@@ -129,6 +129,9 @@ class PhotoViewTests(TestCase):
         file.seek(0)
         photo_response = get_photo("test", filename, "og")
         self.assertEqual(
+            photo_response.headers['Content-Type'],
+            "image/jpeg")
+        self.assertEqual(
             photo_response.read(),
             file.read(),
             "Photo in the file system does not match photo uploaded to the object storage")  # noqa
