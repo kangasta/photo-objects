@@ -5,17 +5,17 @@ from minio.error import S3Error
 from PIL import UnidentifiedImageError
 
 from photo_objects import Size, objsto
+from photo_objects import api
 from photo_objects.forms import CreatePhotoForm, ModifyPhotoForm
 from photo_objects.img import photo_details, scale_photo
 from photo_objects.models import Photo
 
-from .auth import _check_album_access, _check_photo_access
-from ._utils import (
+from photo_objects.api.utils import (
     JsonProblem,
     MethodNotAllowed,
-    _check_permissions,
-    _parse_json_body,
-    _parse_single_file,
+    check_permissions,
+    parse_json_body,
+    parse_single_file,
 )
 
 
@@ -30,21 +30,20 @@ def photos(request: HttpRequest, album_key: str):
 
 def get_photos(request: HttpRequest, album_key: str):
     try:
-        _check_album_access(request, album_key)
+        photos = api.get_photos(request, album_key)
     except JsonProblem as e:
         return e.json_response
 
-    photos = Photo.objects.filter(album__key=album_key)
     return JsonResponse([i.to_json() for i in photos], safe=False)
 
 
 def upload_photo(request: HttpRequest, album_key: str):
     try:
-        _check_permissions(
+        check_permissions(
             request,
             'photo_objects.add_photo',
             'photo_objects.change_album')
-        photo_file = _parse_single_file(request)
+        photo_file = parse_single_file(request)
     except JsonProblem as e:
         return e.json_response
 
@@ -100,7 +99,7 @@ def photo(request: HttpRequest, album_key: str, photo_key: str):
 
 def get_photo(request: HttpRequest, album_key: str, photo_key: str):
     try:
-        photo = _check_photo_access(request, album_key, photo_key, 'xs')
+        photo = api.check_photo_access(request, album_key, photo_key, 'xs')
         return JsonResponse(photo.to_json())
     except JsonProblem as e:
         return e.json_response
@@ -108,9 +107,9 @@ def get_photo(request: HttpRequest, album_key: str, photo_key: str):
 
 def modify_photo(request: HttpRequest, album_key: str, photo_key: str):
     try:
-        _check_permissions(request, 'photo_objects.change_photo')
-        photo = _check_photo_access(request, album_key, photo_key, 'xs')
-        data = _parse_json_body(request)
+        check_permissions(request, 'photo_objects.change_photo')
+        photo = api.check_photo_access(request, album_key, photo_key, 'xs')
+        data = parse_json_body(request)
     except JsonProblem as e:
         return e.json_response
 
@@ -121,8 +120,8 @@ def modify_photo(request: HttpRequest, album_key: str, photo_key: str):
 
 def delete_photo(request: HttpRequest, album_key: str, photo_key: str):
     try:
-        _check_permissions(request, 'photo_objects.delete_photo')
-        photo = _check_photo_access(request, album_key, photo_key, 'xs')
+        check_permissions(request, 'photo_objects.delete_photo')
+        photo = api.check_photo_access(request, album_key, photo_key, 'xs')
     except JsonProblem as e:
         return e.json_response
 
@@ -147,7 +146,7 @@ def delete_photo(request: HttpRequest, album_key: str, photo_key: str):
 def get_img(request: HttpRequest, album_key: str, photo_key: str):
     try:
         size = request.GET.get("size")
-        _check_photo_access(request, album_key, photo_key, size)
+        api.check_photo_access(request, album_key, photo_key, size)
     except JsonProblem as e:
         return e.json_response
 

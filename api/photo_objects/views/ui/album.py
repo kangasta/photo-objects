@@ -2,6 +2,7 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 
 from photo_objects import api
+from photo_objects.api.utils import JsonProblem
 
 
 def list_albums(request: HttpRequest):
@@ -14,7 +15,13 @@ def new_album(request: HttpRequest):
 
 
 def show_album(request: HttpRequest, album_key: str):
-    return HttpResponse("show_album")
+    try:
+        album = api.check_album_access(request, album_key)
+        photos = api.get_photos(request, album_key)
+    except JsonProblem as e:
+        return e.html_response(request)
+
+    return render(request, "photo_objects/show_album.html", {"album": album, "photos": photos})
 
 
 def edit_album(request: HttpRequest, album_key: str):

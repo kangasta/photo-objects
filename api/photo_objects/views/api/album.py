@@ -2,16 +2,13 @@ from django.db.models.deletion import ProtectedError
 from django.http import HttpRequest, HttpResponse, JsonResponse
 
 from photo_objects import api
-from photo_objects.models import Album
-from photo_objects.forms import CreateAlbumForm, ModifyAlbumForm
-
-from .auth import _check_album_access
-from ._utils import (
+from photo_objects.api.utils import (
     JsonProblem,
     MethodNotAllowed,
-    _check_permissions,
-    _parse_json_body
+    check_permissions,
+    parse_json_body
 )
+from photo_objects.forms import CreateAlbumForm, ModifyAlbumForm
 
 
 def albums(request: HttpRequest):
@@ -30,8 +27,8 @@ def get_albums(request: HttpRequest):
 
 def create_album(request: HttpRequest):
     try:
-        _check_permissions(request, 'photo_objects.add_album')
-        data = _parse_json_body(request)
+        check_permissions(request, 'photo_objects.add_album')
+        data = parse_json_body(request)
     except JsonProblem as e:
         return e.json_response
 
@@ -61,7 +58,7 @@ def album(request: HttpRequest, album_key: str):
 
 def get_album(request: HttpRequest, album_key: str):
     try:
-        album = _check_album_access(request, album_key)
+        album = api.check_album_access(request, album_key)
         return JsonResponse(album.to_json())
     except JsonProblem as e:
         return e.json_response
@@ -69,9 +66,9 @@ def get_album(request: HttpRequest, album_key: str):
 
 def modify_album(request: HttpRequest, album_key: str):
     try:
-        _check_permissions(request, 'photo_objects.change_album')
-        album = _check_album_access(request, album_key)
-        data = _parse_json_body(request)
+        check_permissions(request, 'photo_objects.change_album')
+        album = api.check_album_access(request, album_key)
+        data = parse_json_body(request)
     except JsonProblem as e:
         return e.json_response
 
@@ -89,8 +86,8 @@ def modify_album(request: HttpRequest, album_key: str):
 
 def delete_album(request: HttpRequest, album_key: str):
     try:
-        _check_permissions(request, 'photo_objects.delete_album')
-        album = _check_album_access(request, album_key)
+        check_permissions(request, 'photo_objects.delete_album')
+        album = api.check_album_access(request, album_key)
     except JsonProblem as e:
         return e.json_response
 

@@ -1,0 +1,12 @@
+<h1>{{album.title|default:album.key}}</h1>
+{% if album.description %}
+    <p>{album.description}</p>
+{% endif %}
+<ul>
+    {% for photo in photos %}
+        <li><a href="{% url 'photo_objects:show_photo' album.key photo.key %}">
+            <!-- TODO: tiny_base64 skeleton -->
+            <img src="/img/{{ album.key }}/{{ photo.key }}/sm" alt="{{ photo.description|default:photo.key }}" />
+        </a></li>
+    {% endfor %}
+</ul>

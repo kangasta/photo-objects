@@ -2,6 +2,8 @@ import json
 
 from django.http import HttpRequest, JsonResponse
 from django.core.files.uploadedfile import UploadedFile
+from django.shortcuts import render
+
 from photo_objects.error import PhotoObjectsError
 from photo_objects import Size
 
@@ -43,6 +45,12 @@ class JsonProblem(PhotoObjectsError):
             status=self.status,
             headers=self.headers
         )
+
+    def html_response(self, request: HttpRequest):
+        return render(request, "photo_objects/problem.html", {
+            "title": self.title,
+            "status": self.status
+        }, status=self.status)
 
 
 class MethodNotAllowed(JsonProblem):
@@ -99,7 +107,7 @@ class PhotoNotFound(JsonProblem):
         )
 
 
-def _check_permissions(request: HttpRequest, *permissions: str):
+def check_permissions(request: HttpRequest, *permissions: str):
     if not request.user.is_authenticated:
         raise Unauthorized()
     if not request.user.has_perms(permissions):
@@ -110,7 +118,7 @@ def _check_permissions(request: HttpRequest, *permissions: str):
         )
 
 
-def _parse_json_body(request: HttpRequest):
+def parse_json_body(request: HttpRequest):
     if request.content_type != APPLICATION_JSON:
         raise UnsupportedMediaType(
             APPLICATION_JSON,
@@ -126,7 +134,7 @@ def _parse_json_body(request: HttpRequest):
         )
 
 
-def _parse_single_file(request: HttpRequest) -> UploadedFile:
+def parse_single_file(request: HttpRequest) -> UploadedFile:
     if request.content_type != MULTIPART_FORMDATA:
         raise UnsupportedMediaType(
             MULTIPART_FORMDATA,
