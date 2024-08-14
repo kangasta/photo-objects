@@ -18,37 +18,37 @@ server {
   gzip_comp_level 6;
   gzip_types *;
 
-  location /api/static/ {
+  location /static/ {
     if ($static_root = "") {
         return 404;
     }
 
-    rewrite ^/api/static/(.+) /$1 break;
-    root /api/static/;
+    rewrite ^/static/(.+) /$1 break;
+    root $static_root;
   }
 
-  location /api {
+  location / {
+    location ~ /img/([^/]+)/([^/]+)/(.+) {
+      set $album $1;
+      set $photo $2;
+      set $size $3;
+
+      set $key $album/$photo/$size;
+      auth_request /_auth/;
+      add_header Content-Disposition 'inline; filename="$photo"';
+      proxy_intercept_errors on;
+      error_page 404 = @scale_photo;
+      proxy_pass http://objsto/$bucket/$key;
+    }
+
     proxy_set_header Referer $http_referer;
     proxy_pass http://api;
   }
 
   location /_auth/ {
     internal;
-    rewrite ^ /api/_auth?path=$key break;
+    rewrite ^ /_auth?path=$key break;
     proxy_pass http://api/;
-  }
-
-  location ~ /img/([^/]+)/([^/]+)/(.+) {
-    set $album $1;
-    set $photo $2;
-    set $size $3;
-
-    set $key $album/$photo/$size;
-    auth_request /_auth/;
-    add_header Content-Disposition 'inline; filename="$photo"';
-    proxy_intercept_errors on;
-    error_page 404 = @scale_photo;
-    proxy_pass http://objsto/$bucket/$key;
   }
 
   location @scale_photo {
