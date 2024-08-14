@@ -150,6 +150,18 @@ class PhotoViewTests(TestCase):
             {"": file})
         self.assertStatus(response, 400)
 
+    def test_upload_invalid_photo_file(self):
+        login_success = self.client.login(
+            username='has_permission', password='test')
+        self.assertTrue(login_success)
+
+        filename = "invalid.jpg"
+        file = open_test_photo(filename)
+        response = self.client.post(
+            "/api/albums/test/photos",
+            {filename: file})
+        self.assertStatus(response, 400)
+
     def test_get_image_scales_the_image(self):
         login_success = self.client.login(
             username='has_permission', password='test')
