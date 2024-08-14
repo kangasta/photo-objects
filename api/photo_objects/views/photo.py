@@ -3,18 +3,15 @@ import mimetypes
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from minio.error import S3Error
 
-from photo_objects import Size
+from photo_objects import Size, objsto
+from photo_objects.forms import CreatePhotoForm, ModifyPhotoForm
 from photo_objects.img import photo_details, scale_photo
-from photo_objects.models import Album, Photo
-from photo_objects import objsto
+from photo_objects.models import Photo
 
 from .auth import _check_album_access, _check_photo_access
 from ._utils import (
-    AlbumNotFound,
-    Conflict,
     JsonProblem,
     MethodNotAllowed,
-    validate_key,
     _check_permissions,
     _parse_json_body,
     _parse_single_file,
@@ -50,35 +47,27 @@ def upload_photo(request: HttpRequest, album_key: str):
     except JsonProblem as e:
         return e.json_response
 
-    try:
-        album = Album.objects.get(key=album_key)
-    except Album.DoesNotExist:
-        return AlbumNotFound(album_key).json_response
-
-    key = photo_file.name
-    try:
-        validate_key(key)
-    except JsonProblem as e:
-        return e.json_response
-    if Photo.objects.filter(key=key).exists():
-        return Conflict(
-            f"Photo with {key} key already exists in {album_key} album.",
-        ).json_response
-
     timestamp, tiny_base64 = photo_details(photo_file)
-
-    photo = Photo.objects.create(
-        key=key,
-        album=album,
+    f = CreatePhotoForm(dict(
+        key=photo_file.name,
+        album=album_key,
         title="",
         description="",
         timestamp=timestamp,
         tiny_base64=tiny_base64,
-    )
+    ))
+
+    if not f.is_valid():
+        return JsonProblem(
+            "Photo validation failed.",
+            400,
+            errors=f.errors.get_json_data(),
+        ).json_response
+    photo = f.save()
 
     photo_file.seek(0)
     try:
-        objsto.put_photo(album.key, photo.key, "og", photo_file)
+        objsto.put_photo(photo.album.key, photo.key, "og", photo_file)
     except BaseException:
         # TODO: logging
         return JsonProblem(
@@ -117,12 +106,8 @@ def modify_photo(request: HttpRequest, album_key: str, photo_key: str):
     except JsonProblem as e:
         return e.json_response
 
-    modifiable_fields = ('title', 'description')
-    for field in modifiable_fields:
-        if field in data:
-            setattr(photo, field, data[field])
-
-    photo.save()
+    f = ModifyPhotoForm({**photo.to_json(), **data}, instance=photo)
+    photo = f.save()
     return JsonResponse(photo.to_json())
 
 

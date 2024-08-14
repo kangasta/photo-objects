@@ -1,5 +1,12 @@
 from django.db import models
+from django.core.validators import RegexValidator
 from django.utils.translation import gettext_lazy as _
+
+
+key_validator = RegexValidator(
+    r"^[a-zA-Z0-9._-]+$",
+    "Key must only contain alphanumeric characters, dots, underscores and "
+    "hyphens.")
 
 
 def _str(key, **kwargs):
@@ -13,8 +20,10 @@ class Album(models.Model):
         HIDDEN = "hidden", _("Hidden")
         PRIVATE = "private", _("Private")
 
-    key = models.CharField(primary_key=True)
+    key = models.CharField(primary_key=True, validators=[key_validator])
     visibility = models.CharField(
+        blank=True,
+        db_default=Visibility.PRIVATE,
         default=Visibility.PRIVATE,
         choices=Visibility)
 
@@ -34,7 +43,7 @@ class Album(models.Model):
 
 
 class Photo(models.Model):
-    key = models.CharField(primary_key=True)
+    key = models.CharField(primary_key=True, validators=[key_validator])
     album = models.ForeignKey(Album, null=True, on_delete=models.PROTECT)
 
     timestamp = models.DateTimeField()

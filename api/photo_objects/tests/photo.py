@@ -105,7 +105,7 @@ class PhotoViewTests(TestCase):
         response = self.client.post(
             "/api/albums/not-found/photos",
             {filename: file})
-        self.assertStatus(response, 404)
+        self.assertStatus(response, 400)
 
     def test_upload_photo(self):
         login_success = self.client.login(
@@ -137,7 +137,7 @@ class PhotoViewTests(TestCase):
         response = self.client.post(
             "/api/albums/test/photos",
             {filename: file})
-        self.assertStatus(response, 409)
+        self.assertStatus(response, 400)
 
     def test_create_photo_key_validation(self):
         login_success = self.client.login(

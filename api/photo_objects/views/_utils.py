@@ -1,5 +1,4 @@
 import json
-import re
 
 from django.http import HttpRequest, JsonResponse
 from django.core.files.uploadedfile import UploadedFile
@@ -18,13 +17,14 @@ def _pretty_list(in_: list, conjunction: str):
 
 
 class JsonProblem(PhotoObjectsError):
-    def __init__(self, title, status, payload=None, headers=None):
+    def __init__(self, title, status, payload=None, headers=None, errors=None):
         super().__init__(title)
 
         self.title = title
         self.status = status
         self.payload = payload or {}
         self.headers = headers
+        self.errors = errors
 
     @property
     def json_response(self):
@@ -34,17 +34,15 @@ class JsonProblem(PhotoObjectsError):
             **self.payload
         }
 
+        if self.errors:
+            payload['errors'] = self.errors
+
         return JsonResponse(
             payload,
             content_type=APPLICATION_PROBLEM,
             status=self.status,
             headers=self.headers
         )
-
-
-class Conflict(JsonProblem):
-    def __init__(self, title):
-        super().__init__(title, 409)
 
 
 class MethodNotAllowed(JsonProblem):
@@ -143,19 +141,3 @@ def _parse_single_file(request: HttpRequest) -> UploadedFile:
 
     for _, f in request.FILES.items():
         return f
-
-
-def validate_key(key: str):
-    if len(key) == 0:
-        raise JsonProblem(
-            "Key can not be empty.",
-            400,
-        )
-
-    valid_pattern = re.compile(r"^[a-zA-Z0-9._-]+$")
-    if not valid_pattern.match(key):
-        raise JsonProblem(
-            "Key can only contain alphanumeric characters, dots, underscores "
-            "and hyphens.",
-            400,
-        )
