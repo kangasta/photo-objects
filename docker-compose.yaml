@@ -13,11 +13,11 @@ services:
   front:
     build: front/
     environment:
-      STATIC_ROOT: /api/static
+      STATIC_ROOT: /app/static
     ports:
       - 8080:80
     volumes:
-      - 'staticfiles:/api/static'
+      - 'staticfiles:/app/static'
   api:
     build: api/
     environment:

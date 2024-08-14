@@ -2,6 +2,7 @@ import mimetypes
 
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from minio.error import S3Error
+from PIL import UnidentifiedImageError
 
 from photo_objects import Size, objsto
 from photo_objects.forms import CreatePhotoForm, ModifyPhotoForm
@@ -47,7 +48,14 @@ def upload_photo(request: HttpRequest, album_key: str):
     except JsonProblem as e:
         return e.json_response
 
-    timestamp, tiny_base64 = photo_details(photo_file)
+    try:
+        timestamp, tiny_base64 = photo_details(photo_file)
+    except UnidentifiedImageError:
+        return JsonProblem(
+            "Could not open photo file.",
+            400,
+        ).json_response
+
     f = CreatePhotoForm(dict(
         key=photo_file.name,
         album=album_key,

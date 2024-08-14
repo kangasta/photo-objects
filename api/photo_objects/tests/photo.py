@@ -129,6 +129,9 @@ class PhotoViewTests(TestCase):
         file.seek(0)
         photo_response = get_photo("test", filename, "og")
         self.assertEqual(
+            photo_response.headers['Content-Type'],
+            "image/jpeg")
+        self.assertEqual(
             photo_response.read(),
             file.read(),
             "Photo in the file system does not match photo uploaded to the object storage")  # noqa
@@ -148,6 +151,18 @@ class PhotoViewTests(TestCase):
         response = self.client.post(
             "/api/albums/test/photos",
             {"": file})
+        self.assertStatus(response, 400)
+
+    def test_upload_invalid_photo_file(self):
+        login_success = self.client.login(
+            username='has_permission', password='test')
+        self.assertTrue(login_success)
+
+        filename = "invalid.jpg"
+        file = open_test_photo(filename)
+        response = self.client.post(
+            "/api/albums/test/photos",
+            {filename: file})
         self.assertStatus(response, 400)
 
     def test_get_image_scales_the_image(self):

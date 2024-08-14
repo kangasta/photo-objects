@@ -41,7 +41,7 @@ class AuthViewTests(TestCase):
         self.not_found_path = _path_fn("madrid", "hotel")
 
     def test_auth_returns_403_on_no_path(self):
-        response = self.client.get("/api/_auth")
+        response = self.client.get("/_auth")
         self.assertEqual(response.status_code, 403)
 
     def test_auth_returns_403_on_invalid_path(self):
@@ -51,13 +51,13 @@ class AuthViewTests(TestCase):
         ]
 
         for path in testdata:
-            response = self.client.get(f"/api/_auth?path=/{path}")
+            response = self.client.get(f"/_auth?path=/{path}")
             self.assertEqual(response.status_code, 403)
 
     def _test_access(self, testdata):
         for path, status in testdata:
             with self.subTest(path=path):
-                response = self.client.get(f"/api/_auth?path=/{path}")
+                response = self.client.get(f"/_auth?path=/{path}")
                 self.assertEqual(response.status_code, status)
 
     def test_anonymous_user_access(self):
