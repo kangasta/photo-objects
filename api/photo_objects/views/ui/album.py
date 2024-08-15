@@ -9,14 +9,20 @@ from photo_objects.forms import CreateAlbumForm
 
 def list_albums(request: HttpRequest):
     albums = api.get_albums(request)
-    return render(request, "photo_objects/list_albums.html", {"albums": albums})
+    return render(request,
+                  "photo_objects/list_albums.html",
+                  {"albums": albums})
 
 
 def new_album(request: HttpRequest):
     if request.method == "POST":
         try:
             album = api.create_album(request)
-            return HttpResponseRedirect(reverse('photo_objects:show_album', kwargs={"album_key": album.key}))
+            return HttpResponseRedirect(
+                reverse(
+                    'photo_objects:show_album',
+                    kwargs={
+                        "album_key": album.key}))
         except FormValidationFailed as e:
             form = e.form
     else:
@@ -32,7 +38,8 @@ def show_album(request: HttpRequest, album_key: str):
     except JsonProblem as e:
         return e.html_response(request)
 
-    return render(request, "photo_objects/show_album.html", {"album": album, "photos": photos})
+    return render(request, "photo_objects/show_album.html",
+                  {"album": album, "photos": photos})
 
 
 def edit_album(request: HttpRequest, album_key: str):

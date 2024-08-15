@@ -28,7 +28,8 @@ def create_album(request: HttpRequest):
     elif request.content_type == APPLICATION_X_WWW_FORM:
         data = request.POST
     else:
-        raise UnsupportedMediaType([APPLICATION_JSON, APPLICATION_X_WWW_FORM], request.content_type)
+        raise UnsupportedMediaType(
+            [APPLICATION_JSON, APPLICATION_X_WWW_FORM], request.content_type)
 
     f = CreateAlbumForm(data)
     if not f.is_valid():
