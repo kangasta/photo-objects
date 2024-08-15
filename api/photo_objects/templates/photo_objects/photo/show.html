@@ -1,0 +1,7 @@
+<h1>{{photo.title|default:photo.key}}</h1>
+{% if photo.description %}
+    <p>{{ photo.description }}</p>
+{% endif %}
+
+<!-- TODO: tiny_base64 skeleton -->
+<img src="/img/{{ photo.album.key }}/{{ photo.key }}/sm" alt="{{ photo.description|default:photo.key }}" />
