@@ -12,7 +12,7 @@ from .utils import json_problem_as_html
 def list_albums(request: HttpRequest):
     albums = api.get_albums(request)
     return render(request,
-                  "photo_objects/list_albums.html",
+                  "photo_objects/album/list.html",
                   {"albums": albums})
 
 
@@ -30,7 +30,7 @@ def new_album(request: HttpRequest):
     else:
         form = CreateAlbumForm()
 
-    return render(request, 'photo_objects/new_album.html', {"form": form})
+    return render(request, 'photo_objects/album/new.html', {"form": form})
 
 
 @json_problem_as_html
@@ -38,7 +38,7 @@ def show_album(request: HttpRequest, album_key: str):
     album = api.check_album_access(request, album_key)
     photos = api.get_photos(request, album_key)
 
-    return render(request, "photo_objects/show_album.html",
+    return render(request, "photo_objects/album/show.html",
                   {"album": album, "photos": photos})
 
 
@@ -59,7 +59,7 @@ def edit_album(request: HttpRequest, album_key: str):
         album = api.check_album_access(request, album_key)
         form = ModifyAlbumForm(initial=album.to_json(), instance=album)
 
-    return render(request, 'photo_objects/edit_album.html', {"album": album, "form": form})
+    return render(request, 'photo_objects/album/edit.html', {"album": album, "form": form})
 
 
 @json_problem_as_html
@@ -69,4 +69,4 @@ def delete_album(request: HttpRequest, album_key: str):
         return HttpResponseRedirect(reverse('photo_objects:list_albums'))
     else:
         album = api.check_album_access(request, album_key)
-    return render(request, 'photo_objects/delete_album.html', {"album": album})
+    return render(request, 'photo_objects/album/delete.html', {"album": album})

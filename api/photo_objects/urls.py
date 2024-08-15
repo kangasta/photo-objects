@@ -38,8 +38,8 @@ urlpatterns = [
     ),
     path(
         "albums/<str:album_key>/photos/_upload",
-        ui.upload_photos,
-        name="upload_photos",
+        ui.upload_photo,
+        name="upload_photo",
     ),
     path(
         "albums/<str:album_key>/photos/<str:photo_key>",

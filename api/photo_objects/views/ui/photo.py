@@ -1,8 +1,8 @@
 from django.http import HttpRequest, HttpResponse
 
 
-def upload_photos(request: HttpRequest, album_key: str):
-    return HttpResponse("upload_photos")
+def upload_photo(request: HttpRequest, album_key: str):
+    return HttpResponse("upload_photo")
 
 
 def show_photo(request: HttpRequest, album_key: str, photo_key: str):

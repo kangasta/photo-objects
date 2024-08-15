@@ -166,7 +166,7 @@ def parse_single_file(request: HttpRequest) -> UploadedFile:
             request.content_type
         )
 
-    if len(request.FILES) < 1:
+    if len(request.FILES) != 1:
         raise JsonProblem(
             f"Expected exactly one file, got {len(request.FILES)}.",
             400,
