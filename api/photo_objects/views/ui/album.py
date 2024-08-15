@@ -3,8 +3,10 @@ from django.shortcuts import render
 from django.urls import reverse
 
 from photo_objects import api
-from photo_objects.api.utils import FormValidationFailed, JsonProblem
-from photo_objects.forms import CreateAlbumForm
+from photo_objects.api.utils import FormValidationFailed
+from photo_objects.forms import CreateAlbumForm, ModifyAlbumForm
+
+from .utils import json_problem_as_html
 
 
 def list_albums(request: HttpRequest):
@@ -31,20 +33,40 @@ def new_album(request: HttpRequest):
     return render(request, 'photo_objects/new_album.html', {"form": form})
 
 
+@json_problem_as_html
 def show_album(request: HttpRequest, album_key: str):
-    try:
-        album = api.check_album_access(request, album_key)
-        photos = api.get_photos(request, album_key)
-    except JsonProblem as e:
-        return e.html_response(request)
+    album = api.check_album_access(request, album_key)
+    photos = api.get_photos(request, album_key)
 
     return render(request, "photo_objects/show_album.html",
                   {"album": album, "photos": photos})
 
 
+@json_problem_as_html
 def edit_album(request: HttpRequest, album_key: str):
-    return HttpResponse("edit_album")
+    if request.method == "POST":
+        try:
+            album = api.modify_album(request, album_key)
+            return HttpResponseRedirect(
+                reverse(
+                    'photo_objects:show_album',
+                    kwargs={
+                        "album_key": album.key}))
+        except FormValidationFailed as e:
+            album = api.check_album_access(request, album_key)
+            form = e.form
+    else:
+        album = api.check_album_access(request, album_key)
+        form = ModifyAlbumForm(initial=album.to_json(), instance=album)
+
+    return render(request, 'photo_objects/edit_album.html', {"album": album, "form": form})
 
 
+@json_problem_as_html
 def delete_album(request: HttpRequest, album_key: str):
-    return HttpResponse("delete_album")
+    if request.method == "POST":
+        api.delete_album(request, album_key)
+        return HttpResponseRedirect(reverse('photo_objects:list_albums'))
+    else:
+        album = api.check_album_access(request, album_key)
+    return render(request, 'photo_objects/delete_album.html', {"album": album})

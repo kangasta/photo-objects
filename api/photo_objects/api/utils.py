@@ -149,6 +149,16 @@ def parse_json_body(request: HttpRequest):
         )
 
 
+def parse_input_data(request: HttpRequest):
+    if request.content_type == APPLICATION_JSON:
+        return parse_json_body(request)
+    elif request.content_type == APPLICATION_X_WWW_FORM:
+        return request.POST.dict()
+    else:
+        raise UnsupportedMediaType(
+            [APPLICATION_JSON, APPLICATION_X_WWW_FORM], request.content_type)
+
+
 def parse_single_file(request: HttpRequest) -> UploadedFile:
     if request.content_type != MULTIPART_FORMDATA:
         raise UnsupportedMediaType(

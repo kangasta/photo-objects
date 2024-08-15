@@ -1,23 +1,19 @@
-from django.db.models.deletion import ProtectedError
 from django.http import HttpRequest, HttpResponse, JsonResponse
 
 from photo_objects import api
-from photo_objects.api.utils import (
-    JsonProblem,
-    MethodNotAllowed,
-    check_permissions,
-    parse_json_body
-)
-from photo_objects.forms import CreateAlbumForm, ModifyAlbumForm
+from photo_objects.api.utils import MethodNotAllowed
+
+from .utils import json_problem_as_json
 
 
+@json_problem_as_json
 def albums(request: HttpRequest):
     if request.method == "GET":
         return get_albums(request)
     elif request.method == "POST":
         return create_album(request)
     else:
-        return MethodNotAllowed(["GET", "POST"], request.method).json_response
+        raise MethodNotAllowed(["GET", "POST"], request.method)
 
 
 def get_albums(request: HttpRequest):
@@ -26,14 +22,11 @@ def get_albums(request: HttpRequest):
 
 
 def create_album(request: HttpRequest):
-    try:
-        album = api.create_album(request)
-    except JsonProblem as e:
-        return e.json_response
-
+    album = api.create_album(request)
     return JsonResponse(album.to_json(), status=201)
 
 
+@json_problem_as_json
 def album(request: HttpRequest, album_key: str):
     if request.method == "GET":
         return get_album(request, album_key)
@@ -42,51 +35,20 @@ def album(request: HttpRequest, album_key: str):
     elif request.method == "DELETE":
         return delete_album(request, album_key)
     else:
-        return MethodNotAllowed(
-            ["GET", "PATCH", "DELETE"], request.method).json_response
+        raise MethodNotAllowed(
+            ["GET", "PATCH", "DELETE"], request.method)
 
 
 def get_album(request: HttpRequest, album_key: str):
-    try:
-        album = api.check_album_access(request, album_key)
-        return JsonResponse(album.to_json())
-    except JsonProblem as e:
-        return e.json_response
+    album = api.check_album_access(request, album_key)
+    return JsonResponse(album.to_json())
 
 
 def modify_album(request: HttpRequest, album_key: str):
-    try:
-        check_permissions(request, 'photo_objects.change_album')
-        album = api.check_album_access(request, album_key)
-        data = parse_json_body(request)
-    except JsonProblem as e:
-        return e.json_response
-
-    f = ModifyAlbumForm({**album.to_json(), **data}, instance=album)
-    if not f.is_valid():
-        return JsonProblem(
-            "Album validation failed.",
-            400,
-            errors=f.errors.get_json_data(),
-        ).json_response
-
-    album = f.save()
+    album = api.modify_album(request, album_key)
     return JsonResponse(album.to_json())
 
 
 def delete_album(request: HttpRequest, album_key: str):
-    try:
-        check_permissions(request, 'photo_objects.delete_album')
-        album = api.check_album_access(request, album_key)
-    except JsonProblem as e:
-        return e.json_response
-
-    try:
-        album.delete()
-    except ProtectedError:
-        return JsonProblem(
-            f"Album with {album_key} key can not be deleted because it "
-            "contains photos.",
-            409,
-        ).json_response
+    api.delete_album(request, album_key)
     return HttpResponse(status=204)

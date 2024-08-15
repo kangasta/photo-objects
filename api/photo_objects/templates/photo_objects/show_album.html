@@ -1,6 +1,6 @@
 <h1>{{album.title|default:album.key}}</h1>
 {% if album.description %}
-    <p>{album.description}</p>
+    <p>{{ album.description }}</p>
 {% endif %}
 <ul>
     {% for photo in photos %}
