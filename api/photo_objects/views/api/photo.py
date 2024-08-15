@@ -6,10 +6,6 @@ from PIL import UnidentifiedImageError
 
 from photo_objects import Size, objsto
 from photo_objects import api
-from photo_objects.forms import CreatePhotoForm, ModifyPhotoForm
-from photo_objects.img import photo_details, scale_photo
-from photo_objects.models import Photo
-
 from photo_objects.api.utils import (
     JsonProblem,
     MethodNotAllowed,
@@ -17,8 +13,13 @@ from photo_objects.api.utils import (
     parse_json_body,
     parse_single_file,
 )
+from photo_objects.forms import CreatePhotoForm, ModifyPhotoForm
+from photo_objects.img import photo_details, scale_photo
+
+from .utils import json_problem_as_json
 
 
+@json_problem_as_json
 def photos(request: HttpRequest, album_key: str):
     if request.method == "GET":
         return get_photos(request, album_key)
@@ -29,31 +30,24 @@ def photos(request: HttpRequest, album_key: str):
 
 
 def get_photos(request: HttpRequest, album_key: str):
-    try:
-        photos = api.get_photos(request, album_key)
-    except JsonProblem as e:
-        return e.json_response
-
+    photos = api.get_photos(request, album_key)
     return JsonResponse([i.to_json() for i in photos], safe=False)
 
 
 def upload_photo(request: HttpRequest, album_key: str):
-    try:
-        check_permissions(
-            request,
-            'photo_objects.add_photo',
-            'photo_objects.change_album')
-        photo_file = parse_single_file(request)
-    except JsonProblem as e:
-        return e.json_response
+    check_permissions(
+        request,
+        'photo_objects.add_photo',
+        'photo_objects.change_album')
+    photo_file = parse_single_file(request)
 
     try:
         timestamp, tiny_base64 = photo_details(photo_file)
     except UnidentifiedImageError:
-        return JsonProblem(
+        raise JsonProblem(
             "Could not open photo file.",
             400,
-        ).json_response
+        )
 
     f = CreatePhotoForm(dict(
         key=photo_file.name,
@@ -65,11 +59,11 @@ def upload_photo(request: HttpRequest, album_key: str):
     ))
 
     if not f.is_valid():
-        return JsonProblem(
+        raise JsonProblem(
             "Photo validation failed.",
             400,
             errors=f.errors.get_json_data(),
-        ).json_response
+        )
     photo = f.save()
 
     photo_file.seek(0)
@@ -77,14 +71,15 @@ def upload_photo(request: HttpRequest, album_key: str):
         objsto.put_photo(photo.album.key, photo.key, "og", photo_file)
     except BaseException:
         # TODO: logging
-        return JsonProblem(
+        raise JsonProblem(
             "Could not save photo to object storage.",
             500,
-        ).json_response
+        )
 
     return JsonResponse(photo.to_json(), status=201)
 
 
+@json_problem_as_json
 def photo(request: HttpRequest, album_key: str, photo_key: str):
     if request.method == "GET":
         return get_photo(request, album_key, photo_key)
@@ -98,20 +93,14 @@ def photo(request: HttpRequest, album_key: str, photo_key: str):
 
 
 def get_photo(request: HttpRequest, album_key: str, photo_key: str):
-    try:
-        photo = api.check_photo_access(request, album_key, photo_key, 'xs')
-        return JsonResponse(photo.to_json())
-    except JsonProblem as e:
-        return e.json_response
+    photo = api.check_photo_access(request, album_key, photo_key, 'xs')
+    return JsonResponse(photo.to_json())
 
 
 def modify_photo(request: HttpRequest, album_key: str, photo_key: str):
-    try:
-        check_permissions(request, 'photo_objects.change_photo')
-        photo = api.check_photo_access(request, album_key, photo_key, 'xs')
-        data = parse_json_body(request)
-    except JsonProblem as e:
-        return e.json_response
+    check_permissions(request, 'photo_objects.change_photo')
+    photo = api.check_photo_access(request, album_key, photo_key, 'xs')
+    data = parse_json_body(request)
 
     f = ModifyPhotoForm({**photo.to_json(), **data}, instance=photo)
     photo = f.save()
@@ -119,36 +108,31 @@ def modify_photo(request: HttpRequest, album_key: str, photo_key: str):
 
 
 def delete_photo(request: HttpRequest, album_key: str, photo_key: str):
-    try:
-        check_permissions(request, 'photo_objects.delete_photo')
-        photo = api.check_photo_access(request, album_key, photo_key, 'xs')
-    except JsonProblem as e:
-        return e.json_response
+    check_permissions(request, 'photo_objects.delete_photo')
+    photo = api.check_photo_access(request, album_key, photo_key, 'xs')
 
     try:
         objsto.delete_photo(album_key, photo_key)
     except S3Error:
-        return JsonProblem(
+        raise JsonProblem(
             "Could not delete photo from object storage.",
             500,
-        ).json_response
+        )
 
     try:
         photo.delete()
     except Exception:
-        return JsonProblem(
+        raise JsonProblem(
             "Could not delete photo from database.",
             500,
-        ).json_response
+        )
     return HttpResponse(status=204)
 
 
+@json_problem_as_json
 def get_img(request: HttpRequest, album_key: str, photo_key: str):
-    try:
-        size = request.GET.get("size")
-        api.check_photo_access(request, album_key, photo_key, size)
-    except JsonProblem as e:
-        return e.json_response
+    size = request.GET.get("size")
+    api.check_photo_access(request, album_key, photo_key, size)
 
     content_type = mimetypes.guess_type(photo_key)[0]
 
