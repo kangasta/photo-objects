@@ -27,20 +27,10 @@ def get_albums(request: HttpRequest):
 
 def create_album(request: HttpRequest):
     try:
-        check_permissions(request, 'photo_objects.add_album')
-        data = parse_json_body(request)
+        album = api.create_album(request)
     except JsonProblem as e:
         return e.json_response
 
-    f = CreateAlbumForm(data)
-    if not f.is_valid():
-        return JsonProblem(
-            "Album validation failed.",
-            400,
-            errors=f.errors.get_json_data(),
-        ).json_response
-
-    album = f.save()
     return JsonResponse(album.to_json(), status=201)
 
 

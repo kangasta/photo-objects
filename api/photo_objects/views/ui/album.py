@@ -1,8 +1,10 @@
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
+from django.urls import reverse
 
 from photo_objects import api
-from photo_objects.api.utils import JsonProblem
+from photo_objects.api.utils import FormValidationFailed, JsonProblem
+from photo_objects.forms import CreateAlbumForm
 
 
 def list_albums(request: HttpRequest):
@@ -11,7 +13,16 @@ def list_albums(request: HttpRequest):
 
 
 def new_album(request: HttpRequest):
-    return HttpResponse("new_album")
+    if request.method == "POST":
+        try:
+            album = api.create_album(request)
+            return HttpResponseRedirect(reverse('photo_objects:show_album', kwargs={"album_key": album.key}))
+        except FormValidationFailed as e:
+            form = e.form
+    else:
+        form = CreateAlbumForm()
+
+    return render(request, 'photo_objects/new_album.html', {"form": form})
 
 
 def show_album(request: HttpRequest, album_key: str):
