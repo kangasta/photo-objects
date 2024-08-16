@@ -2,6 +2,8 @@
 {% if photo.description %}
     <p>{{ photo.description }}</p>
 {% endif %}
-
+<a href="{% url 'photo_objects:show_album' photo.album.key %}">Back to album</a>
+<a href="{% url 'photo_objects:edit_photo' photo.album.key photo.key %}">Edit photo</a>
+<a href="{% url 'photo_objects:delete_photo' photo.album.key photo.key %}">Delete photo</a>
 <!-- TODO: tiny_base64 skeleton -->
 <img src="/img/{{ photo.album.key }}/{{ photo.key }}/sm" alt="{{ photo.description|default:photo.key }}" />

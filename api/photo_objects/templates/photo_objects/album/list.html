@@ -1,3 +1,6 @@
+<h1>Albums</h1>
+<a href="{% url 'photo_objects:new_album' %}">New album</a>
+
 {% if albums %}
     <ul>
     {% for album in albums %}

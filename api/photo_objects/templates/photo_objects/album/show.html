@@ -2,6 +2,11 @@
 {% if album.description %}
     <p>{{ album.description }}</p>
 {% endif %}
+
+<a href="{% url 'photo_objects:list_albums' %}">Back to albums</a>
+<a href="{% url 'photo_objects:edit_album' album.key %}">Edit album</a>
+<a href="{% url 'photo_objects:delete_album' album.key %}">Delete album</a>
+
 <ul>
     {% for photo in photos %}
         <li><a href="{% url 'photo_objects:show_photo' album.key photo.key %}">
