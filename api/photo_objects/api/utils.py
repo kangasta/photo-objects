@@ -113,8 +113,13 @@ class PhotoNotFound(JsonProblem):
 
 class FormValidationFailed(JsonProblem):
     def __init__(self, form: ModelForm):
+        try:
+            resource = form.instance.__class__.__name__
+        except AttributeError:
+            resource = "Form"
+
         super().__init__(
-            f"{form.instance.__class__.__name__} validation failed.",
+            f"{resource} validation failed.",
             400,
             errors=form.errors.get_json_data(),
         )

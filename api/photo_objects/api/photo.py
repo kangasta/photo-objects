@@ -1,14 +1,16 @@
+from django.core.files.uploadedfile import UploadedFile
 from django.http import HttpRequest
 from minio.error import S3Error
 from PIL import UnidentifiedImageError
 
 from photo_objects import objsto
-from photo_objects.forms import CreatePhotoForm, ModifyPhotoForm
+from photo_objects.forms import CreatePhotoForm, ModifyPhotoForm, UploadPhotosForm
 from photo_objects.img import photo_details
 from photo_objects.models import Photo
 
 from .auth import check_album_access, check_photo_access
 from .utils import (
+    FormValidationFailed,
     JsonProblem,
     check_permissions,
     parse_input_data,
@@ -21,13 +23,7 @@ def get_photos(request: HttpRequest, album_key: str):
     return Photo.objects.filter(album__key=album_key)
 
 
-def upload_photo(request: HttpRequest, album_key: str):
-    check_permissions(
-        request,
-        'photo_objects.add_photo',
-        'photo_objects.change_album')
-    photo_file = parse_single_file(request)
-
+def _upload_photo(album_key: str, photo_file: UploadedFile):
     try:
         timestamp, tiny_base64 = photo_details(photo_file)
     except UnidentifiedImageError:
@@ -46,17 +42,15 @@ def upload_photo(request: HttpRequest, album_key: str):
     ))
 
     if not f.is_valid():
-        raise JsonProblem(
-            "Photo validation failed.",
-            400,
-            errors=f.errors.get_json_data(),
-        )
+        raise FormValidationFailed(f)
     photo = f.save()
 
     photo_file.seek(0)
     try:
         objsto.put_photo(photo.album.key, photo.key, "og", photo_file)
     except S3Error:
+        # TODO: check that there is no photo entry in the database, if object storage upload fails.
+        photo.delete()
         # TODO: logging
         raise JsonProblem(
             "Could not save photo to object storage.",
@@ -64,6 +58,43 @@ def upload_photo(request: HttpRequest, album_key: str):
         )
 
     return photo
+
+def upload_photo(request: HttpRequest, album_key: str):
+    check_permissions(
+        request,
+        'photo_objects.add_photo',
+        'photo_objects.change_album')
+    photo_file = parse_single_file(request)
+    return _upload_photo(album_key, photo_file)
+
+
+def upload_photos(request: HttpRequest, album_key: str):
+    check_permissions(
+        request,
+        'photo_objects.add_photo',
+        'photo_objects.change_album')
+
+    f = UploadPhotosForm(request.POST, request.FILES)
+    if not f.is_valid():
+        raise FormValidationFailed(f)
+
+    photo_files = f.cleaned_data["photos"]
+    if len(photo_files) < 1:
+        f.add_error("photos", "Expected at least one file, got 0.")
+        raise FormValidationFailed(f)
+
+    photos = []
+    for photo_file in f.cleaned_data["photos"]:
+        try:
+            photos.append(_upload_photo(album_key, photo_file))
+        except JsonProblem:
+            # TODO: include error type in the message
+            f.add_error("photos", f"Failed to upload {photo_file.name}.")
+
+    if not f.is_valid():
+        raise FormValidationFailed(f)
+
+    return photos
 
 
 def modify_photo(request: HttpRequest, album_key: str, photo_key: str):
@@ -74,11 +105,7 @@ def modify_photo(request: HttpRequest, album_key: str, photo_key: str):
     f = ModifyPhotoForm({**photo.to_json(), **data}, instance=photo)
 
     if not f.is_valid():
-        raise JsonProblem(
-            "Photo validation failed.",
-            400,
-            errors=f.errors.get_json_data(),
-        )
+        raise FormValidationFailed(f)
 
     return f.save()
 

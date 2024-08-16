@@ -4,6 +4,7 @@
 {% endif %}
 
 <a href="{% url 'photo_objects:list_albums' %}">Back to albums</a>
+<a href="{% url 'photo_objects:upload_photos' album.key %}">Upload photos</a>
 <a href="{% url 'photo_objects:edit_album' album.key %}">Edit album</a>
 <a href="{% url 'photo_objects:delete_album' album.key %}">Delete album</a>
 

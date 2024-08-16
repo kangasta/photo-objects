@@ -4,14 +4,26 @@ from django.urls import reverse
 
 from photo_objects import api
 from photo_objects.api.utils import FormValidationFailed
-from photo_objects.forms import ModifyPhotoForm
+from photo_objects.forms import ModifyPhotoForm, UploadPhotosForm
 
 from .utils import json_problem_as_html
 
 
 @json_problem_as_html
-def upload_photo(request: HttpRequest, album_key: str):
-    return HttpResponse("upload_photo")
+def upload_photos(request: HttpRequest, album_key: str):
+    if request.method == "POST":
+        try:
+            api.upload_photos(request, album_key)
+            return HttpResponseRedirect(
+                reverse(
+                    'photo_objects:show_album',
+                    kwargs={"album_key": album_key}))
+        except FormValidationFailed as e:
+            form = e.form
+    else:
+        form = UploadPhotosForm()
+
+    return render(request, 'photo_objects/photo/upload.html', {"form": form})
 
 
 @json_problem_as_html
