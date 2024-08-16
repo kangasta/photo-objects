@@ -1,0 +1,18 @@
+<h1>{{album.title|default:album.key}}</h1>
+{% if album.description %}
+    <p>{{ album.description }}</p>
+{% endif %}
+
+<a href="{% url 'photo_objects:list_albums' %}">Back to albums</a>
+<a href="{% url 'photo_objects:upload_photos' album.key %}">Upload photos</a>
+<a href="{% url 'photo_objects:edit_album' album.key %}">Edit album</a>
+<a href="{% url 'photo_objects:delete_album' album.key %}">Delete album</a>
+
+<ul>
+    {% for photo in photos %}
+        <li><a href="{% url 'photo_objects:show_photo' album.key photo.key %}">
+            <!-- TODO: tiny_base64 skeleton -->
+            <img src="/img/{{ album.key }}/{{ photo.key }}/sm" alt="{{ photo.description|default:photo.key }}" />
+        </a></li>
+    {% endfor %}
+</ul>

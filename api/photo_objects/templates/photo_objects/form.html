@@ -1,0 +1,10 @@
+<h1>{{ title }}</h1>
+<!-- TODO: Instructions? -->
+
+<form action="" method="post">
+  {% csrf_token %}
+  <ul>
+  {{ form.as_ul }}
+  </ul>
+  <input type="submit" value="Save">
+</form>

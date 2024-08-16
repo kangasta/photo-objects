@@ -1,12 +1,16 @@
 import json
 
+from django.forms import ModelForm
 from django.http import HttpRequest, JsonResponse
 from django.core.files.uploadedfile import UploadedFile
+from django.shortcuts import render
+
 from photo_objects.error import PhotoObjectsError
 from photo_objects import Size
 
 
 APPLICATION_JSON = "application/json"
+APPLICATION_X_WWW_FORM = "application/x-www-form-urlencoded"
 MULTIPART_FORMDATA = "multipart/form-data"
 APPLICATION_PROBLEM = "application/problem+json"
 
@@ -44,6 +48,12 @@ class JsonProblem(PhotoObjectsError):
             headers=self.headers
         )
 
+    def html_response(self, request: HttpRequest):
+        return render(request, "photo_objects/problem.html", {
+            "title": self.title,
+            "status": self.status
+        }, status=self.status)
+
 
 class MethodNotAllowed(JsonProblem):
     def __init__(self, expected: list[str], actual: str):
@@ -57,11 +67,13 @@ class MethodNotAllowed(JsonProblem):
 
 
 class UnsupportedMediaType(JsonProblem):
-    def __init__(self, expected: str, actual: str):
+    def __init__(self, expected: list[str], actual: str):
+        expected_human = _pretty_list(expected, "or")
+
         super().__init__(
-            f"Expected {expected} content-type, got {actual}.",
+            f"Expected {expected_human} content-type, got {actual}.",
             415,
-            headers=dict(Accept=expected)
+            headers={'Accept-Post': ', '.join(expected)}
         )
 
 
@@ -99,7 +111,23 @@ class PhotoNotFound(JsonProblem):
         )
 
 
-def _check_permissions(request: HttpRequest, *permissions: str):
+class FormValidationFailed(JsonProblem):
+    def __init__(self, form: ModelForm):
+        try:
+            resource = form.instance.__class__.__name__
+        except AttributeError:
+            resource = "Form"
+
+        super().__init__(
+            f"{resource} validation failed.",
+            400,
+            errors=form.errors.get_json_data(),
+        )
+
+        self.form = form
+
+
+def check_permissions(request: HttpRequest, *permissions: str):
     if not request.user.is_authenticated:
         raise Unauthorized()
     if not request.user.has_perms(permissions):
@@ -110,10 +138,10 @@ def _check_permissions(request: HttpRequest, *permissions: str):
         )
 
 
-def _parse_json_body(request: HttpRequest):
+def parse_json_body(request: HttpRequest):
     if request.content_type != APPLICATION_JSON:
         raise UnsupportedMediaType(
-            APPLICATION_JSON,
+            [APPLICATION_JSON],
             request.content_type
         )
 
@@ -126,14 +154,24 @@ def _parse_json_body(request: HttpRequest):
         )
 
 
-def _parse_single_file(request: HttpRequest) -> UploadedFile:
+def parse_input_data(request: HttpRequest):
+    if request.content_type == APPLICATION_JSON:
+        return parse_json_body(request)
+    elif request.content_type == APPLICATION_X_WWW_FORM:
+        return request.POST.dict()
+    else:
+        raise UnsupportedMediaType(
+            [APPLICATION_JSON, APPLICATION_X_WWW_FORM], request.content_type)
+
+
+def parse_single_file(request: HttpRequest) -> UploadedFile:
     if request.content_type != MULTIPART_FORMDATA:
         raise UnsupportedMediaType(
-            MULTIPART_FORMDATA,
+            [MULTIPART_FORMDATA],
             request.content_type
         )
 
-    if len(request.FILES) < 1:
+    if len(request.FILES) != 1:
         raise JsonProblem(
             f"Expected exactly one file, got {len(request.FILES)}.",
             400,

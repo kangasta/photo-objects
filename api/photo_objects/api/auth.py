@@ -1,18 +1,17 @@
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest
 
 from photo_objects import Size
 from photo_objects.models import Album, Photo
 
-from ._utils import (
+from photo_objects.api.utils import (
     AlbumNotFound,
     InvalidSize,
-    JsonProblem,
     PhotoNotFound,
     Unauthorized
 )
 
 
-def _check_album_access(request: HttpRequest, album_key: str):
+def check_album_access(request: HttpRequest, album_key: str):
     try:
         album = Album.objects.get(key=album_key)
     except Album.DoesNotExist:
@@ -25,7 +24,7 @@ def _check_album_access(request: HttpRequest, album_key: str):
     return album
 
 
-def _check_photo_access(
+def check_photo_access(
         request: HttpRequest,
         album_key: str,
         photo_key: str,
@@ -51,23 +50,3 @@ def _check_photo_access(
         return photo
     except Photo.DoesNotExist:
         raise PhotoNotFound(album_key, photo_key)
-
-
-def has_permission(request: HttpRequest):
-    '''Check if user has permission to access photo in given path.
-
-    This view is used with nginx `auth_request` directive and will thus return
-    403 status code in all error situations instead of a more suitable status
-    code.
-    '''
-    path = request.GET.get('path')
-    try:
-        album_key, photo_key, raw_size = path.lstrip('/').split('/')
-    except (AttributeError, ValueError):
-        return HttpResponse(status=403)
-
-    try:
-        _check_photo_access(request, album_key, photo_key, raw_size)
-        return HttpResponse(status=204)
-    except JsonProblem:
-        return HttpResponse(status=403)

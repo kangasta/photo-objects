@@ -10,7 +10,7 @@ Check and automatically fix formatting with:
 
 ```bash
 pycodestyle --exclude api/api/settings.py,*/migrations/*.py api
-autopep8 -aaar --in-place api
+autopep8 -aaar --in-place --exclude api/api/settings.py,*/migrations/*.py api
 ```
 
 Run static analysis with:
