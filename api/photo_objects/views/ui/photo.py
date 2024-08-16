@@ -52,14 +52,19 @@ def edit_photo(request: HttpRequest, album_key: str, photo_key: str):
         photo = api.check_photo_access(request, album_key, photo_key, "xs")
         form = ModifyPhotoForm(initial=photo.to_json(), instance=photo)
 
-    return render(request, 'photo_objects/form.html', {"form": form, "title": "Edit photo"})
+    return render(request, 'photo_objects/form.html',
+                  {"form": form, "title": "Edit photo"})
 
 
 @json_problem_as_html
 def delete_photo(request: HttpRequest, album_key: str, photo_key: str):
     if request.method == "POST":
         api.delete_photo(request, album_key, photo_key)
-        return HttpResponseRedirect(reverse('photo_objects:show_album', kwargs={"album_key": album_key}))
+        return HttpResponseRedirect(
+            reverse(
+                'photo_objects:show_album',
+                kwargs={
+                    "album_key": album_key}))
     else:
         album = api.check_album_access(request, album_key)
     return render(request, 'photo_objects/photo/delete.html', {"album": album})
