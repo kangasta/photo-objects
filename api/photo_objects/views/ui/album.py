@@ -28,7 +28,7 @@ def new_album(request: HttpRequest):
         except FormValidationFailed as e:
             form = e.form
     else:
-        form = CreateAlbumForm()
+        form = CreateAlbumForm(initial={"key": "_new"})
 
     return render(request, 'photo_objects/form.html',
                   {"form": form, "title": "Create album"})
