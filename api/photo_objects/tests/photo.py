@@ -1,7 +1,5 @@
 from base64 import b64decode
 from io import BytesIO
-import json
-import os
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
@@ -31,7 +29,12 @@ class PhotoViewTests(TestCase):
                     content_type__app_label='photo_objects',
                     codename=permission))
 
-        Album.objects.create(key="test", visibility=Album.Visibility.PUBLIC)
+        Album.objects.create(
+            key="test-photo-a",
+            visibility=Album.Visibility.PUBLIC)
+        Album.objects.create(
+            key="test-photo-b",
+            visibility=Album.Visibility.PUBLIC)
 
     @classmethod
     def tearDownClass(_):
@@ -48,7 +51,7 @@ class PhotoViewTests(TestCase):
         self.assertTrue(login_success)
 
         response = self.client.post(
-            "/api/albums/test/photos",
+            "/api/albums/test-photo-a/photos",
             "key=venice",
             content_type="text/plain")
         self.assertStatus(response, 415)
@@ -59,18 +62,18 @@ class PhotoViewTests(TestCase):
         self.assertTrue(login_success)
 
         response = self.client.post(
-            "/api/albums/test/photos",)
+            "/api/albums/test-photo-a/photos",)
         self.assertStatus(response, 400)
 
     def test_put_photo_fails(self):
-        response = self.client.put("/api/albums/test/photos")
+        response = self.client.put("/api/albums/test-photo-a/photos")
         self.assertStatus(response, 405)
 
     def test_cannot_upload_modify_delete_photo_without_permission(self):
         self.assertRequestStatuses([
-            ("POST", "/api/albums/test/photos", 401),
-            ("PATCH", "/api/albums/test/photos/tower.jpg", 401),
-            ("DELETE", "/api/albums/test/photos/tower.jpg", 401),
+            ("POST", "/api/albums/test-photo-a/photos", 401),
+            ("PATCH", "/api/albums/test-photo-a/photos/tower.jpg", 401),
+            ("DELETE", "/api/albums/test-photo-a/photos/tower.jpg", 401),
         ])
 
         login_success = self.client.login(
@@ -78,12 +81,12 @@ class PhotoViewTests(TestCase):
         self.assertTrue(login_success)
 
         self.assertRequestStatuses([
-            ("POST", "/api/albums/test/photos", 403),
-            ("PATCH", "/api/albums/test/photos/tower.jpg", 403),
-            ("DELETE", "/api/albums/test/photos/tower.jpg", 403),
+            ("POST", "/api/albums/test-photo-a/photos", 403),
+            ("PATCH", "/api/albums/test-photo-a/photos/tower.jpg", 403),
+            ("DELETE", "/api/albums/test-photo-a/photos/tower.jpg", 403),
         ])
 
-    def test_upload_photo_key_validation(self):
+    def test_upload_photo_key_cleaning(self):
         login_success = self.client.login(
             username='has_permission', password='test')
         self.assertTrue(login_success)
@@ -91,9 +94,12 @@ class PhotoViewTests(TestCase):
         filename = "The Eiffel Tower.JPG"
         file = open_test_photo(filename)
         response = self.client.post(
-            "/api/albums/test/photos",
+            "/api/albums/test-photo-a/photos",
             {"The Eiffel Tower!": file})
-        self.assertStatus(response, 400)
+        self.assertStatus(response, 201)
+        self.assertEqual(
+            response.json().get("key"),
+            "test-photo-a/The-Eiffel-Tower.JPG")
 
     def test_upload_photo_album_not_found(self):
         login_success = self.client.login(
@@ -115,11 +121,12 @@ class PhotoViewTests(TestCase):
         filename = "tower.jpg"
         file = open_test_photo(filename)
         response = self.client.post(
-            "/api/albums/test/photos",
+            "/api/albums/test-photo-a/photos",
             {filename: file})
         self.assertStatus(response, 201)
 
-        photo = self.client.get("/api/albums/test/photos/tower.jpg").json()
+        photo = self.client.get(
+            "/api/albums/test-photo-a/photos/tower.jpg").json()
         self.assertEqual(photo.get("timestamp"), "2024-03-20T14:28:04+00:00")
         tiny_base64 = photo.get("tiny_base64")
         width, height = Image.open(BytesIO(b64decode(tiny_base64))).size
@@ -127,7 +134,7 @@ class PhotoViewTests(TestCase):
         self.assertEqual(height, 3)
 
         file.seek(0)
-        photo_response = get_photo("test", filename, "og")
+        photo_response = get_photo("test-photo-a", filename, "og")
         self.assertEqual(
             photo_response.headers['Content-Type'],
             "image/jpeg")
@@ -138,7 +145,7 @@ class PhotoViewTests(TestCase):
 
         file.seek(0)
         response = self.client.post(
-            "/api/albums/test/photos",
+            "/api/albums/test-photo-a/photos",
             {filename: file})
         self.assertStatus(response, 400)
 
@@ -149,7 +156,7 @@ class PhotoViewTests(TestCase):
 
         file = open_test_photo("tower.jpg")
         response = self.client.post(
-            "/api/albums/test/photos",
+            "/api/albums/test-photo-a/photos",
             {"": file})
         self.assertStatus(response, 400)
 
@@ -161,7 +168,7 @@ class PhotoViewTests(TestCase):
         filename = "invalid.jpg"
         file = open_test_photo(filename)
         response = self.client.post(
-            "/api/albums/test/photos",
+            "/api/albums/test-photo-a/photos",
             {filename: file})
         self.assertStatus(response, 400)
 
@@ -173,20 +180,20 @@ class PhotoViewTests(TestCase):
         filename = "tower.jpg"
         file = open_test_photo(filename)
         response = self.client.post(
-            "/api/albums/test/photos",
+            "/api/albums/test-photo-a/photos",
             {filename: file})
         self.assertStatus(response, 201)
 
         # Scales image down from the original size
         small_response = self.client.get(
-            "/api/albums/test/photos/tower.jpg/img?size=sm")
+            "/api/albums/test-photo-a/photos/tower.jpg/img?size=sm")
         self.assertStatus(small_response, 200)
         _, height = Image.open(BytesIO(small_response.content)).size
         self.assertEqual(height, 256)
 
         # Does not scale image up from the original size
         large_response = self.client.get(
-            "/api/albums/test/photos/tower.jpg/img?size=lg")
+            "/api/albums/test-photo-a/photos/tower.jpg/img?size=lg")
         self.assertStatus(large_response, 200)
         _, height = Image.open(BytesIO(large_response.content)).size
         self.assertEqual(height, 512)
@@ -199,14 +206,21 @@ class PhotoViewTests(TestCase):
         filename = "tower.jpg"
         file = open_test_photo(filename)
         response = self.client.post(
-            "/api/albums/test/photos",
+            "/api/albums/test-photo-a/photos",
             {filename: file})
         self.assertStatus(response, 201)
 
-        response = self.client.get("/api/albums/test/photos/tower.jpg")
+        # Can upload photo with the same name to a different album
+        file.seek(0)
+        response = self.client.post(
+            "/api/albums/test-photo-b/photos",
+            {filename: file})
+        self.assertStatus(response, 201)
+
+        response = self.client.get("/api/albums/test-photo-a/photos/tower.jpg")
         self.assertStatus(response, 200)
         data = response.json()
-        self.assertEqual(data.get("key"), "tower.jpg")
+        self.assertEqual(data.get("key"), "test-photo-a/tower.jpg")
         self.assertEqual(data.get("title"), "")
         self.assertEqual(data.get("description"), "")
         self.assertEqual(data.get("timestamp"), "2024-03-20T14:28:04+00:00")
@@ -215,7 +229,7 @@ class PhotoViewTests(TestCase):
             title="The Eiffel Tower",
             description="The Eiffel Tower in Paris, France")
         response = self.client.patch(
-            "/api/albums/test/photos/tower.jpg",
+            "/api/albums/test-photo-a/photos/tower.jpg",
             content_type="application/json",
             data=req_data)
         self.assertStatus(response, 200)
@@ -225,24 +239,25 @@ class PhotoViewTests(TestCase):
         filename = "havfrue.jpg"
         file = open_test_photo(filename)
         response = self.client.post(
-            "/api/albums/test/photos",
+            "/api/albums/test-photo-a/photos",
             {filename: file})
         self.assertStatus(response, 201)
 
         response = self.client.get(
-            "/api/albums/test/photos/tower.jpg/img?size=og")
+            "/api/albums/test-photo-a/photos/tower.jpg/img?size=og")
         self.assertStatus(response, 200)
 
-        response = self.client.delete("/api/albums/test/photos/tower.jpg")
+        response = self.client.delete(
+            "/api/albums/test-photo-a/photos/tower.jpg")
         self.assertStatus(response, 204)
 
         response = self.client.get(
-            "/api/albums/test/photos/havfrue.jpg/img?size=og")
+            "/api/albums/test-photo-a/photos/havfrue.jpg/img?size=og")
         self.assertStatus(response, 200)
 
         response = self.client.get(
-            "/api/albums/test/photos/tower.jpg/img?size=og")
+            "/api/albums/test-photo-a/photos/tower.jpg/img?size=og")
         self.assertStatus(response, 404)
 
-        response = self.client.get("/api/albums/test/photos/tower.jpg")
+        response = self.client.get("/api/albums/test-photo-a/photos/tower.jpg")
         self.assertStatus(response, 404)

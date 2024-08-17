@@ -179,3 +179,7 @@ def parse_single_file(request: HttpRequest) -> UploadedFile:
 
     for _, f in request.FILES.items():
         return f
+
+
+def join_key(*args):
+    return '/'.join(args)

@@ -21,7 +21,7 @@ KEY_POSTFIX_CHARS = 'bcdfghjklmnpqrstvwxz2456789'
 KEY_POSTFIX_LEN = 5
 
 
-def _slugify(input: str):
+def slugify(input: str):
     key = unicodedata.normalize(
         'NFKD', input).encode(
         'ascii', 'ignore').decode('ascii')
@@ -62,7 +62,7 @@ class CreateAlbumForm(ModelForm):
                     code='required'))
             return
 
-        key = _slugify(title)
+        key = slugify(title)
 
         postfix_iter = _postfix_generator()
         try:

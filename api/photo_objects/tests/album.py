@@ -27,21 +27,21 @@ class ViewVisibilityTests(TestCase):
         Album.objects.create(key="berlin", visibility=Album.Visibility.HIDDEN)
 
         Photo.objects.create(
-            key='tower.jpeg',
+            key='venice/tower.jpeg',
             album=album,
             timestamp=timezone.now(),
             tiny_base64=TOWER_BASE64)
         Photo.objects.create(
-            key='canal.jpeg',
+            key='venice/canal.jpeg',
             album=album,
             timestamp=timezone.now(),
             tiny_base64=CANAL_BASE64)
         Photo.objects.create(
-            key='gondola.jpeg',
+            key='venice/gondola.jpeg',
             album=album,
             timestamp=timezone.now())
         Photo.objects.create(
-            key='church.jpeg',
+            key='venice/church.jpeg',
             album=album,
             timestamp=timezone.now())
 
@@ -70,8 +70,8 @@ class ViewVisibilityTests(TestCase):
         photos = self.client.get("/api/albums/venice/photos").json()
         self.assertEqual(len(photos), 4)
 
-        photo = next(i for i in photos if i.get('key') == 'tower.jpeg')
-        self.assertEqual(photo.get('album'), 'venice')
+        photo = next(i for i in photos if i.get('key') == 'venice/tower.jpeg')
+        self.assertEqual(photo.get('album'), 'venice', photos)
 
 
 class AlbumViewTests(TestCase):
