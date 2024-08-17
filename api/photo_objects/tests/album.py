@@ -200,6 +200,32 @@ class AlbumViewTests(TestCase):
             data=dict(key="oslo"))
         self.assertStatus(response, 400)
 
+    def test_create_album_auto_key(self):
+        login_success = self.client.login(
+            username='has_permission', password='test')
+        self.assertTrue(login_success)
+
+        response = self.client.post(
+            "/api/albums",
+            content_type="application/json",
+            data=dict(key="_new"))
+        self.assertStatus(response, 400)
+
+        response = self.client.post(
+            "/api/albums",
+            content_type="application/json",
+            data=dict(key="_new", title="Aleksis Kiven katu"))
+        self.assertStatus(response, 201)
+        self.assertEqual(response.json().get("key"), "Aleksis-Kiven-katu")
+
+        response = self.client.post(
+            "/api/albums",
+            content_type="application/json",
+            data=dict(key="_new", title="Aleksis Kiven katu"))
+        self.assertStatus(response, 201)
+        self.assertTrue(response.json().get("key").startswith(
+            "Aleksis-Kiven-katu-"), response.content)
+
     def test_crud_actions(self):
         login_success = self.client.login(
             username='has_permission', password='test')
