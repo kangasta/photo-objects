@@ -10,9 +10,9 @@
 
 <ul>
     {% for photo in photos %}
-        <li><a href="{% url 'photo_objects:show_photo' album.key photo.key %}">
+        <li><a href="{% url 'photo_objects:show_photo' album.key photo.filename %}">
             <!-- TODO: tiny_base64 skeleton -->
-            <img src="/img/{{ album.key }}/{{ photo.key }}/sm" alt="{{ photo.description|default:photo.key }}" />
+            <img src="/img/{{ album.key }}/{{ photo.filename }}/sm" alt="{{ photo.description|default:photo.filename }}" />
         </a></li>
     {% endfor %}
 </ul>

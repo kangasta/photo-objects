@@ -7,7 +7,8 @@ from photo_objects import objsto
 from photo_objects.forms import (
     CreatePhotoForm,
     ModifyPhotoForm,
-    UploadPhotosForm
+    UploadPhotosForm,
+    slugify,
 )
 from photo_objects.img import photo_details
 from photo_objects.models import Photo
@@ -37,7 +38,7 @@ def _upload_photo(album_key: str, photo_file: UploadedFile):
         )
 
     f = CreatePhotoForm(dict(
-        key=photo_file.name,
+        key=f"{album_key}/{slugify(photo_file.name)}",
         album=album_key,
         title="",
         description="",
@@ -51,7 +52,7 @@ def _upload_photo(album_key: str, photo_file: UploadedFile):
 
     photo_file.seek(0)
     try:
-        objsto.put_photo(photo.album.key, photo.key, "og", photo_file)
+        objsto.put_photo(photo.album.key, photo.filename, "og", photo_file)
     except S3Error:
         # TODO: check that there is no photo entry in the database, if object
         # storage upload fails.

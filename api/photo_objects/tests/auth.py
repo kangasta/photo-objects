@@ -17,26 +17,26 @@ class AuthViewTests(TestCase):
         public_album = Album.objects.create(
             key="venice", visibility=Album.Visibility.PUBLIC)
         public_photo = Photo.objects.create(
-            key='waterbus.jpeg',
+            key='venice/waterbus.jpeg',
             album=public_album,
             timestamp=timezone.now())
-        self.public_path = _path_fn(public_album.key, public_photo.key)
+        self.public_path = _path_fn(public_album.key, public_photo.filename)
 
         hidden_album = Album.objects.create(
             key="paris", visibility=Album.Visibility.HIDDEN)
         hidden_photo = Photo.objects.create(
-            key='bridge.jpeg',
+            key='paris/bridge.jpeg',
             album=hidden_album,
             timestamp=timezone.now())
-        self.hidden_path = _path_fn(hidden_album.key, hidden_photo.key)
+        self.hidden_path = _path_fn(hidden_album.key, hidden_photo.filename)
 
         private_album = Album.objects.create(
             key="london", visibility=Album.Visibility.PRIVATE)
         private_photo = Photo.objects.create(
-            key='tower.jpeg',
+            key='london/tower.jpeg',
             album=private_album,
             timestamp=timezone.now())
-        self.private_path = _path_fn(private_album.key, private_photo.key)
+        self.private_path = _path_fn(private_album.key, private_photo.filename)
 
         self.not_found_path = _path_fn("madrid", "hotel")
 

@@ -7,7 +7,8 @@ from photo_objects.api.utils import (
     AlbumNotFound,
     InvalidSize,
     PhotoNotFound,
-    Unauthorized
+    Unauthorized,
+    join_key,
 )
 
 
@@ -35,18 +36,14 @@ def check_photo_access(
         raise InvalidSize(size_key)
 
     try:
-        album = Album.objects.get(key=album_key)
-    except Album.DoesNotExist:
-        raise AlbumNotFound(album_key)
+        photo = Photo.objects.get(key=join_key(album_key, photo_key))
+    except Photo.DoesNotExist:
+        raise PhotoNotFound(album_key, photo_key)
 
     if not request.user.is_authenticated:
-        if album.visibility == Album.Visibility.PRIVATE:
+        if photo.album.visibility == Album.Visibility.PRIVATE:
             raise AlbumNotFound(album_key)
         if size == Size.ORIGINAL:
             raise Unauthorized()
 
-    try:
-        photo = Photo.objects.get(key=photo_key, album__key=album_key)
-        return photo
-    except Photo.DoesNotExist:
-        raise PhotoNotFound(album_key, photo_key)
+    return photo

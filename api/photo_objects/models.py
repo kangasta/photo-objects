@@ -3,10 +3,15 @@ from django.core.validators import RegexValidator
 from django.utils.translation import gettext_lazy as _
 
 
-key_validator = RegexValidator(
+album_key_validator = RegexValidator(
     r"^[a-zA-Z0-9._-]+$",
-    "Key must only contain alphanumeric characters, dots, underscores and "
-    "hyphens.")
+    "Album key must only contain alphanumeric characters, dots, underscores "
+    "and hyphens.")
+photo_key_validator = RegexValidator(
+    r"^[a-zA-Z0-9._-]+/[a-zA-Z0-9._-]+$",
+    "Photo key must contain album key and filename. These must be separated "
+    "with slash. Both parts must only contain alphanumeric characters, dots, "
+    "underscores and hyphens.")
 
 
 def _str(key, **kwargs):
@@ -20,7 +25,7 @@ class Album(models.Model):
         HIDDEN = "hidden", _("Hidden")
         PRIVATE = "private", _("Private")
 
-    key = models.CharField(primary_key=True, validators=[key_validator])
+    key = models.CharField(primary_key=True, validators=[album_key_validator])
     visibility = models.CharField(
         blank=True,
         db_default=Visibility.PRIVATE,
@@ -43,7 +48,7 @@ class Album(models.Model):
 
 
 class Photo(models.Model):
-    key = models.CharField(primary_key=True, validators=[key_validator])
+    key = models.CharField(primary_key=True, validators=[photo_key_validator])
     album = models.ForeignKey(Album, null=True, on_delete=models.PROTECT)
 
     timestamp = models.DateTimeField()
@@ -55,10 +60,13 @@ class Photo(models.Model):
     def __str__(self):
         return _str(
             self.key,
-            album=self.album.key,
             title=self.title,
             timestamp=self.timestamp.isoformat()
         )
+
+    @property
+    def filename(self):
+        return self.key.split('/')[-1]
 
     def to_json(self):
         album_key = self.album.key if self.album else None
