@@ -1,12 +1,20 @@
+{% extends 'photo_objects/base.html' %}
+
+{% block title %}
+<title>Albums - Photo Objects</title>
+{% endblock %}
+
+{% block content %}
 <h1>Albums</h1>
 <a href="{% url 'photo_objects:new_album' %}">New album</a>
 
 {% if albums %}
-    <ul>
-    {% for album in albums %}
-        <li><a href="{% url 'photo_objects:show_album' album.key %}">{{ album.title|default:album.key }}</a></li>
-    {% endfor %}
-    </ul>
+<ul>
+  {% for album in albums %}
+  <li><a href="{% url 'photo_objects:show_album' album.key %}">{{ album.title|default:album.key }}</a></li>
+  {% endfor %}
+</ul>
 {% else %}
-    <p>No albums are available.</p>
+<p>No albums are available.</p>
 {% endif %}
+{% endblock %}

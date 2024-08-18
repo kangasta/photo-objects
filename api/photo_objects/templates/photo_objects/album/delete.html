@@ -1,3 +1,10 @@
+{% extends 'photo_objects/base.html' %}
+
+{% block title %}
+<title>Delete album - Photo Objects</title>
+{% endblock %}
+
+{% block content %}
 <h1>Delete album</h1>
 <!-- TODO: Instructions? -->
 
@@ -6,3 +13,4 @@
   {% csrf_token %}
   <input type="submit" value="Delete">
 </form>
+{% endblock %}
