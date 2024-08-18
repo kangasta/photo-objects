@@ -89,6 +89,13 @@ DATABASES = {
     }
 }
 
+PHOTO_OBJECTS_OBJSTO = {
+    'URL': getenv('OBJSTO_URL', 'localhost:9000'),
+    'ACCESS_KEY': getenv('OBJSTO_ACCESS_KEY', 'access_key'),
+    'SECRET_KEY': getenv('OBJSTO_SECRET_KEY', 'secret_key'),
+    'BUCKET': getenv('OBJSTO_BUCKET', 'photos'),
+    'SECURE': getenv('OBJSTO_SECURE', 'false').lower() == 'true',
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
