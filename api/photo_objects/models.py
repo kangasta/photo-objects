@@ -25,7 +25,7 @@ def _timestamp_str(timestamp):
 
 class Album(models.Model):
     class Meta:
-        ordering = ["first_timestamp", "last_timestamp", "key"]
+        ordering = ["-first_timestamp", "-last_timestamp", "key"]
 
     class Visibility(models.TextChoices):
         PUBLIC = "public", _("Public")
