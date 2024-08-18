@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  {% block title %}
+  <title>Photo Objects</title>
+  {% endblock %}
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  {% block metadata %}
+  {% endblock %}
+  <!-- TODO: Favicon -->
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'photo_objects/global.css' %}">
+</head>
+
+<body>
+  <header>
+    <!-- TODO: Logo, breadcrumbs, login -->
+  </header>
+  {% block content %}{% endblock %}
+  <footer>
+    <!-- TODO: Links to Docs, GitHub, ... -->
+  </footer>
+</body>
+
+</html>

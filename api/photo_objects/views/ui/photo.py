@@ -6,7 +6,7 @@ from photo_objects import api
 from photo_objects.api.utils import FormValidationFailed
 from photo_objects.forms import ModifyPhotoForm, UploadPhotosForm
 
-from .utils import json_problem_as_html
+from .utils import BackLink, json_problem_as_html
 
 
 @json_problem_as_html
@@ -23,7 +23,15 @@ def upload_photos(request: HttpRequest, album_key: str):
     else:
         form = UploadPhotosForm()
 
-    return render(request, 'photo_objects/photo/upload.html', {"form": form})
+    album = api.check_album_access(request, album_key)
+    target = album.title or album.key
+    back = BackLink(
+        "Back to album", reverse(
+            'photo_objects:show_album', kwargs={
+                "album_key": album_key}))
+
+    return render(request, 'photo_objects/photo/upload.html',
+                  {"form": form, "target": target, "back": back})
 
 
 @json_problem_as_html
@@ -52,19 +60,37 @@ def edit_photo(request: HttpRequest, album_key: str, photo_key: str):
         photo = api.check_photo_access(request, album_key, photo_key, "xs")
         form = ModifyPhotoForm(initial=photo.to_json(), instance=photo)
 
+    target = photo.title or photo.filename
+    back = BackLink(
+        f'Back to {target}',
+        reverse(
+            'photo_objects:show_photo',
+            kwargs={
+                "album_key": album_key,
+                "photo_key": photo_key}))
+
     return render(request, 'photo_objects/form.html',
-                  {"form": form, "title": "Edit photo"})
+                  {"form": form, "title": f"Edit {target}", "back": back})
 
 
 @json_problem_as_html
 def delete_photo(request: HttpRequest, album_key: str, photo_key: str):
+
     if request.method == "POST":
         api.delete_photo(request, album_key, photo_key)
         return HttpResponseRedirect(
             reverse(
                 'photo_objects:show_album',
-                kwargs={
-                    "album_key": album_key}))
+                kwargs={"album_key": album_key}))
     else:
-        album = api.check_album_access(request, album_key)
-    return render(request, 'photo_objects/photo/delete.html', {"album": album})
+        photo = api.check_photo_access(request, album_key, photo_key, "xs")
+        target = photo.title or photo.filename
+        back = BackLink(
+            f'Back to {target}',
+            reverse(
+                'photo_objects:show_photo',
+                kwargs={
+                    "album_key": album_key,
+                    "photo_key": photo_key}))
+    return render(request, 'photo_objects/delete.html',
+                  {"target": target, "back": back, })

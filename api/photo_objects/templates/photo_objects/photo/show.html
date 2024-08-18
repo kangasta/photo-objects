@@ -1,9 +1,17 @@
+{% extends 'photo_objects/base.html' %}
+
+{% block title %}
+<title>{{ photo.title|default:photo.filename }} - Photo Objects</title>
+{% endblock %}
+
+{% block content %}
 <h1>{{photo.title|default:photo.filename}}</h1>
 {% if photo.description %}
-    <p>{{ photo.description }}</p>
+<p>{{ photo.description }}</p>
 {% endif %}
 <a href="{% url 'photo_objects:show_album' photo.album.key %}">Back to album</a>
 <a href="{% url 'photo_objects:edit_photo' photo.album.key photo.filename %}">Edit photo</a>
 <a href="{% url 'photo_objects:delete_photo' photo.album.key photo.filename %}">Delete photo</a>
 <!-- TODO: tiny_base64 skeleton -->
 <img src="/img/{{ photo.album.key }}/{{ photo.filename }}/lg" alt="{{ photo.description|default:photo.filename }}" />
+{% endblock %}
