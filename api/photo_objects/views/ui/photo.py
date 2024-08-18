@@ -6,7 +6,7 @@ from photo_objects import api
 from photo_objects.api.utils import FormValidationFailed
 from photo_objects.forms import ModifyPhotoForm, UploadPhotosForm
 
-from .utils import json_problem_as_html
+from .utils import BackLink, json_problem_as_html
 
 
 @json_problem_as_html
@@ -58,13 +58,23 @@ def edit_photo(request: HttpRequest, album_key: str, photo_key: str):
 
 @json_problem_as_html
 def delete_photo(request: HttpRequest, album_key: str, photo_key: str):
+
     if request.method == "POST":
         api.delete_photo(request, album_key, photo_key)
         return HttpResponseRedirect(
             reverse(
                 'photo_objects:show_album',
-                kwargs={
-                    "album_key": album_key}))
+                kwargs={"album_key": album_key}))
     else:
-        album = api.check_album_access(request, album_key)
-    return render(request, 'photo_objects/photo/delete.html', {"album": album})
+        photo = api.check_photo_access(request, album_key, photo_key, "xs")
+        target = photo.title or photo.filename
+        back = BackLink(
+            f'Back to {target}',
+            reverse(
+                'photo_objects:show_photo',
+                kwargs={
+                    "album_key": album_key,
+                    "photo_key": photo_key}))
+    return render(request, 'photo_objects/delete.html', {
+        "target": target,
+        "back": back,})

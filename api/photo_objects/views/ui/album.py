@@ -6,7 +6,7 @@ from photo_objects import api
 from photo_objects.api.utils import FormValidationFailed
 from photo_objects.forms import CreateAlbumForm, ModifyAlbumForm
 
-from .utils import json_problem_as_html
+from .utils import BackLink, json_problem_as_html
 
 
 def list_albums(request: HttpRequest):
@@ -71,4 +71,15 @@ def delete_album(request: HttpRequest, album_key: str):
         return HttpResponseRedirect(reverse('photo_objects:list_albums'))
     else:
         album = api.check_album_access(request, album_key)
-    return render(request, 'photo_objects/album/delete.html', {"album": album})
+        target = album.title or album.filename
+        back = BackLink(
+            f'Back to {target}',
+            reverse(
+                'photo_objects:show_album',
+                kwargs={
+                    "album_key": album_key}))
+
+
+    return render(request, 'photo_objects/delete.html', {
+        "target": target,
+        "back": back})
