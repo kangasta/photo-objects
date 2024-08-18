@@ -84,7 +84,12 @@ class CreateAlbumForm(ModelForm):
 class ModifyAlbumForm(ModelForm):
     class Meta:
         model = Album
-        fields = ['title', 'description', 'visibility']
+        fields = ['title', 'description', 'cover_photo', 'visibility']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['cover_photo'].queryset = Photo.objects.filter(
+            album=self.instance)
 
 
 class CreatePhotoForm(ModelForm):

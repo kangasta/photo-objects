@@ -24,8 +24,8 @@ from .utils import (
 
 
 def get_photos(request: HttpRequest, album_key: str):
-    check_album_access(request, album_key)
-    return Photo.objects.filter(album__key=album_key)
+    album = check_album_access(request, album_key)
+    return album.photo_set.all()
 
 
 def _upload_photo(album_key: str, photo_file: UploadedFile):
