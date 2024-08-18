@@ -1,8 +1,9 @@
 from django.contrib.auth import get_user_model
-from django.test import TestCase
 from django.utils import timezone
 
 from photo_objects.models import Album, Photo
+
+from .utils import TestCase
 
 
 def _path_fn(album, photo):

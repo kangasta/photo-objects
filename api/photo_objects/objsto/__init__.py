@@ -1,6 +1,7 @@
 import json
 import mimetypes
-import os
+
+from django.conf import settings
 
 from minio import Minio
 
@@ -24,13 +25,15 @@ def _anonymous_readonly_policy(bucket: str):
 
 
 def _objsto_access() -> tuple[Minio, str]:
+    conf = settings.PHOTO_OBJECTS_OBJSTO
+
     client = Minio(
-        os.getenv('OBJSTO_URL', "localhost:9000"),
-        os.getenv('OBJSTO_ACCESS_KEY', "access_key"),
-        os.getenv('OBJSTO_SECRET_KEY', "secret_key"),
-        secure=os.getenv('OBJSTO_SECURE', "false").lower() == "true",
+        conf.get('URL'),
+        conf.get('ACCESS_KEY'),
+        conf.get('SECRET_KEY'),
+        secure=conf.get('SECURE', True),
     )
-    bucket = os.getenv('OBJSTO_BUCKET', "photos")
+    bucket = conf.get('BUCKET', 'photos')
 
     # TODO: move this to management command
     if not client.bucket_exists(bucket):

@@ -6,7 +6,7 @@ from django.contrib.auth.models import Permission
 from PIL import Image
 
 from photo_objects.models import Album
-from photo_objects.objsto import get_photo, _objsto_access
+from photo_objects.objsto import get_photo
 
 from .utils import TestCase, open_test_photo
 
@@ -35,15 +35,6 @@ class PhotoViewTests(TestCase):
         Album.objects.create(
             key="test-photo-b",
             visibility=Album.Visibility.PUBLIC)
-
-    @classmethod
-    def tearDownClass(_):
-        client, bucket = _objsto_access()
-
-        for i in client.list_objects(bucket, recursive=True):
-            client.remove_object(bucket, i.object_name)
-
-        client.remove_bucket(bucket)
 
     def test_post_photo_with_non_formdata_fails(self):
         login_success = self.client.login(
