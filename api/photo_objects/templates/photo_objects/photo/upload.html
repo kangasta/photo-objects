@@ -1,13 +1,14 @@
 {% extends 'photo_objects/base.html' %}
 
 {% block title %}
-<title>Upload photos - Photo Objects</title>
+<title>Upload photos to {{ target }} - Photo Objects</title>
 {% endblock %}
 
 {% block content %}
-<h1>Upload photos</h1>
+<h1>Upload photos to {{ target }}</h1>
 <!-- TODO: Instructions? -->
 
+<a href="{{ back.url }}">{{ back.text }}</a>
 <form action="" enctype="multipart/form-data" method="post">
   {% csrf_token %}
   <ul>

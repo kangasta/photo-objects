@@ -30,8 +30,10 @@ def new_album(request: HttpRequest):
     else:
         form = CreateAlbumForm(initial={"key": "_new"})
 
+    back = BackLink("Back to albums", reverse('photo_objects:list_albums'))
+
     return render(request, 'photo_objects/form.html',
-                  {"form": form, "title": "Create album"})
+                  {"form": form, "title": "Create album", "back": back})
 
 
 @json_problem_as_html
@@ -60,8 +62,14 @@ def edit_album(request: HttpRequest, album_key: str):
         album = api.check_album_access(request, album_key)
         form = ModifyAlbumForm(initial=album.to_json(), instance=album)
 
-    return render(request, 'photo_objects/form.html',
-                  {"form": form, "title": "Edit album"})
+    target = album.title or album.key
+    back = BackLink(
+        f'Back to {target}',
+        reverse(
+            'photo_objects:show_album',
+            kwargs={"album_key": album_key}))
+
+    return render(request, 'photo_objects/form.html', {"form": form, "title": "Edit album", "back": back})
 
 
 @json_problem_as_html
