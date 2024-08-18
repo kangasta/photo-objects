@@ -37,7 +37,7 @@ def new_album(request: HttpRequest):
 @json_problem_as_html
 def show_album(request: HttpRequest, album_key: str):
     album = api.check_album_access(request, album_key)
-    photos = api.get_photos(request, album_key)
+    photos = album.photo_set.all()
 
     return render(request, "photo_objects/album/show.html",
                   {"album": album, "photos": photos})

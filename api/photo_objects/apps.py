@@ -7,6 +7,9 @@ class PhotoObjectsConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'photo_objects'
 
+    def ready(self):
+        from . import signals
+
 
 @register()
 def photo_objects_check(app_configs, **kwargs):

@@ -242,6 +242,11 @@ class AlbumViewTests(TestCase):
             data=data)
         self.assertStatus(response, 201)
 
+        created_data = response.json()
+        for key, value in data.items():
+            self.assertEqual(created_data.get(key), value)
+        data = created_data
+
         req_data = dict(
             title="Copenhagen",
             description="Copenhagen (København) is the capital of Denmark.")

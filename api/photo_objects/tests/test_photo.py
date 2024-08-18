@@ -1,4 +1,5 @@
 from base64 import b64decode
+from datetime import timedelta
 from io import BytesIO
 
 from django.contrib.auth import get_user_model
@@ -6,6 +7,7 @@ from django.contrib.auth.models import Permission
 from PIL import Image
 
 from photo_objects.models import Album
+from photo_objects.img import utcnow
 from photo_objects.objsto import get_photo
 
 from .utils import TestCase, open_test_photo
@@ -227,16 +229,47 @@ class PhotoViewTests(TestCase):
         data = {**data, **req_data}
         self.assertDictEqual(response.json(), data)
 
+        # Image file does not contain EXIF data so timestamp is the upload
+        # time instead of the create time.
         filename = "havfrue.jpg"
         file = open_test_photo(filename)
         response = self.client.post(
             "/api/albums/test-photo-a/photos",
             {filename: file})
         self.assertStatus(response, 201)
+        last_timestamp = response.json().get("timestamp")
+        self.assertGreater(last_timestamp,
+                           (utcnow() - timedelta(minutes=1)).isoformat())
+
+        filename = "bus-stop.jpg"
+        file = open_test_photo(filename)
+        response = self.client.post(
+            "/api/albums/test-photo-a/photos",
+            {filename: file})
+        self.assertStatus(response, 201)
+        first_timestamp = response.json().get("timestamp")
 
         response = self.client.get(
             "/api/albums/test-photo-a/photos/tower.jpg/img?size=og")
         self.assertStatus(response, 200)
+
+        response = self.client.get(
+            "/api/albums/test-photo-a/photos")
+        self.assertStatus(response, 200)
+        self.assertListEqual(
+            [i.get('filename') for i in response.json()],
+            ['bus-stop.jpg', 'tower.jpg', 'havfrue.jpg'], response.content)
+
+        response = self.client.get(
+            "/api/albums/test-photo-a")
+        self.assertStatus(response, 200)
+        data = response.json()
+        for key, expected in [
+            ('first_timestamp', first_timestamp),
+            ('last_timestamp', last_timestamp),
+            ('cover_photo', 'tower.jpg'),
+        ]:
+            self.assertEqual(data.get(key), expected, f'key={key}')
 
         response = self.client.delete(
             "/api/albums/test-photo-a/photos/tower.jpg")
