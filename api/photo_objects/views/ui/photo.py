@@ -25,9 +25,13 @@ def upload_photos(request: HttpRequest, album_key: str):
 
     album = api.check_album_access(request, album_key)
     target = album.title or album.key
-    back = BackLink("Back to album", reverse('photo_objects:show_album', kwargs={"album_key": album_key}))
+    back = BackLink(
+        "Back to album", reverse(
+            'photo_objects:show_album', kwargs={
+                "album_key": album_key}))
 
-    return render(request, 'photo_objects/photo/upload.html', {"form": form, "target": target, "back": back})
+    return render(request, 'photo_objects/photo/upload.html',
+                  {"form": form, "target": target, "back": back})
 
 
 @json_problem_as_html
@@ -65,7 +69,8 @@ def edit_photo(request: HttpRequest, album_key: str, photo_key: str):
                 "album_key": album_key,
                 "photo_key": photo_key}))
 
-    return render(request, 'photo_objects/form.html', {"form": form, "title": f"Edit {target}", "back": back})
+    return render(request, 'photo_objects/form.html',
+                  {"form": form, "title": f"Edit {target}", "back": back})
 
 
 @json_problem_as_html
@@ -87,4 +92,5 @@ def delete_photo(request: HttpRequest, album_key: str, photo_key: str):
                 kwargs={
                     "album_key": album_key,
                     "photo_key": photo_key}))
-    return render(request, 'photo_objects/delete.html', {"target": target, "back": back,})
+    return render(request, 'photo_objects/delete.html',
+                  {"target": target, "back": back, })
