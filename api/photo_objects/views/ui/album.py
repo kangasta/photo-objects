@@ -60,7 +60,12 @@ def edit_album(request: HttpRequest, album_key: str):
             form = e.form
     else:
         album = api.check_album_access(request, album_key)
-        form = ModifyAlbumForm(initial=album.to_json(), instance=album)
+        cover_photo = album.cover_photo.key if album.cover_photo else None
+        form = ModifyAlbumForm(
+            initial={
+                **album.to_json(),
+                'cover_photo': cover_photo},
+            instance=album)
 
     target = album.title or album.key
     back = BackLink(
