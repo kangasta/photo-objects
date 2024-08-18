@@ -15,7 +15,7 @@
 <a href="{% url 'photo_objects:edit_album' album.key %}">Edit album</a>
 <a href="{% url 'photo_objects:delete_album' album.key %}">Delete album</a>
 
-<ul>
+<ul class="photo-list">
   {% for photo in photos %}
   <li><a href="{% url 'photo_objects:show_photo' album.key photo.filename %}">
       <!-- TODO: tiny_base64 skeleton -->

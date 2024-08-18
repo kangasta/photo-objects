@@ -1,3 +1,17 @@
-body {
+ul.photo-list {
+  list-style-type: none;
+  margin: 32px 0;
+  padding: 0;
+
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
+ul.photo-list li, ul.photo-list a, ul.photo-list img {
+  display: block;
+}
+
+ul.photo-list img {
+  border-radius: 4px;
+}
