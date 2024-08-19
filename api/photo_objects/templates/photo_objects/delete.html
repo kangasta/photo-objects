@@ -11,6 +11,6 @@
 <a href="{{ back.url }}">{{ back.text }}</a>
 <form action="" method="post">
   {% csrf_token %}
-  <input type="submit" value="Delete">
+  <input class="delete" type="submit" value="Delete">
 </form>
 {% endblock %}
