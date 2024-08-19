@@ -15,3 +15,10 @@ ul.photo-list li, ul.photo-list a, ul.photo-list img {
 ul.photo-list img {
   border-radius: 4px;
 }
+
+div.photo-placeholder {
+  width: 171px;
+  height: 256px;
+  background-color: #ccc;
+  border-radius: 4px;
+}

@@ -2,7 +2,9 @@ import os
 
 from django.conf import settings
 from django.test import TestCase as DjangoTestCase, override_settings
+from django.utils import timezone
 
+from photo_objects.models import Album, Photo
 from photo_objects.objsto import _objsto_access
 
 
@@ -13,6 +15,15 @@ def open_test_photo(filename):
         "photos",
         filename)
     return open(path, "rb")
+
+
+def create_dummy_photo(album: Album, filename: str):
+    return Photo.objects.create(
+        key=f'{album.key}/{filename}',
+        album=album,
+        timestamp=timezone.now(),
+        height=100,
+        width=100,)
 
 
 def _objsto_test_settings():

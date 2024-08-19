@@ -101,6 +101,8 @@ class CreatePhotoForm(ModelForm):
             'title',
             'description',
             'timestamp',
+            'height',
+            'width',
             'tiny_base64']
         error_messages = {
             'album': {
