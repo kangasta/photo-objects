@@ -1,3 +1,89 @@
+@font-face {
+  font-family: "Source Sans 3";
+  src: url("./SourceSans3.ttf");
+}
+
+:root {
+  --bg-primary: #191b1f;
+  --bg-secondary: #202327;
+
+  --fg-primary: #d1d3d7;
+  --fg-secondary: #a9acb1;
+
+  --fg-blue: #9a9fef;
+  --fg-red: #ef8a8c;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--fg-primary);
+  font-family: "Source Sans 3", sans-serif;
+}
+
+/* Links */
+a {
+  color: var(--fg-blue);
+}
+
+a:visited {
+  color: var(--fg-blue);
+}
+
+a:active {
+  color: var(--fg-red);
+}
+
+/* Forms */
+form input[type="text"],
+form textarea,
+form select {
+  background-color: var(--bg-secondary);
+  color: var(--fg-primary);
+  border: 1px solid var(--fg-secondary);
+  border-radius: 4px;
+  padding: 8px;
+  max-width: 800px;
+}
+
+form ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 32px 0 0;
+}
+
+form ul li {
+  margin: 16px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+form ul.errorlist {
+  color: var(--fg-red);
+  margin: 0;
+}
+
+form ul.errorlist li {
+  margin: 8px 0;
+}
+
+form input[type="submit"] {
+  background-color: var(--fg-blue);
+  color: var(--bg-primary);
+  border-radius: 4px;
+  padding: 8px 32px;
+  cursor: pointer;
+  appearance: none;
+  border: none;
+  font-weight: 600;
+  font-family: inherit;
+  margin: 24px 0;
+}
+
+form input[type="submit"].delete {
+  background-color: var(--fg-red);
+}
+
+/* Photo lists */
 ul.photo-list {
   list-style-type: none;
   margin: 32px 0;
@@ -8,17 +94,48 @@ ul.photo-list {
   gap: 8px;
 }
 
-ul.photo-list li, ul.photo-list a, ul.photo-list img {
+ul.photo-list a {
   display: block;
+  position: relative;
+}
+
+ul.photo-list li {
+  display: block;
+  box-shadow: 0 2px 8px -2px rgba(0,0,0,0.5);
 }
 
 ul.photo-list img {
+  display: block;
   border-radius: 4px;
 }
 
-div.photo-placeholder {
+ul.photo-list div.photo-label {
+  position: absolute;
+  bottom: 0;
+  background: var(--bg-secondary);
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+  color: var(--fg-primary);
+  opacity: 0.85;
+  font-weight: 600;
+  border-radius: 0 0 4px 4px;
+  border-top: var(--bg-primary) solid 1px;
+}
+
+ul.photo-list div.photo-placeholder {
   width: 171px;
   height: 256px;
   background-color: #ccc;
   border-radius: 4px;
+}
+
+/* Photo details */
+div.photo {
+  margin: 32px 0;
+}
+
+div.photo img {
+  border-radius: 4px;
+  box-shadow: 0 2px 8px -2px rgba(0,0,0,0.5);
 }

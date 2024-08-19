@@ -12,6 +12,9 @@
 <a href="{% url 'photo_objects:show_album' photo.album.key %}">Back to album</a>
 <a href="{% url 'photo_objects:edit_photo' photo.album.key photo.filename %}">Edit photo</a>
 <a href="{% url 'photo_objects:delete_photo' photo.album.key photo.filename %}">Delete photo</a>
-<!-- TODO: tiny_base64 skeleton -->
-<img src="/img/{{ photo.album.key }}/{{ photo.filename }}/lg" alt="{{ photo.description|default:photo.filename }}" />
-{% endblock %}
+
+<div class="photo">
+  <!-- TODO: tiny_base64 skeleton -->
+  <img src="/img/{{ photo.album.key }}/{{ photo.filename }}/lg" alt="{{ photo.description|default:photo.filename }}" />
+  {% endblock %}
+</div>

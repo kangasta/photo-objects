@@ -20,7 +20,7 @@
       {% else %}
       <div class="photo-placeholder"></div>
       {% endif %}
-      <div>{{ album.title|default:album.key }}</div>
+      <div class="photo-label">{{ album.title|default:album.key }}</div>
       <!-- TODO: Year and month, e.g. 24 Mar-->
     </a>
   </li>
