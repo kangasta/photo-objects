@@ -19,7 +19,8 @@
   {% for photo in photos %}
   <li><a href="{% url 'photo_objects:show_photo' album.key photo.filename %}">
       <!-- TODO: tiny_base64 skeleton -->
-      <img src="/img/{{ album.key }}/{{ photo.filename }}/sm" alt="{{ photo.description|default:photo.filename }}" />
+      <img src="/img/{{ album.key }}/{{ photo.filename }}/sm" alt="{{ photo.description|default:photo.filename }}"
+        height="{{ photo.thumbnail_height }}" width="{{ photo.thumbnail_width }}" />
     </a></li>
   {% endfor %}
 </ul>

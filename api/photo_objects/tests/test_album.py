@@ -6,51 +6,42 @@ from django.utils import timezone
 
 from photo_objects.models import Album, Photo
 
-from .utils import TestCase, open_test_photo
+from .utils import TestCase, create_dummy_photo, open_test_photo
 
-
-CANAL_BASE64 = "iVBORw0KGgoAAAANSUhEUgAAAAMAAAAFBAMAAAByX0uRAAAALVBMVEW1no/d4OiTc2jAoozGvbaOZ06igXB5alqJYEFXUUJ6fn9zVT9PVUBhe4U4LyJRWPqlAAAAF0lEQVQI12NgVGAwCWBIb2CYtYHh7AMAFg0EhKs+JLkAAAAASUVORK5CYII="  # noqa
-TOWER_BASE64 = "iVBORw0KGgoAAAANSUhEUgAAAAMAAAAFBAMAAAByX0uRAAAALVBMVEVZl898sOJgm9CSvuucpraRtdqer8OTdWWcrL+Zb06UZUaOkZpeSTtpRzBbXmMTFH6IAAAAF0lEQVQI12NgVGAwCWBIb2CYtYHh7AMAFg0EhKs+JLkAAAAASUVORK5CYII="  # noqa
 
 PHOTOS_DIRECTORY = "photos"
 
 
 class ViewVisibilityTests(TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         User = get_user_model()
-        User.objects.create_user(username='test', password='test')
+        User.objects.create_user(username='test-visibility', password='test')
 
         album = Album.objects.create(
             key="venice", visibility=Album.Visibility.PUBLIC)
-        Album.objects.create(key="paris", visibility=Album.Visibility.PUBLIC)
-        Album.objects.create(key="london", visibility=Album.Visibility.PRIVATE)
-        Album.objects.create(key="berlin", visibility=Album.Visibility.HIDDEN)
+        Album.objects.create(
+            key="test-visibility-public",
+            visibility=Album.Visibility.PUBLIC)
+        Album.objects.create(
+            key="test-visibility-private",
+            visibility=Album.Visibility.PRIVATE)
+        Album.objects.create(
+            key="test-visibility-hidden",
+            visibility=Album.Visibility.HIDDEN)
 
-        Photo.objects.create(
-            key='venice/tower.jpeg',
-            album=album,
-            timestamp=timezone.now(),
-            tiny_base64=TOWER_BASE64)
-        Photo.objects.create(
-            key='venice/canal.jpeg',
-            album=album,
-            timestamp=timezone.now(),
-            tiny_base64=CANAL_BASE64)
-        Photo.objects.create(
-            key='venice/gondola.jpeg',
-            album=album,
-            timestamp=timezone.now())
-        Photo.objects.create(
-            key='venice/church.jpeg',
-            album=album,
-            timestamp=timezone.now())
+        create_dummy_photo(album, "tower.jpeg")
+        create_dummy_photo(album, "canal.jpeg")
+        create_dummy_photo(album, "gondola.jpeg")
+        create_dummy_photo(album, "church.jpeg")
 
     def test_anonymous_user_can_see_public_albums(self):
         response = self.client.get("/api/albums")
         self.assertEqual(len(response.json()), 2)
 
     def test_authenticated_user_can_see_all_albums(self):
-        login_success = self.client.login(username='test', password='test')
+        login_success = self.client.login(
+            username='test-visibility', password='test')
         self.assertTrue(login_success)
 
         response = self.client.get("/api/albums")
@@ -58,12 +49,12 @@ class ViewVisibilityTests(TestCase):
 
     def test_anonymous_user_get_album_get_photos(self):
         self.assertRequestStatuses([
-            ("GET", "/api/albums/paris/photos", 200),
-            ("GET", "/api/albums/london/photos", 404),
-            ("GET", "/api/albums/berlin/photos", 404),
-            ("GET", "/api/albums/paris", 200),
-            ("GET", "/api/albums/london", 404),
-            ("GET", "/api/albums/berlin", 404),
+            ("GET", "/api/albums/test-visibility-public/photos", 200),
+            ("GET", "/api/albums/test-visibility-private/photos", 404),
+            ("GET", "/api/albums/test-visibility-hidden/photos", 404),
+            ("GET", "/api/albums/test-visibility-public", 200),
+            ("GET", "/api/albums/test-visibility-private", 404),
+            ("GET", "/api/albums/test-visibility-hidden", 404),
         ])
 
     def test_get_photos_lists_all_photos(self):

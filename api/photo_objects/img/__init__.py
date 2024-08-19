@@ -39,13 +39,22 @@ def _image_format(filename):
 
 def photo_details(photo_file):
     image = Image.open(photo_file)
+
+    width, height = image.size
     timestamp = _read_original_datetime(image) or utcnow()
+
     # TODO: remove all extra data from the image
     resized = image.resize((3, 3))
 
     b = BytesIO()
     resized.save(b, format='PNG', optimize=True, icc_profile=None)
-    return timestamp, b64encode(b.getvalue()).decode('ascii')
+
+    return dict(
+        timestamp=timestamp,
+        width=width,
+        height=height,
+        tiny_base64=b64encode(b.getvalue()).decode('ascii')
+    )
 
 
 def scale_photo(photo_file, filename, max_width=None, max_height=None):

@@ -14,8 +14,11 @@
   <li>
     <a href="{% url 'photo_objects:show_album' album.key %}">
       {% if album.cover_photo %}
-      <img src="/img/{{ album.key }}/{{ album.cover_photo.filename }}/sm" alt="{{ album.cover_photo.description|default:album.cover_photo.filename }}" />
-      <!-- TODO: placeholder if album has no cover photo -->
+      <img src="/img/{{ album.key }}/{{ album.cover_photo.filename }}/sm"
+        alt="{{ album.cover_photo.description|default:album.cover_photo.filename }}"
+        height="{{ album.cover_photo.thumbnail_height }}" width="{{ album.cover_photo.thumbnail_width }}" />
+      {% else %}
+      <div class="photo-placeholder"></div>
       {% endif %}
       <div>{{ album.title|default:album.key }}</div>
       <!-- TODO: Year and month, e.g. 24 Mar-->

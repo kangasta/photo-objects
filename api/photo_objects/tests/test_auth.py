@@ -3,7 +3,7 @@ from django.utils import timezone
 
 from photo_objects.models import Album, Photo
 
-from .utils import TestCase
+from .utils import TestCase, create_dummy_photo
 
 
 def _path_fn(album, photo):
@@ -11,35 +11,27 @@ def _path_fn(album, photo):
 
 
 class AuthViewTests(TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         User = get_user_model()
-        User.objects.create_user(username='test', password='test')
+        User.objects.create_user(username='test-auth', password='test')
 
         public_album = Album.objects.create(
-            key="venice", visibility=Album.Visibility.PUBLIC)
-        public_photo = Photo.objects.create(
-            key='venice/waterbus.jpeg',
-            album=public_album,
-            timestamp=timezone.now())
-        self.public_path = _path_fn(public_album.key, public_photo.filename)
+            key="test-auth-public", visibility=Album.Visibility.PUBLIC)
+        public_photo = create_dummy_photo(public_album, "waterbus.jpeg")
+        cls.public_path = _path_fn(public_album.key, public_photo.filename)
 
         hidden_album = Album.objects.create(
-            key="paris", visibility=Album.Visibility.HIDDEN)
-        hidden_photo = Photo.objects.create(
-            key='paris/bridge.jpeg',
-            album=hidden_album,
-            timestamp=timezone.now())
-        self.hidden_path = _path_fn(hidden_album.key, hidden_photo.filename)
+            key="test-auth-hidden", visibility=Album.Visibility.HIDDEN)
+        hidden_photo = create_dummy_photo(hidden_album, "bridge.jpeg")
+        cls.hidden_path = _path_fn(hidden_album.key, hidden_photo.filename)
 
         private_album = Album.objects.create(
-            key="london", visibility=Album.Visibility.PRIVATE)
-        private_photo = Photo.objects.create(
-            key='london/tower.jpeg',
-            album=private_album,
-            timestamp=timezone.now())
-        self.private_path = _path_fn(private_album.key, private_photo.filename)
+            key="test-auth-private", visibility=Album.Visibility.PRIVATE)
+        private_photo = create_dummy_photo(private_album, "tower.jpeg")
+        cls.private_path = _path_fn(private_album.key, private_photo.filename)
 
-        self.not_found_path = _path_fn("madrid", "hotel")
+        cls.not_found_path = _path_fn("madrid", "hotel")
 
     def test_auth_returns_403_on_no_path(self):
         response = self.client.get("/_auth")
@@ -79,7 +71,8 @@ class AuthViewTests(TestCase):
         ])
 
     def test_authenticated_user_can_access_all_photos(self):
-        login_success = self.client.login(username='test', password='test')
+        login_success = self.client.login(
+            username='test-auth', password='test')
         self.assertTrue(login_success)
 
         self._test_access([

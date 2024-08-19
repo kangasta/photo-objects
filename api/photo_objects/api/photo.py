@@ -30,7 +30,7 @@ def get_photos(request: HttpRequest, album_key: str):
 
 def _upload_photo(album_key: str, photo_file: UploadedFile):
     try:
-        timestamp, tiny_base64 = photo_details(photo_file)
+        details = photo_details(photo_file)
     except UnidentifiedImageError:
         raise JsonProblem(
             "Could not open photo file.",
@@ -42,8 +42,7 @@ def _upload_photo(album_key: str, photo_file: UploadedFile):
         album=album_key,
         title="",
         description="",
-        timestamp=timestamp,
-        tiny_base64=tiny_base64,
+        **details,
     ))
 
     if not f.is_valid():

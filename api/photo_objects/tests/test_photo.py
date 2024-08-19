@@ -217,6 +217,8 @@ class PhotoViewTests(TestCase):
         self.assertEqual(data.get("title"), "")
         self.assertEqual(data.get("description"), "")
         self.assertEqual(data.get("timestamp"), "2024-03-20T14:28:04+00:00")
+        self.assertEqual(data.get("height"), 512)
+        self.assertEqual(data.get("width"), 341)
 
         req_data = dict(
             title="The Eiffel Tower",

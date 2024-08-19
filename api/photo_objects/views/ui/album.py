@@ -9,6 +9,7 @@ from photo_objects.forms import CreateAlbumForm, ModifyAlbumForm
 from .utils import BackLink, json_problem_as_html
 
 
+@json_problem_as_html
 def list_albums(request: HttpRequest):
     albums = api.get_albums(request)
     return render(request,
@@ -16,6 +17,7 @@ def list_albums(request: HttpRequest):
                   {"albums": albums})
 
 
+@json_problem_as_html
 def new_album(request: HttpRequest):
     if request.method == "POST":
         try:

@@ -78,6 +78,8 @@ class Photo(models.Model):
     title = models.CharField(blank=True)
     description = models.TextField(blank=True)
 
+    height = models.PositiveIntegerField()
+    width = models.PositiveIntegerField()
     tiny_base64 = models.TextField(blank=True)
 
     def __str__(self):
@@ -91,6 +93,14 @@ class Photo(models.Model):
     def filename(self):
         return self.key.split('/')[-1]
 
+    @property
+    def thumbnail_height(self):
+        return 256
+
+    @property
+    def thumbnail_width(self):
+        return round(self.width / self.height * self.thumbnail_height)
+
     def to_json(self):
         album_key = self.album.key if self.album else None
 
@@ -99,6 +109,8 @@ class Photo(models.Model):
             filename=self.filename,
             album=album_key,
             timestamp=self.timestamp.isoformat(),
+            height=self.height,
+            width=self.width,
             tiny_base64=self.tiny_base64,
             title=self.title,
             description=self.description,
