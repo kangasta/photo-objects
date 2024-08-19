@@ -26,7 +26,7 @@ def slugify(input: str):
         'NFKD', input).encode(
         'ascii', 'ignore').decode('ascii')
     key = re.sub(r'[^a-zA-Z0-9._-]', '-', key)
-    key = re.sub(r'[-_]+', '-', key)
+    key = re.sub(r'[-_]{2,}', '-', key)
     return key
 
 
