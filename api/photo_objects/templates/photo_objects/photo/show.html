@@ -14,7 +14,8 @@
 <a href="{% url 'photo_objects:delete_photo' photo.album.key photo.filename %}">Delete photo</a>
 
 <div class="photo">
-  <!-- TODO: tiny_base64 skeleton -->
-  <img src="/img/{{ photo.album.key }}/{{ photo.filename }}/lg" alt="{{ photo.description|default:photo.filename }}" />
+  <img src="/img/{{ photo.album.key }}/{{ photo.filename }}/lg" alt="{{ photo.description|default:photo.filename }}"
+    style="background: url(data:image/png;base64,{{ photo.tiny_base64 }}); background-size: 100% 100%;"
+    height="{{ photo.height }}" width="{{ photo.width }}" />
   {% endblock %}
 </div>

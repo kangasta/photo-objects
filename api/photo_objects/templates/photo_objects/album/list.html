@@ -16,6 +16,7 @@
       {% if album.cover_photo %}
       <img src="/img/{{ album.key }}/{{ album.cover_photo.filename }}/sm"
         alt="{{ album.cover_photo.description|default:album.cover_photo.filename }}"
+        style="background: url(data:image/png;base64,{{ album.cover_photo.tiny_base64 }}); background-size: 100% 100%;"
         height="{{ album.cover_photo.thumbnail_height }}" width="{{ album.cover_photo.thumbnail_width }}" />
       {% else %}
       <div class="photo-placeholder"></div>
