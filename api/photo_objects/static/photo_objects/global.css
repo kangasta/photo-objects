@@ -83,6 +83,39 @@ form input[type="submit"].delete {
   background-color: var(--fg-red);
 }
 
+/* File input */
+input[type="file"]#id_photos {
+  display: none;
+}
+
+label[for="id_photos"] {
+  background-color: var(--bg-secondary);
+  color: var(--fg-primary);
+  border: 1px solid var(--fg-secondary);
+  border-radius: 4px;
+  padding: 16px;
+  max-width: 800px;
+  cursor: pointer;
+  min-height: 128px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+}
+
+label[for="id_photos"] img {
+  height: 96px;
+  width: auto;
+  border-radius: 4px;
+
+  /* For nicely rendering invalid images */
+  background: var(--fg-secondary);
+  box-sizing: border-box;
+  color: var(--bg-primary);
+  white-space: pre;
+}
+
 /* Photo lists */
 ul.photo-list {
   list-style-type: none;
@@ -101,7 +134,7 @@ ul.photo-list a {
 
 ul.photo-list li {
   display: block;
-  box-shadow: 0 2px 8px -2px rgba(0,0,0,0.5);
+  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.5);
 }
 
 ul.photo-list img {
@@ -137,5 +170,5 @@ div.photo {
 
 div.photo img {
   border-radius: 4px;
-  box-shadow: 0 2px 8px -2px rgba(0,0,0,0.5);
+  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.5);
 }
