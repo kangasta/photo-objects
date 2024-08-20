@@ -16,4 +16,40 @@
   </ul>
   <input type="submit" value="Upload">
 </form>
+<script>
+  function renderPreviews() {
+    const input = document.querySelector('#id_photos');
+    if (input.files.length > 0) {
+      const label = document.querySelector('label[for=id_photos]')
+      label.textContent = '';
+
+      for (let i = 0; i < input.files.length; i++) {
+        const file = input.files[i];
+
+        const img = document.createElement('img');
+        img.alt = " " + file.name + " ";
+        img.src = URL.createObjectURL(file);
+
+        label.appendChild(img);
+      }
+    }
+  }
+
+  // Render images instead of label after selecting files
+  document.querySelector('#id_photos').addEventListener('change', renderPreviews);
+
+  // Allow drop events on label
+  document.querySelector('label[for=id_photos]').addEventListener('dragover', function (event) {
+    event.preventDefault();
+  });
+
+  // Handle drop event on label
+  document.querySelector('label[for=id_photos]').addEventListener('drop', function (event) {
+    event.preventDefault();
+
+    const input = document.querySelector('#id_photos');
+    input.files = event.dataTransfer.files;
+    renderPreviews();
+  });
+</script>
 {% endblock %}

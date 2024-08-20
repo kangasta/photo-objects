@@ -136,4 +136,5 @@ class MultipleFileField(FileField):
 
 
 class UploadPhotosForm(Form):
-    photos = MultipleFileField()
+    photos = MultipleFileField(label=_(
+        'Drag and drop photos here or click to open upload dialog.'))
