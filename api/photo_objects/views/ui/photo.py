@@ -44,11 +44,16 @@ def show_photo(request: HttpRequest, album_key: str, photo_key: str):
             'photo_objects:show_album', kwargs={
                 "album_key": album_key}))
 
+    details = {
+        "Description": photo.description,
+        "Timestamp": photo.timestamp,
+    }
+
     return render(request,
                   "photo_objects/photo/show.html",
                   {"photo": photo,
                    "title": photo.title or photo.filename,
-                   "back": back})
+                   "back": back, "details": details})
 
 
 @json_problem_as_html
