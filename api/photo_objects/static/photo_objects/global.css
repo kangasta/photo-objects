@@ -200,9 +200,35 @@ ul.photo-list div.photo-placeholder {
 /* Photo details */
 div.photo {
   margin: 32px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
 }
+
 
 div.photo img {
   border-radius: 4px;
   box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.5);
+  display: block;
+  max-width: 800px;
+  max-height: 100vh;
+  max-height: calc(100vh - 70px);
+  width: auto;
+  height: auto;
+}
+
+div.photo dl {
+  margin: 0;
+  flex-basis: 384px;
+  flex-grow: 1;
+}
+
+div.photo dl dt {
+  font-weight: 600;
+  font-size: 0.7em;
+  color: var(--fg-secondary)
+}
+
+div.photo dl dd {
+  margin: 0 0 16px;
 }
