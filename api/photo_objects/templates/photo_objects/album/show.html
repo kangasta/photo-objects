@@ -9,19 +9,18 @@
 {% endblock %}
 
 {% block content %}
-{% if album.description %}
-<p>{{ album.description }}</p>
-{% endif %}
-
-<ul class="photo-list">
-  {% for photo in photos %}
-  <li><a href="{% url 'photo_objects:show_photo' album.key photo.filename %}">
-      <img src="/img/{{ album.key }}/{{ photo.filename }}/sm" alt="{{ photo.description|default:photo.filename }}"
-        style="background: url(data:image/png;base64,{{ photo.tiny_base64 }}); background-size: 100% 100%; font-size: 0;"
-        height="{{ photo.thumbnail_height }}" width="{{ photo.thumbnail_width }}" />
-    </a></li>
-  {% endfor %}
-</ul>
+<div class="album">
+  <ul class="photo-list">
+    {% for photo in photos %}
+    <li><a href="{% url 'photo_objects:show_photo' album.key photo.filename %}">
+        <img src="/img/{{ album.key }}/{{ photo.filename }}/sm" alt="{{ photo.description|default:photo.filename }}"
+          style="background: url(data:image/png;base64,{{ photo.tiny_base64 }}); background-size: 100% 100%; font-size: 0;"
+          height="{{ photo.thumbnail_height }}" width="{{ photo.thumbnail_width }}" />
+      </a></li>
+    {% endfor %}
+  </ul>
+  {% include 'photo_objects/details.html' %}
+</div>
 
 <div class="actions">
   <a class="action" href="{% url 'photo_objects:upload_photos' album.key %}">Upload photos</a>

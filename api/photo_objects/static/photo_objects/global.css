@@ -150,6 +150,19 @@ label[for="id_photos"] img {
 }
 
 
+/* Album */
+div.album {
+  margin: 32px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+div.album ul.photo-list {
+  margin: 0;
+}
+
+
 /* Photo lists */
 ul.photo-list {
   list-style-type: none;
@@ -217,18 +230,21 @@ div.photo img {
   height: auto;
 }
 
+
+/* Details */
+div.album dl,
 div.photo dl {
   margin: 0;
   flex-basis: 384px;
   flex-grow: 1;
 }
 
-div.photo dl dt {
+dl dt {
   font-weight: 600;
   font-size: 0.7em;
   color: var(--fg-secondary)
 }
 
-div.photo dl dd {
+dl dd {
   margin: 0 0 16px;
 }
