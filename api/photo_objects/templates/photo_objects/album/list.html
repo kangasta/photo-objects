@@ -1,12 +1,14 @@
 {% extends 'photo_objects/base.html' %}
 
 {% block title %}
-<title>Albums - Photo Objects</title>
+{% include 'photo_objects/title.html' %}
+{% endblock %}
+
+{% block header %}
+{% include 'photo_objects/header.html' %}
 {% endblock %}
 
 {% block content %}
-<h1>Albums</h1>
-<a href="{% url 'photo_objects:new_album' %}">New album</a>
 
 {% if albums %}
 <ul class="photo-list">
@@ -30,4 +32,8 @@
 {% else %}
 <p>No albums are available.</p>
 {% endif %}
+<div class="actions">
+  <a class="action" href="{% url 'photo_objects:new_album' %}">New album</a>
+</div>
+
 {% endblock %}

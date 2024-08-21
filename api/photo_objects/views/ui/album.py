@@ -14,7 +14,7 @@ def list_albums(request: HttpRequest):
     albums = api.get_albums(request)
     return render(request,
                   "photo_objects/album/list.html",
-                  {"albums": albums})
+                  {"albums": albums, "title": "Albums"})
 
 
 @json_problem_as_html
@@ -43,8 +43,14 @@ def show_album(request: HttpRequest, album_key: str):
     album = api.check_album_access(request, album_key)
     photos = album.photo_set.all()
 
-    return render(request, "photo_objects/album/show.html",
-                  {"album": album, "photos": photos})
+    back = BackLink("Back to albums", reverse('photo_objects:list_albums'))
+
+    return render(request,
+                  "photo_objects/album/show.html",
+                  {"album": album,
+                   "photos": photos,
+                   "title": album.title or album.key,
+                   "back": back})
 
 
 @json_problem_as_html
@@ -96,5 +102,5 @@ def delete_album(request: HttpRequest, album_key: str):
                     "album_key": album_key}))
 
     return render(request, 'photo_objects/delete.html', {
-        "target": target,
+        "title": f"Delete album",
         "back": back})

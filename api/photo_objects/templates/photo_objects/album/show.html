@@ -1,19 +1,17 @@
 {% extends 'photo_objects/base.html' %}
 
 {% block title %}
-<title>{{ album.title|default:album.key }} - Photo Objects</title>
+{% include 'photo_objects/title.html' %}
+{% endblock %}
+
+{% block header %}
+{% include 'photo_objects/header.html' %}
 {% endblock %}
 
 {% block content %}
-<h1>{{album.title|default:album.key}}</h1>
 {% if album.description %}
 <p>{{ album.description }}</p>
 {% endif %}
-
-<a href="{% url 'photo_objects:list_albums' %}">Back to albums</a>
-<a href="{% url 'photo_objects:upload_photos' album.key %}">Upload photos</a>
-<a href="{% url 'photo_objects:edit_album' album.key %}">Edit album</a>
-<a href="{% url 'photo_objects:delete_album' album.key %}">Delete album</a>
 
 <ul class="photo-list">
   {% for photo in photos %}
@@ -24,4 +22,10 @@
     </a></li>
   {% endfor %}
 </ul>
+
+<div class="actions">
+  <a class="action" href="{% url 'photo_objects:upload_photos' album.key %}">Upload photos</a>
+  <a class="action" href="{% url 'photo_objects:edit_album' album.key %}">Edit album</a>
+  <a class="action delete" href="{% url 'photo_objects:delete_album' album.key %}">Delete album</a>
+</div>
 {% endblock %}
