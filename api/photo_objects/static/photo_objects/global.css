@@ -225,7 +225,7 @@ div.photo img {
   display: block;
   max-width: 800px;
   max-height: 100vh;
-  max-height: calc(100vh - 70px);
+  max-height: calc(100vh - 110px);
   width: auto;
   height: auto;
 }
