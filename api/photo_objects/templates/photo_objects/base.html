@@ -17,8 +17,11 @@
 <body>
   <header>
     <!-- TODO: Logo, breadcrumbs, login -->
+    {% block header %}{% endblock %}
   </header>
-  {% block content %}{% endblock %}
+  <main>
+    {% block content %}{% endblock %}
+  </main>
   <footer>
     <!-- TODO: Links to Docs, GitHub, ... -->
   </footer>
