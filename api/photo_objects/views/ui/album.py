@@ -44,13 +44,16 @@ def show_album(request: HttpRequest, album_key: str):
     photos = album.photo_set.all()
 
     back = BackLink("Back to albums", reverse('photo_objects:list_albums'))
+    details = {
+        "Description": album.description,
+        "Visibility": str(album.visibility).capitalize(),
+    }
 
     return render(request,
                   "photo_objects/album/show.html",
-                  {"album": album,
-                   "photos": photos,
+                  {"album": album, "photos": photos,
                    "title": album.title or album.key,
-                   "back": back})
+                   "back": back, "details": details})
 
 
 @json_problem_as_html

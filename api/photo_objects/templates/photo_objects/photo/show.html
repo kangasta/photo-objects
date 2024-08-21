@@ -13,14 +13,7 @@
   <img src="/img/{{ photo.album.key }}/{{ photo.filename }}/lg" alt="{{ photo.description|default:photo.filename }}"
     style="background: url(data:image/png;base64,{{ photo.tiny_base64 }}); background-size: 100% 100%; font-size: 0;"
     height="{{ photo.height }}" width="{{ photo.width }}" />
-  <dl>
-    {% for key, value in details.items %}
-    {% if value %}
-    <dt>{{ key }}</dt>
-    <dd>{{ value }}</dd>
-    {% endif %}
-    {% endfor %}
-  </dl>
+  {% include 'photo_objects/details.html' %}
 </div>
 
 <div class="actions">
