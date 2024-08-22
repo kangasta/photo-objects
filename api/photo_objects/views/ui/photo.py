@@ -38,6 +38,13 @@ def upload_photos(request: HttpRequest, album_key: str):
 def show_photo(request: HttpRequest, album_key: str, photo_key: str):
     photo = api.check_photo_access(request, album_key, photo_key, "lg")
 
+    album_photos = list(photo.album.photo_set.values_list("key", flat=True))
+    photo_index = list(album_photos).index(photo.key)
+    previous_filename = album_photos[(
+        photo_index - 1) % len(album_photos)].split("/")[-1]
+    next_filename = album_photos[(
+        photo_index + 1) % len(album_photos)].split("/")[-1]
+
     target = photo.album.title or photo.album.key
     back = BackLink(
         f"Back to {target}", reverse(
@@ -52,6 +59,9 @@ def show_photo(request: HttpRequest, album_key: str, photo_key: str):
     return render(request,
                   "photo_objects/photo/show.html",
                   {"photo": photo,
+                   "previous_filename": previous_filename,
+                   "next_filename": next_filename,
+                   "aspect_ratio": photo.width / photo.height,
                    "title": photo.title or photo.filename,
                    "back": back, "details": details})
 
