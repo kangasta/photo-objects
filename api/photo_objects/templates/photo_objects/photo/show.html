@@ -10,26 +10,24 @@
 
 {% block content %}
 <div class="photo">
-  <div class="photo-nav" style="aspect-ratio: {{ aspect_ratio }}; height: {{ photo.height }}px; width: auto">
-    <img src="/img/{{ photo.album.key }}/{{ photo.filename }}/lg" alt="{{ photo.description|default:photo.filename }}"
-      style="background: url(data:image/png;base64,{{ photo.tiny_base64 }}); background-size: 100% 100%; font-size: 0;"
-      height="{{ photo.height }}" width="{{ photo.width }}" />
-    <a class="previous" href="{% url 'photo_objects:show_photo' photo.album.key previous_filename %}"></a>
-    <a class="next" href="{% url 'photo_objects:show_photo' photo.album.key next_filename %}"></a>
-  </div>
+  <img src="/img/{{ photo.album.key }}/{{ photo.filename }}/lg" alt="{{ photo.description|default:photo.filename }}"
+    style="background: url(data:image/png;base64,{{ photo.tiny_base64 }}); background-size: 100% 100%; font-size: 0;"
+    height="{{ photo.height }}" width="{{ photo.width }}" />
   {% include 'photo_objects/details.html' %}
 </div>
 
 <div class="actions">
+  <a id="previous" class="action" href="{% url 'photo_objects:show_photo' photo.album.key previous_filename %}">←</a>
+  <a id="next" class="action" href="{% url 'photo_objects:show_photo' photo.album.key next_filename %}">→</a>
   <a class="action" href="{% url 'photo_objects:edit_photo' photo.album.key photo.filename %}">Edit photo</a>
   <a class="action delete" href="{% url 'photo_objects:delete_photo' photo.album.key photo.filename %}">Delete photo</a>
 </div>
 <script>
   document.addEventListener('keydown', function (event) {
     if (event.key === 'ArrowLeft') {
-      document.querySelector('div.photo-nav a.previous').click();
+      document.querySelector('a#previous').click();
     } else if (event.key === 'ArrowRight') {
-      document.querySelector('div.photo-nav a.next').click();
+      document.querySelector('a#next').click();
     }
   });
 </script>
