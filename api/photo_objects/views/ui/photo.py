@@ -61,7 +61,6 @@ def show_photo(request: HttpRequest, album_key: str, photo_key: str):
                   {"photo": photo,
                    "previous_filename": previous_filename,
                    "next_filename": next_filename,
-                   "aspect_ratio": photo.width / photo.height,
                    "title": photo.title or photo.filename,
                    "back": back, "details": details})
 
