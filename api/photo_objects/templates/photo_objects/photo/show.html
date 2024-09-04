@@ -30,5 +30,41 @@
       document.querySelector('a#next').click();
     }
   });
+
+  const photo = document.querySelector('.photo img');
+  if (photo) {
+    var startX;
+    var clicked = false;
+
+    photo.addEventListener('touchstart', function (event) {
+      startX = event.changedTouches[0].pageX;
+    });
+
+    photo.addEventListener('touchmove', function (event) {
+      if (clicked) {
+        return;
+      }
+      const deltaX = event.changedTouches[0].pageX - startX;
+      const trigger = photo.offsetWidth / 3;
+
+      photo.style.left = deltaX + 'px';
+      photo.style.opacity = 1 - Math.abs(deltaX) / trigger;
+
+      if (deltaX > trigger) {
+        document.querySelector('a#previous').click();
+        clicked = true;
+      } else if (deltaX < -trigger) {
+        document.querySelector('a#next').click();
+        clicked = true;
+      }
+    });
+
+    photo.addEventListener('touchend', function (event) {
+      if (!clicked) {
+        photo.style.left = 0;
+        photo.style.opacity = 1;
+      }
+    });
+  }
 </script>
 {% endblock %}
