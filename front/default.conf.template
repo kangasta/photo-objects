@@ -3,7 +3,7 @@ upstream api {
 }
 
 upstream objsto {
-  server objsto:9000;
+  server "${OBJSTO_URL}";
 }
 
 server {
