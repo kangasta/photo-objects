@@ -19,8 +19,12 @@
 <div class="actions">
   <a id="previous" class="action" href="{% url 'photo_objects:show_photo' photo.album.key previous_filename %}">←</a>
   <a id="next" class="action" href="{% url 'photo_objects:show_photo' photo.album.key next_filename %}">→</a>
+  {% if perms.photo_objects.change_photo %}
   <a class="action" href="{% url 'photo_objects:edit_photo' photo.album.key photo.filename %}">Edit photo</a>
+  {% endif %}
+  {% if perms.photo_objects.delete_photo %}
   <a class="action delete" href="{% url 'photo_objects:delete_photo' photo.album.key photo.filename %}">Delete photo</a>
+  {% endif %}
 </div>
 <script>
   document.addEventListener('keydown', function (event) {
