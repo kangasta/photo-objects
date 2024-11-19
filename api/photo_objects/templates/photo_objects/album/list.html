@@ -23,8 +23,10 @@
       {% else %}
       <div class="photo-placeholder"></div>
       {% endif %}
-      <div class="photo-label">{{ album.title|default:album.key }}</div>
-      <!-- TODO: Year and month, e.g. 24 Mar-->
+      <div class="photo-label">
+        <div class="photo-label-title">{{ album.title|default:album.key }}</div>
+        <div class="photo-label-date">{{ album.first_timestamp|date:"Y F"|default:"No photos" }}</div>
+      </div>
     </a>
   </li>
   {% endfor %}
