@@ -1,4 +1,5 @@
-from django.urls import path
+from django.contrib.auth import views as auth_views
+from django.urls import path, reverse_lazy
 
 from .views import api, ui
 
@@ -57,5 +58,23 @@ urlpatterns = [
         name="delete_photo",
     ),
     # TODO: img/<str:album_key>/<str:photo_key>/<str:size_key> path
-    # TODO: login views
+    path(
+        "users/login",
+        auth_views.LoginView.as_view(
+            template_name="photo_objects/form.html",
+            extra_context={
+                "title": "Login",
+                "action": "Login",
+                "back": ui.BackLink(
+                    f'Back to albums',
+                    reverse_lazy('photo_objects:list_albums')),
+            },
+        ),
+        name="login",
+    ),
+    path(
+        "users/logout",
+        auth_views.LogoutView.as_view(),
+        name="logout",
+    ),
 ]

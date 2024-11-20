@@ -16,6 +16,6 @@
   <ul>
     {{ form.as_ul }}
   </ul>
-  <input type="submit" value="Save">
+  <input type="submit" value="{{ action|default:'Save'}}">
 </form>
 {% endblock %}

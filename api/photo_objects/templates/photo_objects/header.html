@@ -1,4 +1,14 @@
-<h1>{{ title }}</h1>
+<div class="title-row">
+  <h1>{{ title }}</h1>
+  {% if user.is_authenticated %}
+    <form class="login-status" id="logout" method="POST" action="/users/logout?next={{ request.path }}">
+      {% csrf_token %}
+      Logged in as {{ user.username }}, <button class="logout" type="sumit">logout</a>
+    </form>
+  {% else %}
+    <a class="login-status" href="{% url 'photo_objects:login' %}?next={{ request.path }}">Login</a>
+  {% endif %}
+</div>
 {% if back %}
 <a href="{{ back.url }}">{{ back.text }}</a>
 {% endif %}

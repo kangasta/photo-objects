@@ -35,7 +35,9 @@
 <p>No albums are available.</p>
 {% endif %}
 <div class="actions">
+  {% if perms.photo_objects.add_album %}
   <a class="action" href="{% url 'photo_objects:new_album' %}">New album</a>
+  {% endif %}
 </div>
 
 {% endblock %}
