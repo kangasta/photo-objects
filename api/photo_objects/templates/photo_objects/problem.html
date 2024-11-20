@@ -1,8 +1,17 @@
 {% extends 'photo_objects/base.html' %}
 
+{% block title %}
+{% include 'photo_objects/title.html' %}
+{% endblock %}
+
+{% block header %}
+{% include 'photo_objects/header.html' %}
+{% endblock %}
+
 {% block content %}
-<h1>{{ title }}</h1>
-<dl>
+<dl class="problem">
+  <dt>Title</dt>
+  <dd>{{ problem_title }}</dd>
   <dt>Status</dt>
   <dd>{{ status }}</dd>
 </dl>

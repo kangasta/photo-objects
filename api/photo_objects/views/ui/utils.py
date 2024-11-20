@@ -8,9 +8,3 @@ def json_problem_as_html(func):
         except JsonProblem as e:
             return e.html_response(args[0])
     return wrapper
-
-
-class BackLink:
-    def __init__(self, text, url):
-        self.text = text
-        self.url = url
