@@ -2,6 +2,7 @@ from django.contrib.auth import views as auth_views
 from django.urls import path, reverse_lazy
 
 from .views import api, ui
+from .views.utils import BackLink
 
 app_name = "photo_objects"
 urlpatterns = [
@@ -65,7 +66,7 @@ urlpatterns = [
             extra_context={
                 "title": "Login",
                 "action": "Login",
-                "back": ui.BackLink(
+                "back": BackLink(
                     f'Back to albums',
                     reverse_lazy('photo_objects:list_albums')),
             },

@@ -4,8 +4,10 @@ from django.forms import ModelForm
 from django.http import HttpRequest, JsonResponse
 from django.core.files.uploadedfile import UploadedFile
 from django.shortcuts import render
+from django.urls import reverse_lazy
 
 from photo_objects.error import PhotoObjectsError
+from photo_objects.views.utils import BackLink
 from photo_objects import Size
 
 
@@ -50,7 +52,11 @@ class JsonProblem(PhotoObjectsError):
 
     def html_response(self, request: HttpRequest):
         return render(request, "photo_objects/problem.html", {
-            "title": self.title,
+            "title": "Error",
+            "back": BackLink(
+                f'Back to albums',
+                reverse_lazy('photo_objects:list_albums')),
+            "problem_title": self.title,
             "status": self.status
         }, status=self.status)
 

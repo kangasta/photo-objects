@@ -278,3 +278,8 @@ dl dt {
 dl dd {
   margin: 0 0 16px;
 }
+
+/* Problem */
+dl.problem {
+  margin: 32px 0;
+}

@@ -5,8 +5,9 @@ from django.urls import reverse
 from photo_objects import api
 from photo_objects.api.utils import FormValidationFailed
 from photo_objects.forms import ModifyPhotoForm, UploadPhotosForm
+from photo_objects.views.utils import BackLink
 
-from .utils import BackLink, json_problem_as_html
+from .utils import json_problem_as_html
 
 
 @json_problem_as_html
