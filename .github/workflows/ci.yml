@@ -24,13 +24,13 @@ jobs:
     - name: Install dependencies
       run: |
         pip install -r requirements.txt
-        pip install -r api/requirements.txt
+        pip install -r test-requirements.txt
     - name: Run pycodestyle
       run: |
-        pycodestyle --exclude api/api/settings.py,*/migrations/*.py api
+        pycodestyle --exclude back/api/settings.py,*/migrations/*.py back photo_objects
     - name: Run pylint
       run: |
-        pylint -E --enable=invalid-name,unused-import,useless-object-inheritance api/api api/photo_objects
+        pylint -E --enable=invalid-name,unused-import,useless-object-inheritance back/api photo_objects
       if: matrix.python-version != '3.12' # TODO: Remove this exclusion when pylint-django supports Python 3.12
     - name: Run tests
       run: |
@@ -40,9 +40,12 @@ jobs:
           sleep 5;
         done
 
-        cd api/
-        python3 manage.py makemigrations --check
-        coverage run --branch --source . manage.py test
+
+        export PYTHONPATH=$PYTHONPATH:back/
+        export DJANGO_SETTINGS_MODULE=api.settings
+        django-admin makemigrations --check photo_objects
+
+        coverage run --branch --source photo_objects runtests.py
         coverage report -m
     # - name: Push coverage
     #   uses: paambaati/codeclimate-action@v2.7.5
