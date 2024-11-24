@@ -1,6 +1,6 @@
 [MASTER]
 load-plugins=pylint_django
-django-settings-module=api.settings
+django-settings-module=back.api.settings
 
 [BASIC]
 good-names=a,b,c,

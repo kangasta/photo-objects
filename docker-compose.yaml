@@ -20,7 +20,7 @@ services:
     volumes:
       - 'staticfiles:/app/static'
   api:
-    build: api/
+    build: ./
     environment:
       DB_HOST: db
       OBJSTO_URL: objsto:9000

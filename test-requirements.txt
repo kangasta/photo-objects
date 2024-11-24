@@ -1,0 +1,7 @@
+# Static analysis
+pycodestyle
+pylint
+pylint-django
+
+# Tests
+coverage

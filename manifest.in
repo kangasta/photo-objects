@@ -1,0 +1,2 @@
+recursive-include photo_objects/django/static *
+recursive-include photo_objects/django/templates *

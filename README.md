@@ -9,27 +9,25 @@ Application for storing photos in S3 compatible object-storage.
 Check and automatically fix formatting with:
 
 ```bash
-pycodestyle --exclude api/api/settings.py,*/migrations/*.py api
-autopep8 -aaar --in-place --exclude api/api/settings.py,*/migrations/*.py api
+pycodestyle --exclude back/api/settings.py,*/migrations/*.py back photo_objects
+autopep8 -aaar --in-place --exclude back/api/settings.py,*/migrations/*.py back photo_objects
 ```
 
 Run static analysis with:
 
 ```bash
-pylint -E --enable=invalid-name,unused-import,useless-object-inheritance api/api api/photo_objects
+pylint -E --enable=invalid-name,unused-import,useless-object-inheritance back/api photo_objects
 ```
 
 Run integration tests (in the `api` directory) with:
 
 ```bash
-cd api
-python3 manage.py test
+python3 runtests.py
 ```
 
 Get test coverage with:
 
 ```bash
-cd api
-coverage run --branch --source . manage.py test
+coverage run  --branch --source photo_objects runtests.py
 coverage report -m
 ```

@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "photo-objects"
+version = "0.0.1"
+dependencies = [
+    "minio~=7.2",
+    "pillow~=10.4"
+]
+description = "Application for storing photos in S3 compatible object-storage."
+readme = "README.md"
+requires-python = ">= 3.10"
+license = {file = "LICENSE"}
+authors = [
+    {name = "Toni Kangas"},
+]
+classifiers = [
+    "Environment :: Web Environment",
+    "Framework :: Django",
+    "Framework :: Django :: 5.0",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+]
+
+[project.urls]
+Homepage = "https://github.com/kangasta/photo-objects"
+Repository = "https://github.com/kangasta/photo-objects.git"
+
+[tool.setuptools.packages.find]
+include = ["photo_objects*"]
