@@ -2,6 +2,8 @@ from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
 from secrets import token_urlsafe
 
+from photo_objects.config import write_to_home_directory
+
 
 class Command(BaseCommand):
     help = "Create initial admin user account."
@@ -14,6 +16,8 @@ class Command(BaseCommand):
             username = 'admin'
             password = token_urlsafe(32)
             User.objects.create_superuser(username, password=password)
+
+            write_to_home_directory("initial_admin_password", password)
 
             msg = (
                 self.style.SUCCESS('Initial admin account created:') +

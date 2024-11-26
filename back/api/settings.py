@@ -14,6 +14,8 @@ from pathlib import Path
 from os import getenv
 from urllib.parse import urlparse
 
+from photo_objects.config import get_secret_key
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -22,10 +24,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-50nz*=$!3_y-q()5x*9mk^e8uxb_^pn5h1h6+)a7d+lz!+#w-$'
+SECRET_KEY = get_secret_key()
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = getenv("DEBUG", "").lower() == "true"
 
 if url := getenv("URL"):
     ALLOWED_HOSTS = ["api", urlparse(url).hostname]

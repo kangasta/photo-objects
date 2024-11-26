@@ -1,5 +1,6 @@
 FROM python:3.10-slim
 
+ENV PHOTO_OBJECTS_HOME=/var/photo_objects/
 WORKDIR /app
 
 COPY manifest.in pyproject.toml requirements.txt ./
