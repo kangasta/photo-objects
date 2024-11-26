@@ -177,7 +177,7 @@ input[type="file"]#id_photos {
 label[for="id_photos"] {
   background-color: var(--bg-secondary);
   color: var(--fg-primary);
-  border: 1px solid var(--fg-secondary);
+  border: 1px solid var(--bg-border);
   border-radius: 4px;
   padding: 16px;
   max-width: 800px;
