@@ -27,6 +27,7 @@ services:
       STATIC_ROOT: /app/static
       URL: http://localhost:8080
     volumes:
+      - 'photo_objects:/var/photo_objects'
       - 'staticfiles:/app/static'
   objsto:
     image: minio/minio
@@ -45,3 +46,4 @@ volumes:
   pgdata:
   miniodata:
   staticfiles:
+  photo_objects:
