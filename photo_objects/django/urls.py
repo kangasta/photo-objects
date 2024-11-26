@@ -1,4 +1,5 @@
 from django.contrib.auth import views as auth_views
+from django.http import HttpResponseRedirect
 from django.urls import path, reverse_lazy
 
 from .views import api, ui
@@ -13,6 +14,7 @@ urlpatterns = [
     path("api/albums/<str:album_key>/photos/<str:photo_key>", api.photo),
     path("api/albums/<str:album_key>/photos/<str:photo_key>/img", api.get_img),
     # TODO: ui views
+    path('', lambda _: HttpResponseRedirect('albums')),
     path(
         "albums",
         ui.list_albums,
