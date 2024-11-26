@@ -6,6 +6,7 @@
 :root {
   --bg-primary: #191b1f;
   --bg-secondary: #202327;
+  --bg-border: #494a4d;
 
   --fg-primary: #d1d3d7;
   --fg-secondary: #a9acb1;
@@ -135,7 +136,7 @@ form select {
   background-color: var(--bg-secondary);
   box-sizing: border-box;
   color: var(--fg-primary);
-  border: 1px solid var(--fg-secondary);
+  border: 1px solid var(--bg-border);
   border-radius: 4px;
   padding: 8px;
   max-width: 800px;
