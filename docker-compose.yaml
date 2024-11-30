@@ -26,6 +26,7 @@ services:
       OBJSTO_URL: objsto:9000
       STATIC_ROOT: /app/static
       URL: http://localhost:8080
+      PHOTO_OBJECTS_HOME: /var/photo_objects
     volumes:
       - 'photo_objects:/var/photo_objects'
       - 'staticfiles:/app/static'
@@ -41,6 +42,15 @@ services:
       - 9001:9001
     volumes:
       - 'miniodata:/data'
+  demo:
+    build: demo/
+    environment:
+      BASE_URL: http://api:8000
+      PHOTO_OBJECTS_HOME: /var/photo_objects
+    depends_on:
+      - front
+    volumes:
+      - 'photo_objects:/var/photo_objects'
 
 volumes:
   pgdata:

@@ -1,0 +1,55 @@
+albums:
+- key: huttujarvi
+  title: Huttujärvi
+  description: |
+    Rental hut in the Pyhä-Luosto National Park, Finland, at midsummer night.
+
+    This is a public album. It is visible to anyone who visits the site without having to log in.
+  visibility: public
+- key: torsken
+  title: Torsken
+  description: |
+    Fishing village of Torsken on the island of Senja, Norway.
+
+    This is a hidden album. It is not visible in albums list for anonymous users. Photos can be accessed by anuone with a direct link to a photo. Logged in users can see the album in the albums list.
+  visibility: hidden
+- key: saana
+  title: Saana
+  description: |
+    Views from the hiking trail circling the Saana fell in Kilpisjärvi, Finland.
+
+    This is a private album. It is visible only for logged in users. Photos can only be accessed by logged in users.
+  visibility: private
+photos:
+- photo: 240622-001.jpg
+  album: huttujarvi
+- photo: 240622-002.jpg
+  album: huttujarvi
+- photo: 240622-003.jpg
+  album: huttujarvi
+- photo: 240622-004.jpg
+  album: huttujarvi
+- photo: 240622-005.jpg
+  album: huttujarvi
+- photo: 240827-006.jpg
+  album: torsken
+- photo: 240827-007.jpg
+  album: torsken
+- photo: 240827-008.jpg
+  album: torsken
+- photo: 240827-009.jpg
+  album: torsken
+- photo: 240827-010.jpg
+  album: torsken
+- photo: 240831-011.jpg
+  album: saana
+- photo: 240831-012.jpg
+  album: saana
+- photo: 240831-013.jpg
+  album: saana
+- photo: 240831-014.jpg
+  album: saana
+- photo: 240831-015.jpg
+  album: saana
+- photo: 240831-016.jpg
+  album: saana
