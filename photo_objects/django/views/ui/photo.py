@@ -5,7 +5,7 @@ from django.urls import reverse
 from photo_objects.django import api
 from photo_objects.django.api.utils import FormValidationFailed
 from photo_objects.django.forms import ModifyPhotoForm, UploadPhotosForm
-from photo_objects.django.views.utils import BackLink
+from photo_objects.django.views.utils import BackLink, render_markdown
 
 from .utils import json_problem_as_html
 
@@ -53,7 +53,7 @@ def show_photo(request: HttpRequest, album_key: str, photo_key: str):
                 "album_key": album_key}))
 
     details = {
-        "Description": photo.description,
+        "Description": render_markdown(photo.description),
         "Timestamp": photo.timestamp,
     }
 

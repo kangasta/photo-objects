@@ -1,5 +1,6 @@
 django~=5.0
 gunicorn~=23.0
+markdown~=3.7
 minio~=7.2
 pillow~=10.4
 psycopg[binary]~=3.2
