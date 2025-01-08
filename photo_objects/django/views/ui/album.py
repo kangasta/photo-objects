@@ -5,7 +5,7 @@ from django.urls import reverse
 from photo_objects.django import api
 from photo_objects.django.api.utils import FormValidationFailed
 from photo_objects.django.forms import CreateAlbumForm, ModifyAlbumForm
-from photo_objects.django.views.utils import BackLink
+from photo_objects.django.views.utils import BackLink, render_markdown
 
 from .utils import json_problem_as_html
 
@@ -46,7 +46,7 @@ def show_album(request: HttpRequest, album_key: str):
 
     back = BackLink("Back to albums", reverse('photo_objects:list_albums'))
     details = {
-        "Description": album.description,
+        "Description": render_markdown(album.description),
         "Visibility": str(album.visibility).capitalize(),
     }
 
