@@ -1,5 +1,6 @@
 import json
 import mimetypes
+import urllib3
 
 from django.conf import settings
 
@@ -27,10 +28,16 @@ def _anonymous_readonly_policy(bucket: str):
 def _objsto_access() -> tuple[Minio, str]:
     conf = settings.PHOTO_OBJECTS_OBJSTO
 
+    http = urllib3.PoolManager(
+        retries=urllib3.util.Retry(connect=1),
+        timeout=urllib3.util.Timeout(connect=2.5, read=20),
+    )
+
     client = Minio(
         conf.get('URL'),
         conf.get('ACCESS_KEY'),
         conf.get('SECRET_KEY'),
+        http_client=http,
         secure=conf.get('SECURE', True),
     )
     bucket = conf.get('BUCKET', 'photos')

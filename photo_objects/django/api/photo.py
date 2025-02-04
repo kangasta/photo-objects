@@ -2,7 +2,9 @@ from django.core.files.uploadedfile import UploadedFile
 from django.http import HttpRequest
 from minio.error import S3Error
 from PIL import UnidentifiedImageError
+from urllib3.exceptions import HTTPError
 
+from photo_objects import logger
 from photo_objects.django import objsto
 from photo_objects.django.forms import (
     CreatePhotoForm,
@@ -51,15 +53,14 @@ def _upload_photo(album_key: str, photo_file: UploadedFile):
     photo_file.seek(0)
     try:
         objsto.put_photo(photo.album.key, photo.filename, "og", photo_file)
-    except S3Error:
+    except (S3Error, HTTPError) as e:
         # TODO: check that there is no photo entry in the database, if object
         # storage upload fails.
         photo.delete()
-        # TODO: logging
-        raise JsonProblem(
-            "Could not save photo to object storage.",
-            500,
-        )
+
+        msg = "Could not save photo to object storage"
+        logger.error(f"{msg}: {str(e)}")
+        raise JsonProblem(f"{msg}.", 500)
 
     return photo
 
@@ -121,16 +122,14 @@ def delete_photo(request: HttpRequest, album_key: str, photo_key: str):
 
     try:
         objsto.delete_photo(album_key, photo_key)
-    except S3Error:
-        raise JsonProblem(
-            "Could not delete photo from object storage.",
-            500,
-        )
+    except (S3Error, HTTPError) as e:
+        msg = "Could not delete photo from object storage"
+        logger.error(f"{msg}: {str(e)}")
+        raise JsonProblem("{msg}.", 500)
 
     try:
         photo.delete()
     except Exception:
-        raise JsonProblem(
-            "Could not delete photo from database.",
-            500,
-        )
+        msg = "Could not delete photo from database"
+        logger.error(f"{msg}: {str(e)}")
+        raise JsonProblem("{msg}.", 500)

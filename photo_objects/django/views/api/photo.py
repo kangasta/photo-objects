@@ -2,7 +2,9 @@ import mimetypes
 
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from minio.error import S3Error
+from urllib3.exceptions import HTTPError
 
+from photo_objects import logger
 from photo_objects.django import Size
 from photo_objects.django import api
 from photo_objects.django.api.utils import (
@@ -77,10 +79,11 @@ def get_img(request: HttpRequest, album_key: str, photo_key: str):
         try:
             original_photo = objsto.get_photo(
                 album_key, photo_key, Size.ORIGINAL.value)
-        except S3Error as e:
-            # TODO logging
+        except (S3Error, HTTPError) as e:
+            msg = f"Could not fetch photo from object storage ({e.code})"
+            logger.error(f"{msg}: {str(e)}")
             return JsonProblem(
-                f"Could not fetch photo from object storage ({e.code}).",
+                f"{msg}.",
                 404 if e.code == "NoSuchKey" else 500,
             ).json_response
 
