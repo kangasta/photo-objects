@@ -16,3 +16,6 @@ class TestUtils(TestCase):
         for input, expected in checks:
             with self.subTest(input=input, expected=expected):
                 self.assertEqual(slugify(input), expected)
+
+    def test_slugify_lower(self):
+        self.assertEqual(slugify("QwErTy!", True), "qwerty-")
