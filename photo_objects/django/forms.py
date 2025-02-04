@@ -21,17 +21,18 @@ KEY_POSTFIX_CHARS = 'bcdfghjklmnpqrstvwxz2456789'
 KEY_POSTFIX_LEN = 5
 
 
-def slugify(input: str):
+def slugify(input: str, lower=False) -> str:
     key = unicodedata.normalize(
         'NFKD', input).encode(
         'ascii', 'ignore').decode('ascii')
+    if lower:
+        key = key.lower()
     key = re.sub(r'[^a-zA-Z0-9._-]', '-', key)
     key = re.sub(r'[-_]{2,}', '-', key)
     return key
 
 
 def _postfix_generator():
-    yield ''
     for _ in range(13):
         yield '-' + ''.join(
             random.choices(KEY_POSTFIX_CHARS, k=KEY_POSTFIX_LEN))
@@ -62,7 +63,7 @@ class CreateAlbumForm(ModelForm):
                     code='required'))
             return
 
-        key = slugify(title)
+        key = slugify(title, True)
 
         postfix_iter = _postfix_generator()
         try:

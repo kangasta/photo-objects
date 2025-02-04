@@ -201,20 +201,24 @@ class AlbumViewTests(TestCase):
             data=dict(key="_new"))
         self.assertStatus(response, 400)
 
-        response = self.client.post(
-            "/api/albums",
-            content_type="application/json",
-            data=dict(key="_new", title="Aleksis Kiven katu"))
-        self.assertStatus(response, 201)
-        self.assertEqual(response.json().get("key"), "Aleksis-Kiven-katu")
+        key_re = r"aleksis-kiven-katu-[a-z0-9]{5}"
 
         response = self.client.post(
             "/api/albums",
             content_type="application/json",
             data=dict(key="_new", title="Aleksis Kiven katu"))
         self.assertStatus(response, 201)
-        self.assertTrue(response.json().get("key").startswith(
-            "Aleksis-Kiven-katu-"), response.content)
+        key_1 = response.json().get("key")
+        self.assertRegex(key_1, key_re)
+
+        response = self.client.post(
+            "/api/albums",
+            content_type="application/json",
+            data=dict(key="_new", title="Aleksis Kiven katu"))
+        self.assertStatus(response, 201)
+        key_2 = response.json().get("key")
+        self.assertRegex(key_2, key_re)
+        self.assertNotEqual(key_1, key_2)
 
     def test_crud_actions(self):
         login_success = self.client.login(
