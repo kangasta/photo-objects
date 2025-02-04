@@ -9,5 +9,5 @@ RUN pip install -r requirements.txt
 COPY back/api/ ./api/
 COPY photo_objects/ ./photo_objects/
 RUN pip install .
-COPY back/entrypoint.sh back/manage.py ./
+COPY back/entrypoint.sh back/gunicorn.conf.py back/manage.py ./
 ENTRYPOINT ["./entrypoint.sh"]
