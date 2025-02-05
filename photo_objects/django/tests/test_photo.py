@@ -1,10 +1,12 @@
 from base64 import b64decode
 from datetime import timedelta
 from io import BytesIO
+from unittest import mock
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
 from PIL import Image
+from urllib3.exceptions import HTTPError
 
 from photo_objects.django.models import Album
 from photo_objects.img import utcnow
@@ -164,6 +166,22 @@ class PhotoViewTests(TestCase):
             "/api/albums/test-photo-a/photos",
             {filename: file})
         self.assertStatus(response, 400)
+
+    def test_upload_to_objsto_fails(self):
+        login_success = self.client.login(
+            username='has_permission', password='test')
+        self.assertTrue(login_success)
+
+        filename = "tower.jpg"
+        file = open_test_photo(filename)
+        with mock.patch(
+            "photo_objects.django.api.photo.objsto.put_photo",
+            side_effect=HTTPError,
+        ):
+            response = self.client.post(
+                "/api/albums/test-photo-a/photos",
+                {filename: file})
+        self.assertStatus(response, 500)
 
     def test_get_image_scales_the_image(self):
         login_success = self.client.login(

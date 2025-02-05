@@ -1,5 +1,8 @@
 from unittest import TestCase
 
+from minio import S3Error
+
+from photo_objects.django import objsto
 from photo_objects.django.forms import slugify
 
 
@@ -19,3 +22,15 @@ class TestUtils(TestCase):
 
     def test_slugify_lower(self):
         self.assertEqual(slugify("QwErTy!", True), "qwerty-")
+
+    def test_with_error_code(self):
+        self.assertEqual(
+            objsto.with_error_code("Failed", Exception('TEST')),
+            "Failed",
+        )
+
+        e = S3Error("Test", "Test", "Test", "Test", "Test", "Test")
+        self.assertEqual(
+            objsto.with_error_code("Failed", e),
+            "Failed (Test)",
+        )

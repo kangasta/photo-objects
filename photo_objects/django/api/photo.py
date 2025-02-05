@@ -54,11 +54,10 @@ def _upload_photo(album_key: str, photo_file: UploadedFile):
     try:
         objsto.put_photo(photo.album.key, photo.filename, "og", photo_file)
     except (S3Error, HTTPError) as e:
-        # TODO: check that there is no photo entry in the database, if object
-        # storage upload fails.
         photo.delete()
 
-        msg = "Could not save photo to object storage"
+        msg = objsto.with_error_code(
+            "Could not save photo to object storage", e)
         logger.error(f"{msg}: {str(e)}")
         raise JsonProblem(f"{msg}.", 500)
 
@@ -123,7 +122,8 @@ def delete_photo(request: HttpRequest, album_key: str, photo_key: str):
     try:
         objsto.delete_photo(album_key, photo_key)
     except (S3Error, HTTPError) as e:
-        msg = "Could not delete photo from object storage"
+        msg = objsto.with_error_code(
+            "Could not delete photo from object storage", e)
         logger.error(f"{msg}: {str(e)}")
         raise JsonProblem("{msg}.", 500)
 

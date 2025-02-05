@@ -87,3 +87,17 @@ def delete_photo(album_key, photo_key):
                 ""),
             recursive=True):
         client.remove_object(bucket, i.object_name)
+
+
+def get_error_code(e: Exception) -> str:
+    try:
+        return e.code
+    except AttributeError:
+        return None
+
+
+def with_error_code(msg: str, e: Exception) -> str:
+    code = get_error_code(e)
+    if code:
+        return f'{msg} ({code})'
+    return msg
