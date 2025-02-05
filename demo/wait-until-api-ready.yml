@@ -1,0 +1,12 @@
+name: Wait until application is running
+options:
+  ignore_errors: yes
+  repeat_while: response is not defined or not response.ok
+  repeat_delay: 5
+variables:
+  base_url: "{{ lookup('env', 'BASE_URL') | default('http://localhost:8080', true) }}"
+  username: admin
+requests:
+- name: Load root path
+  get:
+    url: "{{ base_url }}"
