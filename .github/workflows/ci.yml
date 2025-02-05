@@ -31,7 +31,6 @@ jobs:
     - name: Run pylint
       run: |
         pylint -E --enable=invalid-name,unused-import,useless-object-inheritance back/api photo_objects
-      if: matrix.python-version != '3.12' # TODO: Remove this exclusion when pylint-django supports Python 3.12
     - name: Run tests
       run: |
         docker compose up -d db objsto
