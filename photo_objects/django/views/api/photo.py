@@ -80,11 +80,14 @@ def get_img(request: HttpRequest, album_key: str, photo_key: str):
             original_photo = objsto.get_photo(
                 album_key, photo_key, Size.ORIGINAL.value)
         except (S3Error, HTTPError) as e:
-            msg = f"Could not fetch photo from object storage ({e.code})"
+            msg = objsto.with_error_code(
+                f"Could not fetch photo from object storage", e)
             logger.error(f"{msg}: {str(e)}")
+
+            code = objsto.get_error_code(e)
             return JsonProblem(
                 f"{msg}.",
-                404 if e.code == "NoSuchKey" else 500,
+                404 if code == "NoSuchKey" else 500,
             ).json_response
 
         # TODO: make configurable

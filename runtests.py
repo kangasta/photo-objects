@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import logging
 import os
 import sys
 
@@ -11,6 +12,7 @@ if __name__ == "__main__":
     os.environ["DJANGO_SETTINGS_MODULE"] = "api.settings"
     django.setup()
     TestRunner = get_runner(settings)
+    logging.disable(logging.CRITICAL)
     test_runner = TestRunner()
     failures = test_runner.run_tests(["photo_objects.django.tests"])
     sys.exit(min(failures, 250))
