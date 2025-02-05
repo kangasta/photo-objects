@@ -282,18 +282,41 @@ class PhotoViewTests(TestCase):
 
         response = self.client.get(
             "/api/albums/test-photo-a")
-        self.assertStatus(response, 200)
-        data = response.json()
-        for key, expected in [
-            ('first_timestamp', first_timestamp),
-            ('last_timestamp', last_timestamp),
-            ('cover_photo', 'tower.jpg'),
-        ]:
-            self.assertEqual(data.get(key), expected, f'key={key}')
+        self.assertResponseStatusAndItems(
+            response, 200, {
+                'first_timestamp': first_timestamp,
+                'last_timestamp': last_timestamp,
+                'cover_photo': 'tower.jpg',
+            }
+        )
 
         response = self.client.delete(
             "/api/albums/test-photo-a/photos/tower.jpg")
         self.assertStatus(response, 204)
+
+        response = self.client.get(
+            "/api/albums/test-photo-a")
+        self.assertResponseStatusAndItems(
+            response, 200, {
+                'first_timestamp': first_timestamp,
+                'last_timestamp': last_timestamp,
+                'cover_photo': 'bus-stop.jpg',
+            }
+        )
+
+        response = self.client.delete(
+            "/api/albums/test-photo-a/photos/bus-stop.jpg")
+        self.assertStatus(response, 204)
+
+        response = self.client.get(
+            "/api/albums/test-photo-a")
+        self.assertResponseStatusAndItems(
+            response, 200, {
+                'first_timestamp': last_timestamp,
+                'last_timestamp': last_timestamp,
+                'cover_photo': 'havfrue.jpg',
+            }
+        )
 
         response = self.client.get(
             "/api/albums/test-photo-a/photos/havfrue.jpg/img?size=og")
@@ -305,3 +328,17 @@ class PhotoViewTests(TestCase):
 
         response = self.client.get("/api/albums/test-photo-a/photos/tower.jpg")
         self.assertStatus(response, 404)
+
+        response = self.client.delete(
+            "/api/albums/test-photo-a/photos/havfrue.jpg")
+        self.assertStatus(response, 204)
+
+        response = self.client.get(
+            "/api/albums/test-photo-a")
+        self.assertResponseStatusAndItems(
+            response, 200, {
+                'first_timestamp': None,
+                'last_timestamp': None,
+                'cover_photo': None,
+            }
+        )
