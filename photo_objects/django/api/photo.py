@@ -129,7 +129,7 @@ def delete_photo(request: HttpRequest, album_key: str, photo_key: str):
 
     try:
         photo.delete()
-    except Exception:
+    except Exception as e:
         msg = "Could not delete photo from database"
         logger.error(f"{msg}: {str(e)}")
-        raise JsonProblem("{msg}.", 500)
+        raise JsonProblem(f"{msg}.", 500)

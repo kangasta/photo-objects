@@ -53,3 +53,10 @@ class TestCase(DjangoTestCase):
                 fn = getattr(self.client, method.lower())
                 response = fn(path)
                 self.assertStatus(response, status)
+
+    def assertResponseStatusAndItems(self, response, status, expected):
+        self.assertStatus(response, status)
+
+        data = response.json()
+        for key, expected in expected.items():
+            self.assertEqual(data.get(key), expected, f'key={key}')
