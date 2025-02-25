@@ -19,7 +19,7 @@ def check_album_access(request: HttpRequest, album_key: str):
         raise AlbumNotFound(album_key)
 
     if not request.user.is_authenticated:
-        if album.visibility != Album.Visibility.PUBLIC:
+        if album.visibility == Album.Visibility.PRIVATE:
             raise AlbumNotFound(album_key)
 
     return album
