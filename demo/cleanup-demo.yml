@@ -1,0 +1,42 @@
+name: Cleanup demo content
+options:
+  session: yes
+variables:
+  base_url: "{{ lookup('env', 'BASE_URL') | default('http://localhost:8080', true) }}"
+  username: admin
+variable_files:
+- data.yml
+requests:
+- name: Get CSRF token
+  get:
+    url: "{{ base_url }}/users/login"
+  register: csrf
+- name: Login as {{ username }}
+  post:
+    url: "{{ base_url }}/users/login"
+    data:
+      csrfmiddlewaretoken: "{{ csrf.cookies.get('csrftoken') }}"
+      username: "{{ username }}"
+      password: "{{ lookup('env', 'PASSWORD') }}"
+    allow_redirects: no
+  assert:
+  - name: Response status code is 302
+    expression: response.status_code == 302
+- name: Get new CSRF token
+  get:
+    url: "{{ base_url }}/users/login"
+  register: csrf
+- name: "Delete photo: {{ item.album }}/{{ item.photo }}"
+  delete:
+    url: "{{ base_url }}/api/albums/{{ item.album }}/photos/{{ item.photo }}"
+    headers:
+      X-CSRFToken: "{{ csrf.cookies.get('csrftoken') }}"
+  loop: "{{ photos }}"
+  raise_for_status: no
+- name: "Delete album: {{ item.title }}"
+  delete:
+    url: "{{ base_url }}/api/albums/{{ item.key }}"
+    headers:
+      X-CSRFToken: "{{ csrf.cookies.get('csrftoken') }}"
+  loop: "{{ albums }}"
+  raise_for_status: no
