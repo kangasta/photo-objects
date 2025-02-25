@@ -50,10 +50,10 @@ class ViewVisibilityTests(TestCase):
         self.assertRequestStatuses([
             ("GET", "/api/albums/test-visibility-public/photos", 200),
             ("GET", "/api/albums/test-visibility-private/photos", 404),
-            ("GET", "/api/albums/test-visibility-hidden/photos", 404),
+            ("GET", "/api/albums/test-visibility-hidden/photos", 200),
             ("GET", "/api/albums/test-visibility-public", 200),
             ("GET", "/api/albums/test-visibility-private", 404),
-            ("GET", "/api/albums/test-visibility-hidden", 404),
+            ("GET", "/api/albums/test-visibility-hidden", 200),
         ])
 
     def test_get_photos_lists_all_photos(self):
