@@ -12,8 +12,11 @@
 
 <!-- TODO: Instructions? -->
 
-<form action="" method="post">
-  {% csrf_token %}
-  <input class="delete" type="submit" value="Delete">
-</form>
+<div class="form">
+  {% include 'photo_objects/form-photo.html' %}
+  <form action="" method="post">
+    {% csrf_token %}
+    <input class="delete" type="submit" value="Delete">
+  </form>
+</div>
 {% endblock %}

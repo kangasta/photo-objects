@@ -86,8 +86,12 @@ def edit_album(request: HttpRequest, album_key: str):
             'photo_objects:show_album',
             kwargs={"album_key": album_key}))
 
-    return render(request, 'photo_objects/form.html',
-                  {"form": form, "title": "Edit album", "back": back})
+    return render(request, 'photo_objects/form.html', {
+        "form": form,
+        "title": "Edit album",
+        "back": back,
+        "photo": album.cover_photo,
+    })
 
 
 @json_problem_as_html
@@ -107,4 +111,6 @@ def delete_album(request: HttpRequest, album_key: str):
 
     return render(request, 'photo_objects/delete.html', {
         "title": f"Delete album",
-        "back": back})
+        "back": back,
+        "photo": album.cover_photo,
+    })

@@ -1,0 +1,7 @@
+{% if photo %}
+<div class="photo size-w500">
+  <img src="/img/{{ photo.album.key }}/{{ photo.filename }}/md" alt="{{ photo.description|default:photo.filename }}"
+    style="background: url(data:image/png;base64,{{ photo.tiny_base64 }}); background-size: 100% 100%; font-size: 0;"
+    height="{{ photo.height }}" width="{{ photo.width }}" />
+</div>
+{% endif %}

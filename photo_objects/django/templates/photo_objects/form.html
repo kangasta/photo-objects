@@ -11,11 +11,14 @@
 {% block content %}
 <!-- TODO: Instructions? -->
 
-<form action="" method="post">
-  {% csrf_token %}
-  <ul>
-    {{ form.as_ul }}
-  </ul>
-  <input type="submit" value="{{ action|default:'Save'}}">
-</form>
+<div class="form">
+  {% include 'photo_objects/form-photo.html' %}
+  <form action="" method="post">
+    {% csrf_token %}
+    <ul>
+      {{ form.as_ul }}
+    </ul>
+    <input type="submit" value="{{ action|default:'Save'}}">
+  </form>
+</div>
 {% endblock %}
