@@ -31,6 +31,8 @@ main,
 footer {
   width: 100%;
   max-width: 1200px;
+  box-sizing: border-box;
+  padding: 0 8px;
   margin: 0 auto;
 }
 
@@ -69,6 +71,8 @@ header button.logout {
 
 main {
   flex-grow: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 footer {
@@ -129,6 +133,33 @@ div.actions {
 
 
 /* Forms */
+div.form {
+  flex: 1;
+  margin: 32px 0 0;
+
+  display: flex;
+  flex-direction: row-reverse;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 16px;
+}
+
+div.form img {
+  border-radius: 4px;
+  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.5);
+  min-width: min(400px, 100%);
+  max-width: 816px;
+  max-height: max(500px, calc(100vh - 110px));
+  height: auto;
+  object-fit: cover;
+  flex: 1;
+}
+
+main form {
+  flex: 1.4;
+  min-width: min(400px, 100%);
+}
+
 form input[type="text"],
 form input[type="password"],
 form textarea,
@@ -145,13 +176,17 @@ form select {
 form ul {
   list-style-type: none;
   padding: 0;
-  margin: 32px 0 0;
+  margin: 0;
 }
 
 form ul li {
   margin: 16px 0;
   display: flex;
   flex-direction: column;
+}
+
+form ul li:first-of-type {
+  margin-top: 0;
 }
 
 form ul.errorlist {
@@ -269,6 +304,7 @@ ul.photo-list div.photo-placeholder {
   background-color: #ccc;
   aspect-ratio: 1;
 }
+
 
 /* Photo details */
 div.photo {
