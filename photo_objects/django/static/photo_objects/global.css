@@ -135,6 +135,7 @@ div.actions {
 /* Forms */
 div.form {
   flex: 1;
+  margin: 32px 0 0;
 
   display: flex;
   flex-direction: row-reverse;
@@ -143,8 +144,20 @@ div.form {
   gap: 16px;
 }
 
-main form {
+div.form img {
+  border-radius: 4px;
+  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.5);
+  min-width: min(400px, 100%);
+  max-width: 816px;
+  max-height: max(500px, calc(100vh - 110px));
+  height: auto;
+  object-fit: cover;
   flex: 1;
+}
+
+main form {
+  flex: 1.4;
+  min-width: min(400px, 100%);
 }
 
 form input[type="text"],
@@ -163,13 +176,17 @@ form select {
 form ul {
   list-style-type: none;
   padding: 0;
-  margin: 32px 0 0;
+  margin: 0;
 }
 
 form ul li {
   margin: 16px 0;
   display: flex;
   flex-direction: column;
+}
+
+form ul li:first-of-type {
+  margin-top: 0;
 }
 
 form ul.errorlist {
@@ -288,6 +305,7 @@ ul.photo-list div.photo-placeholder {
   aspect-ratio: 1;
 }
 
+
 /* Photo details */
 div.photo {
   margin: 32px 0;
@@ -301,22 +319,13 @@ div.photo img {
   box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.5);
   display: block;
   position: relative;
-  width: auto;
-  height: auto;
-  transition: left 125ms, opacity 125ms;
-}
-
-div.photo.size-auto img {
   max-width: 800px;
   max-width: min(800px, 100%);
   max-height: 100vh;
   max-height: calc(100vh - 110px);
-}
-
-div.photo.size-w500 img {
-  max-width: 500px;
-  max-height: max(500px, calc(100vh - 110px));
-  object-fit: cover;
+  width: auto;
+  height: auto;
+  transition: left 125ms, opacity 125ms;
 }
 
 /* Details */
