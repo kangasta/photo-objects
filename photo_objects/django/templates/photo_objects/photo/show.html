@@ -9,10 +9,12 @@
 {% endblock %}
 
 {% block content %}
-<div class="photo">
-  <img src="/img/{{ photo.album.key }}/{{ photo.filename }}/lg" alt="{{ photo.description|default:photo.filename }}"
-    style="background: url(data:image/png;base64,{{ photo.tiny_base64 }}); background-size: 100% 100%; font-size: 0;"
-    height="{{ photo.height }}" width="{{ photo.width }}" />
+<div class="photo-and-details">
+  <div class="photo">
+    <img src="/img/{{ photo.album.key }}/{{ photo.filename }}/lg" alt="{{ photo.description|default:photo.filename }}"
+      style="background: url(data:image/png;base64,{{ photo.tiny_base64 }}); background-size: 100% 100%; font-size: 0;"
+      height="{{ photo.height }}" width="{{ photo.width }}" />
+  </div>
   {% include 'photo_objects/details.html' %}
 </div>
 
