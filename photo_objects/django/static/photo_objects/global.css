@@ -261,6 +261,7 @@ div.album {
   display: flex;
   gap: 16px;
   flex-wrap: wrap;
+  align-items: flex-start;
 }
 
 div.album ul.photo-list {
