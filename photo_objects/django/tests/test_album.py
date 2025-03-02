@@ -1,11 +1,18 @@
 import json
+from time import sleep
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
 
 from photo_objects.django.models import Album
+from photo_objects.img import utcnow
 
-from .utils import TestCase, create_dummy_photo, open_test_photo
+from .utils import (
+    TestCase,
+    parse_timestamps,
+    create_dummy_photo,
+    open_test_photo
+)
 
 
 PHOTOS_DIRECTORY = "photos"
@@ -225,6 +232,9 @@ class AlbumViewTests(TestCase):
             username='has_permission', password='test')
         self.assertTrue(login_success)
 
+        tic = utcnow()
+        sleep(0.1)
+
         data = dict(
             key="copenhagen",
             visibility="hidden",
@@ -241,6 +251,13 @@ class AlbumViewTests(TestCase):
             self.assertEqual(created_data.get(key), value)
         data = created_data
 
+        t = parse_timestamps(data)
+        self.assertTimestampLess(tic, t.created_at)
+        self.assertTimestampLess(tic, t.updated_at)
+
+        tic = utcnow()
+        sleep(0.1)
+
         req_data = dict(
             title="Copenhagen",
             description="Copenhagen (København) is the capital of Denmark.")
@@ -250,9 +267,13 @@ class AlbumViewTests(TestCase):
             data=req_data)
         self.assertStatus(response, 200)
 
+        t = parse_timestamps(response.json())
+        self.assertTimestampLess(t.created_at, tic)
+        self.assertTimestampLess(tic, t.updated_at)
+
         response = self.client.get("/api/albums/copenhagen")
         self.assertStatus(response, 200)
-        data = {**data, **req_data}
+        data = {**data, **req_data, **vars(t)}
         self.assertDictEqual(response.json(), data)
 
         req_data = dict(visibility="public")
@@ -261,7 +282,8 @@ class AlbumViewTests(TestCase):
             content_type="application/json",
             data=req_data)
         self.assertStatus(response, 200)
-        data = {**data, **req_data}
+        t = parse_timestamps(response.json())
+        data = {**data, **req_data, **vars(t)}
         self.assertDictEqual(response.json(), data)
 
         filename = "havfrue.jpg"

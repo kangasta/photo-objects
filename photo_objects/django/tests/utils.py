@@ -1,8 +1,10 @@
+from dataclasses import dataclass
 import os
 
 from django.conf import settings
 from django.test import TestCase as DjangoTestCase, override_settings
 from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 
 from photo_objects.django.models import Album, Photo
 from photo_objects.django.objsto import _objsto_access
@@ -44,6 +46,17 @@ class TestCase(DjangoTestCase):
 
         client.remove_bucket(bucket)
 
+    def assertTimestampLess(self, a, b, **kwargs):
+        '''Assert a is less than b. Automatically parses strings to datetime
+        objects.
+        '''
+        if isinstance(a, str):
+            a = parse_datetime(a)
+        if isinstance(b, str):
+            b = parse_datetime(b)
+
+        return self.assertLess(a, b, **kwargs)
+
     def assertStatus(self, response, status):
         self.assertEqual(response.status_code, status, response.content)
 
@@ -60,3 +73,15 @@ class TestCase(DjangoTestCase):
         data = response.json()
         for key, expected in expected.items():
             self.assertEqual(data.get(key), expected, f'key={key}')
+
+
+@dataclass(kw_only=True)
+class Timestamps:
+    created_at: str = None
+    updated_at: str = None
+
+
+def parse_timestamps(data):
+    return Timestamps(
+        created_at=data.get('created_at'),
+        updated_at=data.get('updated_at'))

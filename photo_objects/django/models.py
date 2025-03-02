@@ -23,7 +23,26 @@ def _timestamp_str(timestamp):
     return timestamp.isoformat() if timestamp else None
 
 
-class Album(models.Model):
+class BaseModel(models.Model):
+    title = models.CharField(blank=True)
+    description = models.TextField(blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+
+    def to_json(self):
+        return dict(
+            title=self.title,
+            description=self.description,
+            created_at=_timestamp_str(self.created_at),
+            updated_at=_timestamp_str(self.updated_at),
+        )
+
+
+class Album(BaseModel):
     class Meta:
         ordering = ["-first_timestamp", "-last_timestamp", "key"]
 
@@ -39,9 +58,6 @@ class Album(models.Model):
         default=Visibility.PRIVATE,
         choices=Visibility)
 
-    title = models.CharField(blank=True)
-    description = models.TextField(blank=True)
-
     cover_photo = models.ForeignKey(
         "Photo",
         blank=True,
@@ -56,10 +72,9 @@ class Album(models.Model):
 
     def to_json(self):
         return dict(
+            **super().to_json(),
             key=self.key,
             visibility=self.visibility,
-            title=self.title,
-            description=self.description,
             cover_photo=(
                 self.cover_photo.filename if self.cover_photo else None),
             first_timestamp=_timestamp_str(self.first_timestamp),
@@ -67,7 +82,7 @@ class Album(models.Model):
         )
 
 
-class Photo(models.Model):
+class Photo(BaseModel):
     class Meta:
         ordering = ["timestamp"]
 
@@ -75,8 +90,6 @@ class Photo(models.Model):
     album = models.ForeignKey("Album", null=True, on_delete=models.PROTECT)
 
     timestamp = models.DateTimeField()
-    title = models.CharField(blank=True)
-    description = models.TextField(blank=True)
 
     height = models.PositiveIntegerField()
     width = models.PositiveIntegerField()
@@ -105,6 +118,7 @@ class Photo(models.Model):
         album_key = self.album.key if self.album else None
 
         return dict(
+            **super().to_json(),
             key=self.key,
             filename=self.filename,
             album=album_key,
@@ -112,6 +126,4 @@ class Photo(models.Model):
             height=self.height,
             width=self.width,
             tiny_base64=self.tiny_base64,
-            title=self.title,
-            description=self.description,
         )

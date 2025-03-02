@@ -1,6 +1,7 @@
 from base64 import b64decode
 from datetime import timedelta
 from io import BytesIO
+from time import sleep
 from unittest import mock
 
 from django.contrib.auth import get_user_model
@@ -12,7 +13,7 @@ from photo_objects.django.models import Album
 from photo_objects.img import utcnow
 from photo_objects.django.objsto import get_photo
 
-from .utils import TestCase, open_test_photo
+from .utils import TestCase, open_test_photo, parse_timestamps
 
 
 class PhotoViewTests(TestCase):
@@ -222,11 +223,18 @@ class PhotoViewTests(TestCase):
         self.assertStatus(response, 201)
 
         # Can upload photo with the same name to a different album
+        tic = utcnow()
+        sleep(0.1)
+
         file.seek(0)
         response = self.client.post(
             "/api/albums/test-photo-b/photos",
             {filename: file})
         self.assertStatus(response, 201)
+
+        t = parse_timestamps(response.json())
+        self.assertTimestampLess(tic, t.created_at)
+        self.assertTimestampLess(tic, t.updated_at)
 
         response = self.client.get("/api/albums/test-photo-a/photos/tower.jpg")
         self.assertStatus(response, 200)
@@ -238,6 +246,9 @@ class PhotoViewTests(TestCase):
         self.assertEqual(data.get("height"), 512)
         self.assertEqual(data.get("width"), 341)
 
+        tic = utcnow()
+        sleep(0.1)
+
         req_data = dict(
             title="The Eiffel Tower",
             description="The Eiffel Tower in Paris, France")
@@ -246,7 +257,10 @@ class PhotoViewTests(TestCase):
             content_type="application/json",
             data=req_data)
         self.assertStatus(response, 200)
-        data = {**data, **req_data}
+        t = parse_timestamps(response.json())
+        self.assertTimestampLess(t.created_at, tic)
+        self.assertTimestampLess(tic, t.updated_at)
+        data = {**data, **req_data, **vars(t)}
         self.assertDictEqual(response.json(), data)
 
         # Image file does not contain EXIF data so timestamp is the upload
