@@ -11,26 +11,28 @@
 {% block content %}
 
 {% if albums %}
-<ul class="photo-list">
-  {% for album in albums %}
-  <li>
-    <a href="{% url 'photo_objects:show_album' album.key %}">
-      {% if album.cover_photo %}
-      <img src="/img/{{ album.key }}/{{ album.cover_photo.filename }}/sm"
-        alt="{{ album.cover_photo.description|default:album.cover_photo.filename }}"
-        style="background: url(data:image/png;base64,{{ album.cover_photo.tiny_base64 }}); background-size: 100% 100%; font-size: 0;"
-        height="{{ album.cover_photo.thumbnail_height }}" width="{{ album.cover_photo.thumbnail_width }}" />
-      {% else %}
-      <div class="photo-placeholder"></div>
-      {% endif %}
-      <div class="photo-label">
-        <div class="photo-label-title">{{ album.title|default:album.key }}</div>
-        <div class="photo-label-date">{{ album.first_timestamp|date:"Y F"|default:"No photos" }}</div>
-      </div>
-    </a>
-  </li>
-  {% endfor %}
-</ul>
+<div class="albums">
+  <ul class="photo-list">
+    {% for album in albums %}
+    <li class="surface">
+      <a href="{% url 'photo_objects:show_album' album.key %}">
+        {% if album.cover_photo %}
+        <img src="/img/{{ album.key }}/{{ album.cover_photo.filename }}/sm"
+          alt="{{ album.cover_photo.description|default:album.cover_photo.filename }}"
+          style="background: url(data:image/png;base64,{{ album.cover_photo.tiny_base64 }}); background-size: 100% 100%; font-size: 0;"
+          height="{{ album.cover_photo.thumbnail_height }}" width="{{ album.cover_photo.thumbnail_width }}" />
+        {% else %}
+        <div class="photo-placeholder"></div>
+        {% endif %}
+        <div class="photo-label">
+          <div class="photo-label-title">{{ album.title|default:album.key }}</div>
+          <div class="photo-label-date">{{ album.first_timestamp|date:"Y F"|default:"No photos" }}</div>
+        </div>
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
 {% else %}
 <p>No albums are available.</p>
 {% endif %}
