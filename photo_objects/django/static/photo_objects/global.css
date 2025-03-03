@@ -255,6 +255,18 @@ label[for="id_photos"] img {
 }
 
 
+/* Photo surface */
+.surface {
+  background-color: var(--bg-secondary);
+  border-radius: 4px;
+  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.5);
+}
+
+/* Albums */
+.albums {
+  flex: 1;
+}
+
 /* Album */
 div.album {
   margin: 24px 0;
@@ -262,15 +274,13 @@ div.album {
   gap: 16px;
   flex-wrap: wrap;
   align-items: flex-start;
+  flex: 1;
 }
 
 div.album ul.photo-list {
   flex: 3;
   min-width: min(600px, 100%);
   margin: 0;
-
-  border: 1px solid var(--bg-border);
-  border-radius: 4px;
 }
 
 div.album ul.photo-list li {
@@ -290,7 +300,6 @@ ul.photo-list {
 }
 
 ul.photo-list a {
-  background: var(--bg-secondary);
   display: block;
   height: 100%;
   border-radius: 4px;
@@ -300,7 +309,6 @@ ul.photo-list a {
 
 ul.photo-list li {
   display: block;
-  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.5);
 }
 
 ul.photo-list img {
@@ -353,9 +361,6 @@ div.photo {
   max-width: 100%;
   height: calc(100vh - 110px);
   max-height: 100vh;
-
-  border: 1px solid var(--bg-border);
-  border-radius: 4px;
 }
 
 @media screen and (max-width: 935px) {
@@ -368,7 +373,6 @@ div.photo {
 
 div.photo img {
   border-radius: 4px;
-  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.5);
   display: block;
   position: relative;
   max-width: 100%;
