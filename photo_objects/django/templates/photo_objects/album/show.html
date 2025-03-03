@@ -10,6 +10,7 @@
 
 {% block content %}
 <div class="album">
+  {% if photos %}
   <ul class="photo-list surface">
     {% for photo in photos %}
     <li><a href="{% url 'photo_objects:show_photo' album.key photo.filename %}">
@@ -19,6 +20,11 @@
       </a></li>
     {% endfor %}
   </ul>
+  {% else %}
+  <div class="empty surface">
+    <div class="label-secondary">No photos</div>
+  </div>
+  {% endif %}
   {% include 'photo_objects/details.html' %}
 </div>
 

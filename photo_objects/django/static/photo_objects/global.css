@@ -37,6 +37,7 @@ footer {
 }
 
 @media screen and (min-width: 1600px) {
+
   header,
   main,
   footer {
@@ -45,6 +46,7 @@ footer {
 }
 
 @media screen and (min-width: 2200px) {
+
   header,
   main,
   footer {
@@ -262,6 +264,17 @@ label[for="id_photos"] img {
   box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.5);
 }
 
+.surface .label-primary {
+  font-weight: 600;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.surface .label-secondary {
+  font-size: .75em;
+}
+
 /* Albums */
 .albums {
   flex: 1;
@@ -277,10 +290,19 @@ div.album {
   flex: 1;
 }
 
-div.album ul.photo-list {
+div.album ul.photo-list,
+div.album div.empty {
   flex: 3;
   min-width: min(600px, 100%);
   margin: 0;
+}
+
+div.album div.empty {
+  align-items: flex-end;
+  display: flex;
+  justify-content: center;
+  min-height: 128px;
+  padding-bottom: 8px;
 }
 
 div.album ul.photo-list li {
@@ -325,17 +347,6 @@ ul.photo-list div.photo-label {
   box-sizing: border-box;
   color: var(--fg-primary);
   border-top: 1px solid var(--bg-primary);
-}
-
-ul.photo-list div.photo-label div.photo-label-title {
-  font-weight: 600;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
-}
-
-ul.photo-list div.photo-label div.photo-label-date {
-  font-size: .75em;
 }
 
 ul.photo-list div.photo-placeholder {
