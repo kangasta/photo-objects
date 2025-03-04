@@ -208,9 +208,16 @@ form ul li:first-of-type {
   margin-top: 0;
 }
 
+form .helptext {
+  font-size: .75em;
+  margin: 4px 0;
+  max-width: 916px;
+}
+
 form ul.errorlist {
   color: var(--fg-red);
   margin: 0;
+  max-width: 916px;
 }
 
 form ul.errorlist li {
