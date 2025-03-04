@@ -264,6 +264,14 @@ label[for="id_photos"] img {
   box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.5);
 }
 
+.surface .labels {
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+  color: var(--fg-primary);
+  border-top: 1px solid var(--bg-primary);
+}
+
 .surface .label-primary {
   font-weight: 600;
   text-overflow: ellipsis;
@@ -290,19 +298,18 @@ div.album {
   flex: 1;
 }
 
-div.album ul.photo-list,
-div.album div.empty {
+div.album .surface {
   flex: 3;
   min-width: min(600px, 100%);
   margin: 0;
 }
 
+div.album ul.photo-list {
+  margin: 0;
+}
+
 div.album div.empty {
-  align-items: flex-end;
-  display: flex;
-  justify-content: center;
   min-height: 128px;
-  padding-bottom: 8px;
 }
 
 div.album ul.photo-list li {
@@ -339,14 +346,6 @@ ul.photo-list img {
   height: auto;
   object-fit: cover;
   aspect-ratio: 1;
-}
-
-ul.photo-list div.photo-label {
-  width: 100%;
-  padding: 8px;
-  box-sizing: border-box;
-  color: var(--fg-primary);
-  border-top: 1px solid var(--bg-primary);
 }
 
 ul.photo-list div.photo-placeholder {

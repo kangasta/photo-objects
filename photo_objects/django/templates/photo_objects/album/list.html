@@ -24,7 +24,7 @@
         {% else %}
         <div class="photo-placeholder"></div>
         {% endif %}
-        <div class="photo-label">
+        <div class="labels">
           <div class="label-primary">{{ album.title|default:album.key }}</div>
           <div class="label-secondary">{{ album.first_timestamp|date:"Y F"|default:"No photos" }}</div>
         </div>

@@ -10,21 +10,32 @@
 
 {% block content %}
 <div class="album">
-  {% if photos %}
-  <ul class="photo-list surface">
-    {% for photo in photos %}
-    <li><a href="{% url 'photo_objects:show_photo' album.key photo.filename %}">
-        <img src="/img/{{ album.key }}/{{ photo.filename }}/sm" alt="{{ photo.description|default:photo.filename }}"
-          style="background: url(data:image/png;base64,{{ photo.tiny_base64 }}); background-size: 100% 100%; font-size: 0;"
-          height="{{ photo.thumbnail_height }}" width="{{ photo.thumbnail_width }}" />
-      </a></li>
-    {% endfor %}
-  </ul>
-  {% else %}
-  <div class="empty surface">
-    <div class="label-secondary">No photos</div>
+  <div class="surface">
+    {% if photos %}
+    <ul class="photo-list">
+      {% for photo in photos %}
+      <li><a href="{% url 'photo_objects:show_photo' album.key photo.filename %}">
+          <img src="/img/{{ album.key }}/{{ photo.filename }}/sm" alt="{{ photo.description|default:photo.filename }}"
+            style="background: url(data:image/png;base64,{{ photo.tiny_base64 }}); background-size: 100% 100%; font-size: 0;"
+            height="{{ photo.thumbnail_height }}" width="{{ photo.thumbnail_width }}" />
+        </a></li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <div class="empty">
+    </div>
+    {% endif %}
+    <div class="labels">
+      <div class="label-secondary">
+        {% if photos|length == 0 %}
+        No
+        {% else %}
+        {{ photos|length }}
+        {% endif %}
+        photo{{ photos|length|pluralize }}
+      </div>
+    </div>
   </div>
-  {% endif %}
   {% include 'photo_objects/details.html' %}
 </div>
 
