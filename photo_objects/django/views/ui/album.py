@@ -109,8 +109,14 @@ def delete_album(request: HttpRequest, album_key: str):
                 kwargs={
                     "album_key": album_key}))
 
+        error = {}
+        if album.photo_set.count() > 0:
+            error = {'error': 'Album can not be deleted because it contains photos.'}
+
     return render(request, 'photo_objects/delete.html', {
         "title": f"Delete album",
         "back": back,
         "photo": album.cover_photo,
+        "resource": target,
+        **error,
     })

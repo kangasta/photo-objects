@@ -229,6 +229,10 @@ form input[type="submit"] {
   margin: 24px 0;
 }
 
+form .error {
+  color: var(--fg-red);
+}
+
 
 /* File input */
 input[type="file"]#id_photos {
@@ -289,6 +293,14 @@ label[for="id_photos"] img {
 .surface .label-secondary {
   font-size: .75em;
 }
+
+
+/* Resource highlight*/
+.resource-highlight {
+  font-weight: bold;
+  word-break: break-all;
+}
+
 
 /* Albums */
 .albums {
