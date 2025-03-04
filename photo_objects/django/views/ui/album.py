@@ -101,7 +101,7 @@ def delete_album(request: HttpRequest, album_key: str):
         return HttpResponseRedirect(reverse('photo_objects:list_albums'))
     else:
         album = api.check_album_access(request, album_key)
-        target = album.title or album.filename
+        target = album.title or album.key
         back = BackLink(
             f'Back to {target}',
             reverse(

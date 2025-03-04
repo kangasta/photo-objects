@@ -38,12 +38,23 @@ def _postfix_generator():
             random.choices(KEY_POSTFIX_CHARS, k=KEY_POSTFIX_LEN))
 
 
+def description_help(resource):
+    return {'description': _(
+        f'Optional description for the {resource}. If defined, the '
+        f'description is visible on the {resource} details page. Use Markdown '
+        'syntax to format the description.'),
+    }
+
+
 class CreateAlbumForm(ModelForm):
     key = CharField(min_length=1, widget=HiddenInput)
 
     class Meta:
         model = Album
         fields = ['key', 'title', 'description', 'visibility']
+        help_texts = {
+            **description_help('album'),
+        }
 
     def clean(self):
         super().clean()
@@ -86,6 +97,9 @@ class ModifyAlbumForm(ModelForm):
     class Meta:
         model = Album
         fields = ['title', 'description', 'cover_photo', 'visibility']
+        help_texts = {
+            **description_help('album'),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -116,6 +130,9 @@ class ModifyPhotoForm(ModelForm):
     class Meta:
         model = Photo
         fields = ['title', 'description']
+        help_texts = {
+            **description_help('photo'),
+        }
 
 
 class MultipleFileInput(ClearableFileInput):
