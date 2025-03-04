@@ -1,6 +1,7 @@
 from django.http import HttpRequest, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 
 from photo_objects.django import api
 from photo_objects.django.api.utils import FormValidationFailed
@@ -109,8 +110,16 @@ def delete_album(request: HttpRequest, album_key: str):
                 kwargs={
                     "album_key": album_key}))
 
+        error = {}
+        if album.photo_set.count() > 0:
+            error = {'error': _(
+                'Album can not be deleted because it contains photos. Delete '
+                'all photos from the album to be able to delete the album.')}
+
     return render(request, 'photo_objects/delete.html', {
         "title": f"Delete album",
         "back": back,
         "photo": album.cover_photo,
+        "resource": target,
+        **error,
     })

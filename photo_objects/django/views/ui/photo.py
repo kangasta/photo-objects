@@ -128,4 +128,5 @@ def delete_photo(request: HttpRequest, album_key: str, photo_key: str):
         "title": "Delete photo",
         "back": back,
         "photo": photo,
+        "resource": target,
     })

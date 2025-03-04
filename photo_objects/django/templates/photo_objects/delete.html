@@ -15,8 +15,13 @@
 <div class="form">
   {% include 'photo_objects/form-photo.html' %}
   <form action="" method="post">
+    <p>Are you sure you want to delete <span class="resource-highlight">{{ resource }}</span>? This action can not be undone.</p>
     {% csrf_token %}
+    {% if error %}
+    <p class="error">{{ error }}</p>
+    {% else %}
     <input class="delete" type="submit" value="Delete">
+    {% endif %}
   </form>
 </div>
 {% endblock %}

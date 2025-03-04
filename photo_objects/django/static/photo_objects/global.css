@@ -7,6 +7,8 @@
   --bg-primary: #191b1f;
   --bg-secondary: #202327;
   --bg-border: #494a4d;
+  --bg-error: #272020;
+  --bg-error-border: #8f3d3f;
 
   --fg-primary: #d1d3d7;
   --fg-secondary: #a9acb1;
@@ -220,13 +222,28 @@ form ul.errorlist {
   max-width: 916px;
 }
 
-form ul.errorlist li {
-  margin: 8px 0;
-}
-
 form input[type="submit"] {
   /* Other definitions shared with action links. */
   margin: 24px 0;
+}
+
+form .error,
+form ul.errorlist li {
+  color: var(--fg-red);
+  background: var(--bg-error);
+  border: 1px solid var(--bg-error-border);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: row;
+  margin: 8px 0;
+  padding: 4px 8px;
+}
+
+form .error::before,
+form ul.errorlist li::before {
+  content: "!";
+  font-weight: bold;
+  padding: 0 8px 0 4px;
 }
 
 
@@ -289,6 +306,14 @@ label[for="id_photos"] img {
 .surface .label-secondary {
   font-size: .75em;
 }
+
+
+/* Resource highlight*/
+.resource-highlight {
+  font-weight: bold;
+  word-break: break-all;
+}
+
 
 /* Albums */
 .albums {
