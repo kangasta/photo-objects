@@ -157,6 +157,10 @@ class ModifyPhotoForm(ModelForm):
         fields = ['title', 'description']
         help_texts = {
             **description_help('photo'),
+            'title': _(
+                'Title for the photo. If not defined, the filename of the '
+                'photo is used as the title.'
+            ),
         }
 
 
