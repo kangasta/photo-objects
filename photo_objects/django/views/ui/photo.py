@@ -107,7 +107,6 @@ def edit_photo(request: HttpRequest, album_key: str, photo_key: str):
 
 @json_problem_as_html
 def delete_photo(request: HttpRequest, album_key: str, photo_key: str):
-
     if request.method == "POST":
         api.delete_photo(request, album_key, photo_key)
         return HttpResponseRedirect(
