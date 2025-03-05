@@ -9,8 +9,10 @@ from django.forms import (
     Form,
     HiddenInput,
     ModelForm,
-    ValidationError
+    RadioSelect,
+    ValidationError,
 )
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from .models import Album, Photo
@@ -93,18 +95,41 @@ class CreateAlbumForm(ModelForm):
         self.cleaned_data['key'] = key + postfix
 
 
+def photo_label(photo: Photo):
+    return mark_safe(
+        f'''
+<img
+  alt="{photo.title}"
+  src="/img/{photo.key}/sm"
+  style="
+    background: url(data:image/png;base64,{photo.tiny_base64});
+    background-size: 100% 100%;
+    font-size: 0;"
+  height="{photo.thumbnail_height}"
+  width="{photo.thumbnail_width}"
+/>''')
+
+
 class ModifyAlbumForm(ModelForm):
     class Meta:
         model = Album
         fields = ['title', 'description', 'cover_photo', 'visibility']
         help_texts = {
             **description_help('album'),
+            'cover_photo': _(
+                'Select a cover photo for the album. The cover photo is '
+                'visible on the albums list page and in album preview image.'),
+        }
+        widgets = {
+            'cover_photo': RadioSelect(attrs={'class': 'photo-select'}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['cover_photo'].queryset = Photo.objects.filter(
             album=self.instance)
+        self.fields['cover_photo'].empty_label = None
+        self.fields['cover_photo'].label_from_instance = photo_label
 
 
 class CreatePhotoForm(ModelForm):

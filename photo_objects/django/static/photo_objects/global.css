@@ -166,7 +166,8 @@ form input[type="text"]:focus-visible,
 form input[type="password"]:focus-visible,
 form textarea:focus-visible,
 form select:focus-visible,
-label[for="id_photos"]:focus-visible {
+label[for="id_photos"]:focus-visible,
+div.photo-select div:focus-within {
   outline: 2px solid var(--fg-secondary);
   outline-offset: 2px;
 }
@@ -265,6 +266,65 @@ form ul.errorlist li::before {
   content: "!";
   font-weight: bold;
   padding: 0 8px 0 4px;
+}
+
+
+/* Photo select */
+div.photo-select {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 8px;
+}
+
+div.photo-select div {
+  border-radius: 4px;
+  display: block;
+  position: relative;
+}
+
+div.photo-select label {
+  display: block;
+}
+
+div.photo-select div input[type="radio"] {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  margin: 0;
+
+  appearance: none;
+  box-sizing: border-box;
+  width: 16px;
+  height: 16px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--bg-border);
+  border-radius: 50%;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+div.photo-select div input[type="radio"]:focus {
+  outline: none;
+}
+
+div.photo-select div input[type="radio"]:checked::before {
+  content: "";
+  display: block;
+  width: 8px;
+  height: 8px;
+  background: var(--fg-primary);
+  border-radius: 50%;
+}
+
+div.photo-select div img {
+  border-radius: 4px;
+  aspect-ratio: 1;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  display: block;
 }
 
 
