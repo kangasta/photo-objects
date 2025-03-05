@@ -43,6 +43,9 @@
   // Render images instead of label after selecting files
   document.querySelector('#id_photos').addEventListener('change', renderPreviews);
 
+  // Make the label focusable as the input is hidden
+  document.querySelector('label[for=id_photos]').setAttribute('tabindex', '0');
+
   // Allow drop events on label
   document.querySelector('label[for=id_photos]').addEventListener('dragover', function (event) {
     event.preventDefault();
