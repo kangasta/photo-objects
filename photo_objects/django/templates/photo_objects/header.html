@@ -1,14 +1,42 @@
 <div class="title-row">
   <h1>{{ title }}</h1>
   {% if user.is_authenticated %}
-    <form class="login-status" id="logout" method="POST" action="/users/logout?next={{ request.path }}">
-      {% csrf_token %}
-      Logged in as {{ user.username }}, <button class="logout" type="sumit">logout</a>
-    </form>
+  <button class="user-profile" onclick="openUserModal()">A</button>
   {% else %}
-    <a class="login-status" href="{% url 'photo_objects:login' %}?next={{ request.path }}">Login</a>
+  <a href="{% url 'photo_objects:login' %}?next={{ request.path }}">Login</a>
   {% endif %}
 </div>
 {% if back %}
 <a href="{{ back.url }}">{{ back.text }}</a>
 {% endif %}
+<div class="user-modal">
+  <div class="backdrop" onclick="closeUserModal()"></div>
+  <dialog>
+    <div class="user-modal-header">
+      <div class="user-details">
+        <div class="user-profile">A</div>
+        <div class="labels">
+          {% if user.first_name or user.last_name %}
+          <div class="label-primary">{{ user.first_name }} {{ user.last_name }}</div>
+          {% endif %}
+          <div class="label-secondary">{{ user.username }}</div>
+        </div>
+      </div>
+      <button class="link" onclick="closeUserModal()">Close</button>
+    </div>
+    <form id="logout" method="POST" action="/users/logout?next={{ request.path }}">
+      {% csrf_token %}
+      Logged in as <span class="resource-highlight">{{ user.username }}</span>, <button class="link"
+        type="submit">logout</a>
+    </form>
+  </dialog>
+</div>
+<script>
+  function openUserModal() {
+    document.querySelector('.user-modal').classList.add('open');
+  }
+
+  function closeUserModal() {
+    document.querySelector('.user-modal').classList.remove('open');
+  }
+</script>
