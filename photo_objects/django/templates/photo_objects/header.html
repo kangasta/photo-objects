@@ -14,27 +14,30 @@
 {% endif %}
 {% if user.is_authenticated %}
 <dialog class="user-modal" onclick="handleClick(event)" onclose="handleClose()">
-  <!-- Manual focus trap: move focus to last element in dialog. -->
-  <div id="user-modal-pre" tabindex="0" onfocus="focusElement('#user-modal-logout')"></div>
-  <div class="user-modal-header">
-    <div class="user-details">
-      <div class="user-profile">
-        {% include 'photo_objects/user-profile-content.html' %}
+  <!-- Catch click events to easily detect if target is dialog or its backdrop. -->
+  <div class="user-modal-content">
+    <!-- Manual focus trap: move focus to last element in dialog. -->
+    <div id="user-modal-pre" tabindex="0" onfocus="focusElement('#user-modal-logout')"></div>
+    <div class="user-modal-header">
+      <div class="user-details">
+        <div class="user-profile">
+          {% include 'photo_objects/user-profile-content.html' %}
+        </div>
+        <div class="labels">
+          <div class="label-primary">{{ user|display_name }} </div>
+          <div class="label-secondary">{{ user.username }}</div>
+        </div>
       </div>
-      <div class="labels">
-        <div class="label-primary">{{ user|display_name }} </div>
-        <div class="label-secondary">{{ user.username }}</div>
-      </div>
+      <button id="user-modal-close" class="link" onclick="closeUserModal()">Close</button>
     </div>
-    <button id="user-modal-close" class="link" onclick="closeUserModal()">Close</button>
+    <form method="POST" action="/users/logout?next={{ request.path }}">
+      {% csrf_token %}
+      Logged in as <span class="resource-highlight">{{ user|display_name }}</span>, <button id="user-modal-logout"
+        class="link" type="submit">logout</button>
+    </form>
+    <!-- Manual focus trap: move focus to first element in dialog. -->
+    <div id="user-modal-post" tabindex="0" onfocus="focusElement('#user-modal-close')"></div>
   </div>
-  <form method="POST" action="/users/logout?next={{ request.path }}">
-    {% csrf_token %}
-    Logged in as <span class="resource-highlight">{{ user|display_name }}</span>, <button id="user-modal-logout"
-      class="link" type="submit">logout</button>
-  </form>
-  <!-- Manual focus trap: move focus to first element in dialog. -->
-  <div id="user-modal-post" tabindex="0" onfocus="focusElement('#user-modal-close')"></div>
 </dialog>
 {% endif %}
 <script>
