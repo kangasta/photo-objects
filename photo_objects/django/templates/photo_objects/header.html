@@ -12,6 +12,7 @@
 {% if back %}
 <a href="{{ back.url }}">{{ back.text }}</a>
 {% endif %}
+{% if user.is_authenticated %}
 <dialog class="user-modal" onclick="handleClick(event)" onclose="handleClose()">
   <!-- Manual focus trap: move focus to last element in dialog. -->
   <div id="user-modal-pre" tabindex="0" onfocus="focusElement('#user-modal-logout')"></div>
@@ -35,6 +36,7 @@
   <!-- Manual focus trap: move focus to first element in dialog. -->
   <div id="user-modal-post" tabindex="0" onfocus="focusElement('#user-modal-close')"></div>
 </dialog>
+{% endif %}
 <script>
   let previousFocus = null;
 
