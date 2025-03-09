@@ -1,14 +1,68 @@
+{% load photo_objects_extras %}
 <div class="title-row">
   <h1>{{ title }}</h1>
   {% if user.is_authenticated %}
-    <form class="login-status" id="logout" method="POST" action="/users/logout?next={{ request.path }}">
-      {% csrf_token %}
-      Logged in as {{ user.username }}, <button class="logout" type="sumit">logout</a>
-    </form>
+  <button class="user-profile" onclick="openUserModal()">
+    {% include 'photo_objects/user-profile-content.html' %}
+  </button>
   {% else %}
-    <a class="login-status" href="{% url 'photo_objects:login' %}?next={{ request.path }}">Login</a>
+  <a href="{% url 'photo_objects:login' %}?next={{ request.path }}">Login</a>
   {% endif %}
 </div>
 {% if back %}
 <a href="{{ back.url }}">{{ back.text }}</a>
 {% endif %}
+<dialog class="user-modal" onclick="handleClick(event)" onclose="handleClose()">
+  <!-- Manual focus trap: move focus to last element in dialog. -->
+  <div id="user-modal-pre" tabindex="0" onfocus="focusElement('#user-modal-logout')"></div>
+  <div class="user-modal-header">
+    <div class="user-details">
+      <div class="user-profile">
+        {% include 'photo_objects/user-profile-content.html' %}
+      </div>
+      <div class="labels">
+        <div class="label-primary">{{ user|display_name }} </div>
+        <div class="label-secondary">{{ user.username }}</div>
+      </div>
+    </div>
+    <button id="user-modal-close" class="link" onclick="closeUserModal()">Close</button>
+  </div>
+  <form method="POST" action="/users/logout?next={{ request.path }}">
+    {% csrf_token %}
+    Logged in as <span class="resource-highlight">{{ user|display_name }}</span>, <button id="user-modal-logout"
+      class="link" type="submit">logout</button>
+  </form>
+  <!-- Manual focus trap: move focus to first element in dialog. -->
+  <div id="user-modal-post" tabindex="0" onfocus="focusElement('#user-modal-close')"></div>
+</dialog>
+<script>
+  let previousFocus = null;
+
+  function openUserModal() {
+    document.querySelector('dialog.user-modal').showModal();
+
+    previousFocus = document.activeElement;
+    document.querySelector('#user-modal-close').focus();
+  }
+
+  function closeUserModal() {
+    document.querySelector('dialog.user-modal').close();
+  }
+
+  function handleClose() {
+    if (previousFocus) {
+      previousFocus.focus();
+      previousFocus = null;
+    }
+  }
+
+  function handleClick(event) {
+    if (event.target === event.currentTarget) {
+      event.currentTarget.close()
+    }
+  }
+
+  function focusElement(selector) {
+    document.querySelector(selector).focus();
+  }
+</script>

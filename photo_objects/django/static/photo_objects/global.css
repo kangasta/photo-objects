@@ -64,21 +64,19 @@ header {
 h1 {
   font-size: 1.5em;
   margin: 0;
-  margin-right: 1em;
+  margin-right: 8px;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 header div.title-row {
   display: flex;
-  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
 }
 
-header .login-status {
-  margin: 5px 0;
-}
-
-header button.logout {
+button.link {
   appearance: none;
   background: transparent;
   border: none;
@@ -87,6 +85,84 @@ header button.logout {
   font-size: inherit;
   padding: 0;
   text-decoration: underline;
+}
+
+.user-profile {
+  appearance: none;
+  border-radius: 50%;
+  height: 32px;
+  width: 32px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  border: 1px solid var(--bg-border);
+  background: var(--fg-blue);
+  color: var(--bg-primary);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+button.user-profile {
+  cursor: pointer;
+}
+
+dialog.user-modal {
+  position: fixed;
+  top: 0;
+  left: auto;
+  right: 0;
+  height: 100vh;
+  width: min(400px, 90%);
+  z-index: 10;
+
+  border: none;
+  border-left: 1px solid var(--bg-border);
+  padding: 24px 16px;
+  margin: 0;
+  background-color: var(--bg-secondary);
+  box-shadow: -2px 0 8px -2px rgba(0, 0, 0, 0.5);
+
+  color: var(--fg-primary);
+}
+
+dialog.user-modal::backdrop {
+  position: fixed;
+  height: 100vh;
+  width: 100vw;
+  top: 0;
+  left: 0;
+  backdrop-filter: blur(4px) brightness(90%);
+}
+
+dialog.user-modal:focus-visible {
+  outline-offset: -4px;
+  outline: 2px solid var(--fg-secondary);
+}
+
+div.user-modal-pre,
+div.user-modal-post {
+  position: absolute;
+}
+
+dialog.user-modal div.user-details .user-profile {
+  margin-right: 8px;
+}
+
+dialog.user-modal div.user-modal-header,
+dialog.user-modal div.user-details {
+  display: flex;
+  align-items: center;
+}
+
+dialog.user-modal div.user-modal-header {
+  justify-content: space-between;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--bg-border);
+}
+
+dialog.user-modal form {
+  margin: 24px 0;
 }
 
 main {
@@ -126,7 +202,7 @@ a:active {
 }
 
 a:focus-visible,
-header button.logout:focus-visible {
+button.link:focus-visible {
   border-radius: 2px;
   outline: 2px solid var(--fg-secondary);
   outline-offset: 2px;
@@ -160,6 +236,7 @@ div.actions {
 
 
 /* Default focus style*/
+button:focus-visible,
 a.action:focus-visible,
 form input[type="submit"]:focus-visible,
 form input[type="text"]:focus-visible,
@@ -377,14 +454,14 @@ label[for="id_photos"] img {
   border-top: 1px solid var(--bg-primary);
 }
 
-.surface .label-primary {
+.labels .label-primary {
   font-weight: 600;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
 }
 
-.surface .label-secondary {
+.labels .label-secondary {
   font-size: .75em;
 }
 
