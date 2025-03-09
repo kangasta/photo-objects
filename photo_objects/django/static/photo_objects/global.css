@@ -82,6 +82,7 @@ button.link {
   border: none;
   color: var(--fg-blue);
   cursor: pointer;
+  font-family: inherit;
   font-size: inherit;
   padding: 0;
   text-decoration: underline;
