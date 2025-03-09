@@ -30,6 +30,11 @@ class AuthViewTests(TestCase):
         private_photo = create_dummy_photo(private_album, "tower.jpeg")
         cls.private_path = _path_fn(private_album.key, private_photo.filename)
 
+        admin_album = Album.objects.create(
+            key="test-auth-admin", visibility=Album.Visibility.ADMIN)
+        admin_photo = create_dummy_photo(admin_album, "church.jpeg")
+        cls.admin_path = _path_fn(admin_album.key, admin_photo.filename)
+
         cls.not_found_path = _path_fn("madrid", "hotel")
 
     def test_auth_returns_403_on_no_path(self):
@@ -64,6 +69,9 @@ class AuthViewTests(TestCase):
             [self.private_path('sm'), 403],
             [self.private_path('lg'), 403],
             [self.private_path('og'), 403],
+            [self.admin_path('sm'), 204],
+            [self.admin_path('lg'), 204],
+            [self.admin_path('og'), 403],
             [self.not_found_path('sm'), 403],
             [self.not_found_path('lg'), 403],
             [self.not_found_path('og'), 403],
@@ -85,6 +93,9 @@ class AuthViewTests(TestCase):
             [self.private_path('sm'), 204],
             [self.private_path('lg'), 204],
             [self.private_path('og'), 204],
+            [self.admin_path('sm'), 204],
+            [self.admin_path('lg'), 204],
+            [self.admin_path('og'), 204],
             [self.not_found_path('sm'), 403],
             [self.not_found_path('lg'), 403],
             [self.not_found_path('og'), 403],

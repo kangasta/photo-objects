@@ -22,6 +22,10 @@ def check_album_access(request: HttpRequest, album_key: str):
         if album.visibility == Album.Visibility.PRIVATE:
             raise AlbumNotFound(album_key)
 
+    if not request.user.is_staff:
+        if album.visibility == Album.Visibility.ADMIN:
+            raise AlbumNotFound(album_key)
+
     return album
 
 

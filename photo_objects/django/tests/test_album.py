@@ -23,6 +23,10 @@ class ViewVisibilityTests(TestCase):
     def setUpTestData(cls):
         User = get_user_model()
         User.objects.create_user(username='test-visibility', password='test')
+        User.objects.create_user(
+            username='test-staff-visibility',
+            password='test',
+            is_staff=True)
 
         album = Album.objects.create(
             key="venice", visibility=Album.Visibility.PUBLIC)
@@ -35,6 +39,9 @@ class ViewVisibilityTests(TestCase):
         Album.objects.create(
             key="test-visibility-hidden",
             visibility=Album.Visibility.HIDDEN)
+        Album.objects.create(
+            key="test-visibility-admin",
+            visibility=Album.Visibility.ADMIN)
 
         create_dummy_photo(album, "tower.jpeg")
         create_dummy_photo(album, "canal.jpeg")
@@ -45,7 +52,7 @@ class ViewVisibilityTests(TestCase):
         response = self.client.get("/api/albums")
         self.assertEqual(len(response.json()), 2)
 
-    def test_authenticated_user_can_see_all_albums(self):
+    def test_authenticated_user_can_see_all_non_admin_albums(self):
         login_success = self.client.login(
             username='test-visibility', password='test')
         self.assertTrue(login_success)
@@ -53,14 +60,24 @@ class ViewVisibilityTests(TestCase):
         response = self.client.get("/api/albums")
         self.assertEqual(len(response.json()), 4)
 
+    def test_staff_user_can_see_all_albums(self):
+        login_success = self.client.login(
+            username='test-staff-visibility', password='test')
+        self.assertTrue(login_success)
+
+        response = self.client.get("/api/albums")
+        self.assertEqual(len(response.json()), 5)
+
     def test_anonymous_user_get_album_get_photos(self):
         self.assertRequestStatuses([
             ("GET", "/api/albums/test-visibility-public/photos", 200),
             ("GET", "/api/albums/test-visibility-private/photos", 404),
             ("GET", "/api/albums/test-visibility-hidden/photos", 200),
+            ("GET", "/api/albums/test-visibility-admin/photos", 404),
             ("GET", "/api/albums/test-visibility-public", 200),
             ("GET", "/api/albums/test-visibility-private", 404),
             ("GET", "/api/albums/test-visibility-hidden", 200),
+            ("GET", "/api/albums/test-visibility-admin", 404),
         ])
 
     def test_get_photos_lists_all_photos(self):
@@ -75,6 +92,12 @@ class AlbumViewTests(TestCase):
     def setUp(self):
         User = get_user_model()
         User.objects.create_user(username='no_permission', password='test')
+
+        has_permission = User.objects.create_user(
+            username='superuser',
+            password='test',
+            is_staff=True,
+            is_superuser=True)
 
         has_permission = User.objects.create_user(
             username='has_permission', password='test')
@@ -150,6 +173,55 @@ class AlbumViewTests(TestCase):
             album.get("visibility"),
             Album.Visibility.PRIVATE.value)
 
+    def test_cannot_use_admin_visibility_as_normal_user(self):
+        login_success = self.client.login(
+            username='has_permission', password='test')
+        self.assertTrue(login_success)
+
+        data = self.client.post(
+            "/api/albums",
+            content_type="application/json",
+            data=dict(
+                key="stockholm",
+                visibility="private"))
+        self.assertEqual(data.status_code, 201, json.dumps(data.json()))
+
+        for username, visibility, post_status, patch_status in [
+            ("has_permission", "", 400, 400),
+            # ("has_permission", "admin", 400, 400),
+            ("superuser", "", 201, 200),
+            # ("superuser", "admin", 201, 200),
+            # The album now has admin visibility and should thus return 404 for
+            # non admin user.
+            ("has_permission", "", 400, 404),
+        ]:
+            with self.subTest(username=username, visibility=visibility):
+                login_success = self.client.login(
+                    username=username, password='test')
+                self.assertTrue(login_success)
+
+                data = self.client.post(
+                    "/api/albums",
+                    content_type="application/json",
+                    data=dict(
+                        key="oslo",
+                        visibility=visibility))
+                self.assertEqual(
+                    data.status_code,
+                    post_status,
+                    json.dumps(
+                        data.json()))
+
+                data = self.client.patch(
+                    "/api/albums/stockholm",
+                    content_type="application/json",
+                    data=dict(visibility=visibility))
+                self.assertEqual(
+                    data.status_code,
+                    patch_status,
+                    json.dumps(
+                        data.json()))
+
     def test_create_album(self):
         login_success = self.client.login(
             username='has_permission', password='test')
@@ -190,6 +262,7 @@ class AlbumViewTests(TestCase):
             content_type="application/json",
             data=dict(key="oslo"))
         self.assertStatus(response, 201)
+        self.assertEqual(response.json().get("visibility"), "private")
 
         response = self.client.post(
             "/api/albums",

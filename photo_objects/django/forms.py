@@ -48,6 +48,21 @@ def description_help(resource):
     }
 
 
+def _check_admin_visibility(form):
+    if form.user and form.user.is_staff:
+        return
+
+    if form.data.get("visibility") == Album.Visibility.ADMIN:
+        form.add_error(
+            'visibility',
+            ValidationError(
+                _(
+                    'Can not set admin visibility as non-admin user. Select a '
+                    'different visibility setting.'),
+                code='invalid'))
+        return
+
+
 class CreateAlbumForm(ModelForm):
     key = CharField(min_length=1, widget=HiddenInput)
 
@@ -58,11 +73,17 @@ class CreateAlbumForm(ModelForm):
             **description_help('album'),
         }
 
+    def __init__(self, *args, user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = user
+
     def clean(self):
         super().clean()
 
         key = self.cleaned_data.get('key', '')
         title = self.cleaned_data.get('title', '')
+
+        _check_admin_visibility(self)
 
         # If key is set to _new, generate a key from the title.
         if key != '_new':
@@ -124,12 +145,18 @@ class ModifyAlbumForm(ModelForm):
             'cover_photo': RadioSelect(attrs={'class': 'photo-select'}),
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
+        self.user = user
+
         self.fields['cover_photo'].queryset = Photo.objects.filter(
             album=self.instance)
         self.fields['cover_photo'].empty_label = None
         self.fields['cover_photo'].label_from_instance = photo_label
+
+    def clean(self):
+        super().clean()
+        _check_admin_visibility(self)
 
 
 class CreatePhotoForm(ModelForm):

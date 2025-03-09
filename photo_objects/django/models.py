@@ -50,6 +50,7 @@ class Album(BaseModel):
         PUBLIC = "public", _("Public")
         HIDDEN = "hidden", _("Hidden")
         PRIVATE = "private", _("Private")
+        ADMIN = "", _("Admin")
 
     key = models.CharField(primary_key=True, validators=[album_key_validator])
     visibility = models.CharField(
