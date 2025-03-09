@@ -1,7 +1,10 @@
+{% load photo_objects_extras %}
 <div class="title-row">
   <h1>{{ title }}</h1>
   {% if user.is_authenticated %}
-  <button class="user-profile" onclick="openUserModal()">A</button>
+  <button class="user-profile" onclick="openUserModal()">
+    {% include 'photo_objects/user-profile-content.html' %}
+  </button>
   {% else %}
   <a href="{% url 'photo_objects:login' %}?next={{ request.path }}">Login</a>
   {% endif %}
@@ -14,11 +17,11 @@
   <div id="user-modal-pre" tabindex="0" onfocus="focusElement('#user-modal-logout')"></div>
   <div class="user-modal-header">
     <div class="user-details">
-      <div class="user-profile">A</div>
+      <div class="user-profile">
+        {% include 'photo_objects/user-profile-content.html' %}
+      </div>
       <div class="labels">
-        {% if user.first_name or user.last_name %}
-        <div class="label-primary">{{ user.first_name }} {{ user.last_name }}</div>
-        {% endif %}
+        <div class="label-primary">{{ user|display_name }} </div>
         <div class="label-secondary">{{ user.username }}</div>
       </div>
     </div>
@@ -26,7 +29,7 @@
   </div>
   <form method="POST" action="/users/logout?next={{ request.path }}">
     {% csrf_token %}
-    Logged in as <span class="resource-highlight">{{ user.username }}</span>, <button id="user-modal-logout"
+    Logged in as <span class="resource-highlight">{{ user|display_name }}</span>, <button id="user-modal-logout"
       class="link" type="submit">logout</button>
   </form>
   <!-- Manual focus trap: move focus to first element in dialog. -->

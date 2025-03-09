@@ -454,14 +454,14 @@ label[for="id_photos"] img {
   border-top: 1px solid var(--bg-primary);
 }
 
-.surface .label-primary {
+.labels .label-primary {
   font-weight: 600;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
 }
 
-.surface .label-secondary {
+.labels .label-secondary {
   font-size: .75em;
 }
 
