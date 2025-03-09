@@ -16,15 +16,21 @@ from .utils import (
 def get_albums(request: HttpRequest):
     if not request.user.is_authenticated:
         return Album.objects.filter(visibility=Album.Visibility.PUBLIC)
-    else:
+    if request.user.is_staff:
         return Album.objects.all()
+
+    return Album.objects.filter(visibility__in=[
+        Album.Visibility.PUBLIC,
+        Album.Visibility.HIDDEN,
+        Album.Visibility.PRIVATE,
+    ])
 
 
 def create_album(request: HttpRequest):
     check_permissions(request, 'photo_objects.add_album')
     data = parse_input_data(request)
 
-    f = CreateAlbumForm(data)
+    f = CreateAlbumForm(data, user=request.user)
     if not f.is_valid():
         raise FormValidationFailed(f)
 
@@ -36,7 +42,8 @@ def modify_album(request: HttpRequest, album_key: str):
     album = check_album_access(request, album_key)
     data = parse_input_data(request)
 
-    f = ModifyAlbumForm({**album.to_json(), **data}, instance=album)
+    f = ModifyAlbumForm({**album.to_json(), **data},
+                        instance=album, user=request.user)
     if not f.is_valid():
         raise FormValidationFailed(f)
 

@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from photo_objects.django import api
 from photo_objects.django.api.utils import FormValidationFailed
 from photo_objects.django.forms import CreateAlbumForm, ModifyAlbumForm
+from photo_objects.django.models import Album
 from photo_objects.django.views.utils import BackLink, render_markdown
 
 from .utils import json_problem_as_html
@@ -32,7 +33,7 @@ def new_album(request: HttpRequest):
         except FormValidationFailed as e:
             form = e.form
     else:
-        form = CreateAlbumForm(initial={"key": "_new"})
+        form = CreateAlbumForm(initial={"key": "_new"}, user=request.user)
 
     back = BackLink("Back to albums", reverse('photo_objects:list_albums'))
 
@@ -48,7 +49,7 @@ def show_album(request: HttpRequest, album_key: str):
     back = BackLink("Back to albums", reverse('photo_objects:list_albums'))
     details = {
         "Description": render_markdown(album.description),
-        "Visibility": str(album.visibility).capitalize(),
+        "Visibility": Album.Visibility(album.visibility).label,
     }
 
     return render(request,
@@ -78,7 +79,8 @@ def edit_album(request: HttpRequest, album_key: str):
             initial={
                 **album.to_json(),
                 'cover_photo': cover_photo},
-            instance=album)
+            instance=album,
+            user=request.user)
 
     target = album.title or album.key
     back = BackLink(
