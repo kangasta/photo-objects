@@ -107,30 +107,7 @@ button.user-profile {
   cursor: pointer;
 }
 
-div.user-modal {
-  display: none;
-}
-
-div.user-modal,
-div.user-modal div.backdrop {
-  position: fixed;
-  height: 100vh;
-  width: 100vw;
-  top: 0;
-  left: 0;
-  z-index: 5;
-}
-
-div.user-modal div.backdrop {
-  backdrop-filter: blur(4px) brightness(90%);
-}
-
-div.user-modal.open,
-div.user-modal.open dialog {
-  display: block;
-}
-
-div.user-modal dialog {
+dialog.user-modal {
   position: fixed;
   top: 0;
   left: auto;
@@ -141,7 +118,6 @@ div.user-modal dialog {
 
   border: none;
   border-left: 1px solid var(--bg-border);
-  box-sizing: border-box;
   padding: 24px 16px;
   margin: 0;
   background-color: var(--bg-secondary);
@@ -150,28 +126,42 @@ div.user-modal dialog {
   color: var(--fg-primary);
 }
 
-div.user-modal dialog:focus-visible {
-  outline-offset: -6px;
+dialog.user-modal::backdrop {
+  position: fixed;
+  height: 100vh;
+  width: 100vw;
+  top: 0;
+  left: 0;
+  backdrop-filter: blur(4px) brightness(90%);
+}
+
+dialog.user-modal:focus-visible {
+  outline-offset: -4px;
   outline: 2px solid var(--fg-secondary);
 }
 
-div.user-modal dialog div.user-details .user-profile {
+div.user-modal-pre,
+div.user-modal-post {
+  position: absolute;
+}
+
+dialog.user-modal div.user-details .user-profile {
   margin-right: 8px;
 }
 
-div.user-modal dialog div.user-modal-header,
-div.user-modal dialog div.user-details {
+dialog.user-modal div.user-modal-header,
+dialog.user-modal div.user-details {
   display: flex;
   align-items: center;
 }
 
-div.user-modal dialog div.user-modal-header {
+dialog.user-modal div.user-modal-header {
   justify-content: space-between;
   padding-bottom: 24px;
   border-bottom: 1px solid var(--bg-border);
 }
 
-div.user-modal dialog form {
+dialog.user-modal form {
   margin: 24px 0;
 }
 
