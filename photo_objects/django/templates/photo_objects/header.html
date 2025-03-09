@@ -30,10 +30,14 @@
       </div>
       <button id="user-modal-close" class="link" onclick="closeUserModal()">Close</button>
     </div>
-    <form method="POST" action="/users/logout?next={{ request.path }}">
+    {% if user.is_staff %}
+    <div class="user-modal-action">
+      <a href="{% url 'admin:index' %}">Open admin interface</a>
+    </div>
+    {% endif %}
+    <form class="user-modal-action" method="POST" action="/users/logout?next={{ request.path }}">
       {% csrf_token %}
-      Logged in as <span class="resource-highlight">{{ user|display_name }}</span>, <button id="user-modal-logout"
-        class="link" type="submit">logout</button>
+      <button id="user-modal-logout" class="link" type="submit">Logout</button>
     </form>
     <!-- Manual focus trap: move focus to first element in dialog. -->
     <div id="user-modal-post" tabindex="0" onfocus="focusElement('#user-modal-close')"></div>

@@ -82,6 +82,7 @@ button.link {
   border: none;
   color: var(--fg-blue);
   cursor: pointer;
+  font-family: inherit;
   font-size: inherit;
   padding: 0;
   text-decoration: underline;
@@ -168,8 +169,9 @@ dialog.user-modal div.user-modal-header {
   border-bottom: 1px solid var(--bg-border);
 }
 
-dialog.user-modal form {
-  margin: 24px 0;
+dialog.user-modal .user-modal-action {
+  border-bottom: 1px solid var(--bg-border);
+  padding: 16px 0;
 }
 
 main {
