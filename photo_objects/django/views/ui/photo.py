@@ -72,13 +72,15 @@ def show_photo(request: HttpRequest, album_key: str, photo_key: str):
         "Timestamp": photo.timestamp,
     }
 
-    return render(request,
-                  "photo_objects/photo/show.html",
-                  {"photo": photo,
-                   "previous_filename": previous_filename,
-                   "next_filename": next_filename,
-                   "title": photo.title or photo.filename,
-                   "back": back, "details": details})
+    return render(request, "photo_objects/photo/show.html", {
+        "photo": photo,
+        "previous_filename": previous_filename,
+        "next_filename": next_filename,
+        "title": photo.title or photo.filename,
+        "description": photo.description,
+        "back": back,
+        "details": details,
+    })
 
 
 @json_problem_as_html

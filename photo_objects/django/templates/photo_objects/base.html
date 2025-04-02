@@ -2,14 +2,23 @@
 <html lang="en">
 
 <head>
-  {% block title %}
-  <title>Photo Objects</title>
-  {% endblock %}
+  <title>{% if title %}{{ title }} - {% endif %}Photo Objects</title>
+  {% if description %}
+  <meta name="description" content="{{ description }}">
+  {% endif %}
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  {% block metadata %}
-  {% endblock %}
-  <!-- TODO: Favicon -->
+
+  {% if request.site and request.site.domain != "example.com" and photo and title %}
+  <meta property="og:title" content="{{ title }}">
+  {% if description %}
+  <meta property="og:description" content="{{ description }}">
+  {% endif %}
+  <meta property="og:image" content="https://{{ request.site.domain }}/img/{{ photo.album.key }}/{{ photo.filename }}/md" />
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://{{ request.site.domain }}{{ request.path }}">
+  {% endif %}
+
   {% load static %}
   <link rel="icon" href="{% static 'photo_objects/favicon.svg' %}" type="image/svg+xml">
   <link rel="preload" href="{% static 'photo_objects/SourceSans3.ttf' %}" as="font" type="font/ttf">

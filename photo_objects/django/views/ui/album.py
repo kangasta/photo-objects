@@ -15,9 +15,10 @@ from .utils import json_problem_as_html
 @json_problem_as_html
 def list_albums(request: HttpRequest):
     albums = api.get_albums(request)
-    return render(request,
-                  "photo_objects/album/list.html",
-                  {"albums": albums, "title": "Albums"})
+    return render(request, "photo_objects/album/list.html", {
+        "albums": albums,
+        "title": "Albums",
+    })
 
 
 @json_problem_as_html
@@ -37,8 +38,11 @@ def new_album(request: HttpRequest):
 
     back = BackLink("Back to albums", reverse('photo_objects:list_albums'))
 
-    return render(request, 'photo_objects/form.html',
-                  {"form": form, "title": "Create album", "back": back})
+    return render(request, 'photo_objects/form.html', {
+        "form": form,
+        "title": "Create album",
+        "back": back,
+    })
 
 
 @json_problem_as_html
@@ -52,11 +56,15 @@ def show_album(request: HttpRequest, album_key: str):
         "Visibility": Album.Visibility(album.visibility).label,
     }
 
-    return render(request,
-                  "photo_objects/album/show.html",
-                  {"album": album, "photos": photos,
-                   "title": album.title or album.key,
-                   "back": back, "details": details})
+    return render(request, "photo_objects/album/show.html", {
+        "album": album,
+        "photos": photos,
+        "title": album.title or album.key,
+        "description": album.description,
+        "back": back,
+        "details": details,
+        "photo": album.cover_photo,
+    })
 
 
 @json_problem_as_html
