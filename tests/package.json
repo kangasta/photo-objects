@@ -1,0 +1,12 @@
+{
+  "name": "photo-objects-tests",
+  "version": "0.0.0",
+  "scripts": {},
+  "keywords": [],
+  "devDependencies": {
+    "@playwright/test": "^1.51.0",
+    "@types/node": "^22.13.10",
+    "dotenv": "^16.4.7"
+  },
+  "dependencies": {}
+}
