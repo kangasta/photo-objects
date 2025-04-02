@@ -1,0 +1,9 @@
+include:
+  - docker-compose.yaml
+services:
+  test:
+    build: ./tests/
+    network_mode: host
+    volumes:
+      - ${PWD}/tests/playwright-report:/tests/playwright-report
+      - 'photo_objects:/var/photo_objects'
