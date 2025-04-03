@@ -8,5 +8,5 @@ test('login', async ({ page }) => {
   await page.getByLabel('Password').fill(process.env.PASSWORD);
   await page.locator('form').getByText('Login').click();
 
-  await expect(page.getByText('New album')).toBeVisible();
+  await expect(page.getByTitle('Logged in as admin')).toBeVisible();
 });

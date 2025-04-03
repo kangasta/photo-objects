@@ -2,7 +2,8 @@
 <div class="title-row">
   <h1>{{ title }}</h1>
   {% if user.is_authenticated %}
-  <button class="user-profile" onclick="openUserModal()">
+  <button aria-label="Open user menu" class="user-profile" onclick="openUserModal()"
+    title="Logged in as {{ user|display_name }}">
     {% include 'photo_objects/user-profile-content.html' %}
   </button>
   {% else %}
