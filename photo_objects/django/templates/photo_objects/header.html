@@ -11,7 +11,7 @@
   {% endif %}
 </div>
 {% if back %}
-<a href="{{ back.url }}">{{ back.text }}</a>
+<a class="back-link" href="{{ back.url }}">{{ back.text }}</a>
 {% endif %}
 {% if user.is_authenticated %}
 <dialog class="user-modal" onclick="handleClick(event)" onclose="handleClose()">
