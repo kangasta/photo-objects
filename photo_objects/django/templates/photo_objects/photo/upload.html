@@ -42,6 +42,14 @@
   // Make the label focusable as the input is hidden
   document.querySelector('label[for=id_photos]').setAttribute('tabindex', '0');
 
+  // Handle enter and space key events on label
+  document.querySelector('label[for=id_photos]').addEventListener('keydown', function (event) {
+    if (event.code === 'Enter' || event.code === 'Space') {
+      event.preventDefault();
+      document.querySelector('#id_photos').click();
+    }
+  });
+
   // Allow drop events on label
   document.querySelector('label[for=id_photos]').addEventListener('dragover', function (event) {
     event.preventDefault();
