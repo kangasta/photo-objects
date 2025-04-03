@@ -14,6 +14,8 @@ python3 back/manage.py makemigrations --pythonpath="$(pwd)"
 
 ## Testing
 
+### Static analysis
+
 Check and automatically fix formatting with:
 
 ```sh
@@ -27,6 +29,8 @@ Run static analysis with:
 pylint -E --enable=invalid-name,unused-import,useless-object-inheritance back/api photo_objects
 ```
 
+### Integration tests
+
 Run integration tests (in the `api` directory) with:
 
 ```sh
@@ -36,6 +40,31 @@ python3 runtests.py
 Get test coverage with:
 
 ```sh
-coverage run  --branch --source photo_objects runtests.py
+coverage run --branch --source photo_objects runtests.py
 coverage report -m
+```
+
+### End-to-end tests
+
+Run end-to-end tests with Docker Compose:
+
+```sh
+docker compose -f docker-compose.test.yaml up --exit-code-from test --build
+```
+
+Run end-to-end tests in interactive mode (in the `tests` directory):
+
+```sh
+# Install dependencies
+npm ci
+
+# Start test target
+docker compose up -d
+
+# Configure credentials
+export USERNAME=admin
+export PASSWORD=$(docker compose exec api cat /var/photo_objects/initial_admin_password)
+
+# Start test UI
+npx playwright test --ui
 ```
