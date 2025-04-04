@@ -1,3 +1,5 @@
+import re
+
 from django.http import HttpRequest, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
@@ -45,6 +47,15 @@ def new_album(request: HttpRequest):
     })
 
 
+def get_info(request: HttpRequest, album_key: str):
+    if re.match(r'_site_[0-9]+', album_key) and request.site:
+        return (
+            "This is a special album for configuring site metadata for "
+            f"{request.site.name}. Use album title to override the site name, "
+            "albums cover photo to configure the preview image, and album "
+            "description to configure the site description.")
+
+
 @json_problem_as_html
 def show_album(request: HttpRequest, album_key: str):
     album = api.check_album_access(request, album_key)
@@ -64,6 +75,7 @@ def show_album(request: HttpRequest, album_key: str):
         "back": back,
         "details": details,
         "photo": album.cover_photo,
+        "info": get_info(request, album_key),
     })
 
 
@@ -102,6 +114,7 @@ def edit_album(request: HttpRequest, album_key: str):
         "title": "Edit album",
         "back": back,
         "photo": album.cover_photo,
+        "info": get_info(request, album_key),
     })
 
 

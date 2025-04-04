@@ -1,5 +1,7 @@
 from django import template
 
+from photo_objects.django.models import Album
+
 
 register = template.Library()
 
@@ -21,3 +23,26 @@ def display_name(user):
     if user.first_name or user.last_name:
         return f'{user.first_name} {user.last_name}'.strip()
     return user.username
+
+
+@register.inclusion_tag("photo_objects/meta-og.html", takes_context=True)
+def meta_og(context):
+    photo = context.get("photo")
+    title = context.get("title")
+
+    if photo and title:
+        return context
+
+    try:
+        request = context.get("request")
+        site = request.site
+        album = Album.objects.get(key=f'_site_{site.id}')
+
+        return {
+            'request': request,
+            "title": album.title or site.name,
+            "description": album.description,
+            "photo": album.cover_photo,
+        }
+    except Exception:
+        return context

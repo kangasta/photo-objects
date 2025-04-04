@@ -9,12 +9,15 @@
   --bg-border: #494a4d;
   --bg-error: #272020;
   --bg-error-border: #8f3d3f;
+  --bg-info: #1e242b;
+  --bg-info-border: #4d6280;
 
   --fg-primary: #d1d3d7;
   --fg-secondary: #a9acb1;
 
   --fg-blue: #9a9fef;
   --fg-red: #ef8a8c;
+  --fg-info: #a8c6f0;
 }
 
 body {
@@ -341,6 +344,7 @@ form input[type="submit"] {
   margin: 24px 0;
 }
 
+p.info-banner,
 form .error,
 form ul.errorlist li {
   color: var(--fg-red);
@@ -353,9 +357,23 @@ form ul.errorlist li {
   padding: 4px 8px;
 }
 
+p.info-banner {
+  color: var(--fg-info);
+  background: var(--bg-info);
+  border-color: var(--bg-info-border);
+  margin: 16px 0 0;
+}
+
+p.info-banner::before,
 form .error::before,
 form ul.errorlist li::before {
   content: "!";
+  font-weight: bold;
+  padding: 0 8px 0 4px;
+}
+
+p.info-banner::before {
+  content: "i";
   font-weight: bold;
   padding: 0 8px 0 4px;
 }

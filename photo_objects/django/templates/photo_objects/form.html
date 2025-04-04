@@ -5,9 +5,11 @@
 {% endblock %}
 
 {% block content %}
-<!-- TODO: Instructions? -->
-
+{% if info %}
+<p class="info-banner">{{ info }}</p>
+{% endif %}
 <div class="form">
+  <!-- TODO: Instructions? -->
   {% include 'photo_objects/form-photo.html' %}
   <form action="" method="post">
     {% csrf_token %}
