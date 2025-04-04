@@ -23,6 +23,13 @@ class TestUtils(TestCase):
     def test_slugify_lower(self):
         self.assertEqual(slugify("QwErTy!", True), "qwerty-")
 
+    def test_slugify_replace_leading_underscores(self):
+        self.assertEqual(
+            slugify(
+                "__SecretAlbum",
+                replace_leading_underscores=True),
+            "-SecretAlbum")
+
     def test_with_error_code(self):
         self.assertEqual(
             objsto.with_error_code("Failed", Exception('TEST')),

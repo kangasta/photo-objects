@@ -249,7 +249,7 @@ class AlbumViewTests(TestCase):
             username='has_permission', password='test')
         self.assertTrue(login_success)
 
-        for key in ["", "#invalid", "()"]:
+        for key in ["", "#invalid", "()", "_reserved"]:
             response = self.client.post(
                 "/api/albums",
                 content_type="application/json",

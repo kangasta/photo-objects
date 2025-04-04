@@ -23,14 +23,19 @@ KEY_POSTFIX_CHARS = 'bcdfghjklmnpqrstvwxz2456789'
 KEY_POSTFIX_LEN = 5
 
 
-def slugify(input: str, lower=False) -> str:
+def slugify(input: str, lower=False, replace_leading_underscores=False) -> str:
     key = unicodedata.normalize(
         'NFKD', input).encode(
         'ascii', 'ignore').decode('ascii')
     if lower:
         key = key.lower()
+
     key = re.sub(r'[^a-zA-Z0-9._-]', '-', key)
     key = re.sub(r'[-_]{2,}', '-', key)
+
+    if replace_leading_underscores:
+        key = re.sub(r'^_+', '-', key)
+
     return key
 
 
@@ -87,6 +92,13 @@ class CreateAlbumForm(ModelForm):
 
         # If key is set to _new, generate a key from the title.
         if key != '_new':
+            if key.startswith('_'):
+                self.add_error(
+                    'key',
+                    ValidationError(
+                        _('Keys starting with underscore are reserved for '
+                          'system albums.'),
+                        code='invalid'))
             return
 
         if title == '':
@@ -97,7 +109,7 @@ class CreateAlbumForm(ModelForm):
                     code='required'))
             return
 
-        key = slugify(title, True)
+        key = slugify(title, lower=True, replace_leading_underscores=True)
 
         postfix_iter = _postfix_generator()
         try:
