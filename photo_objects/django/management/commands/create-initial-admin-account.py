@@ -19,13 +19,11 @@ class Command(BaseCommand):
 
             write_to_home_directory("initial_admin_password", password)
 
-            msg = (
+            self.stdout.write(
                 self.style.SUCCESS('Initial admin account created:') +
                 f'\n  Username: {username}'
                 f'\n  Password: {password}'
             )
-
-            self.stdout.write(msg)
         else:
             self.stdout.write(
                 self.style.NOTICE(

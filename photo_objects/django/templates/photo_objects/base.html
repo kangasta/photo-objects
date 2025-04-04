@@ -1,3 +1,4 @@
+{% load photo_objects_extras %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -9,15 +10,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  {% if request.site and request.site.domain != "example.com" and photo and title %}
-  <meta property="og:title" content="{{ title }}">
-  {% if description %}
-  <meta property="og:description" content="{{ description }}">
-  {% endif %}
-  <meta property="og:image" content="https://{{ request.site.domain }}/img/{{ photo.album.key }}/{{ photo.filename }}/md" />
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://{{ request.site.domain }}{{ request.path }}">
-  {% endif %}
+  {% meta_og %}
 
   {% load static %}
   <link rel="icon" href="{% static 'photo_objects/favicon.svg' %}" type="image/svg+xml">
