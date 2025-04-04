@@ -125,6 +125,9 @@ def delete_album(request: HttpRequest, album_key: str):
             error = {'error': _(
                 'Album can not be deleted because it contains photos. Delete '
                 'all photos from the album to be able to delete the album.')}
+        if album.key.startswith('_'):
+            error = {'error': _(
+                'This album is managed by the system and can not be deleted.')}
 
     return render(request, 'photo_objects/delete.html', {
         "title": f"Delete album",
