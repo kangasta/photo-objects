@@ -54,6 +54,13 @@ def delete_album(request: HttpRequest, album_key: str):
     check_permissions(request, 'photo_objects.delete_album')
     album = check_album_access(request, album_key)
 
+    if album.key.startswith('_'):
+        raise JsonProblem(
+            f"Album with {album_key} key is managed by the system and can not "
+            "be deleted.",
+            409,
+        )
+
     try:
         album.delete()
     except ProtectedError:
