@@ -61,7 +61,7 @@ footer {
 
 header {
   min-height: 56px;
-  padding-top: 8px;
+  padding: 8px;
   overflow: hidden;
 }
 
@@ -271,7 +271,7 @@ div.photo-select div:focus-within {
 /* Forms */
 div.form {
   flex: 1;
-  margin: 24px 0 0;
+  margin: 16px 0 0;
 
   display: flex;
   flex-direction: row-reverse;
@@ -282,7 +282,7 @@ div.form {
 }
 
 div.configuration {
-  margin: 24px 0;
+  margin: 16px 0;
 }
 
 div.form div.photo {
@@ -536,7 +536,7 @@ label[for="id_photos"] img {
 
 /* Album */
 div.album {
-  margin: 24px 0;
+  margin: 16px 0;
   display: flex;
   gap: 16px;
   flex-wrap: wrap;
@@ -567,7 +567,7 @@ div.album ul.photo-list li {
 /* Photo lists */
 ul.photo-list {
   list-style-type: none;
-  margin: 24px 0;
+  margin: 16px 0;
   padding: 0;
 
   display: grid;
@@ -603,7 +603,7 @@ ul.photo-list div.photo-placeholder {
 
 /* Photo details */
 div.photo-and-details {
-  margin: 24px 0;
+  margin: 16px 0;
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
@@ -667,5 +667,5 @@ dd p:last-of-type {
 
 /* Problem */
 dl.problem {
-  margin: 24px 0;
+  margin: 16px 0;
 }
