@@ -60,6 +60,11 @@ urlpatterns = [
         ui.delete_photo,
         name="delete_photo",
     ),
+    path(
+        "configuration",
+        ui.configuration,
+        name="configuration",
+    ),
     # TODO: img/<str:album_key>/<str:photo_key>/<str:size_key> path
     path(
         "users/login",

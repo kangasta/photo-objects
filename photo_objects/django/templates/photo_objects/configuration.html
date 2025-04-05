@@ -1,0 +1,25 @@
+{% extends 'photo_objects/base.html' %}
+
+{% block header %}
+{% include 'photo_objects/header.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="configuration">
+  <ul>
+    {% for i in validations %}
+    <li>
+      <div>
+        <span class="check">{{ i.check }}:</span>
+        <span class="status {{ i.status|lower }}">{{ i.status }}</span>
+      </div>
+      {% if i.detail %}
+      <div class="helptext">
+        {{ i.detail }}
+      </div>
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

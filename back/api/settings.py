@@ -147,3 +147,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = '/albums'
 
 SITE_ID = 1
+
+USE_X_FORWARDED_HOST = True
