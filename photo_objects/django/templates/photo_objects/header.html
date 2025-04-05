@@ -35,6 +35,9 @@
     <div class="user-modal-action">
       <a href="{% url 'admin:index' %}">Open admin interface</a>
     </div>
+    <div class="user-modal-action">
+      <a href="{% url 'photo_objects:configuration' %}">Show configuration status</a>
+    </div>
     {% endif %}
     <form class="user-modal-action" method="POST" action="/users/logout?next={{ request.path }}">
       {% csrf_token %}
