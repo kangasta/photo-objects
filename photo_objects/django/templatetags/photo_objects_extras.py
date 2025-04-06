@@ -25,6 +25,15 @@ def display_name(user):
     return user.username
 
 
+@register.filter
+def is_iterable(value):
+    try:
+        iter(value)
+        return True
+    except Exception:
+        return False
+
+
 @register.inclusion_tag("photo_objects/meta-og.html", takes_context=True)
 def meta_og(context):
     photo = context.get("photo")

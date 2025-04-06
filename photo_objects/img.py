@@ -17,13 +17,24 @@ def utcnow():
     return datetime.now(UTC)
 
 
+class ExifReader:
+    def __init__(self, image: Image):
+        self.image = image
+        self._data = [
+            image.getexif(),
+            image.getexif().get_ifd(ExifTags.IFD.Exif),
+        ]
+
+    def get(self, key):
+        for d in self._data:
+            value = d.get(key)
+            if value is not None:
+                return value
+
+
 def _read_original_datetime(image: Image) -> datetime:
     try:
-        for key, value in ExifTags.TAGS.items():
-            if value == "ExifOffset":
-                break
-
-        info = image.getexif().get_ifd(key)
+        info = ExifReader(image)
 
         time = info.get(ExifTags.Base.DateTimeOriginal)
         subsec = info.get(ExifTags.Base.SubsecTimeOriginal) or "0"
@@ -34,6 +45,25 @@ def _read_original_datetime(image: Image) -> datetime:
             "%Y:%m:%d %H:%M:%S.%f%z")
     except BaseException:
         return None
+
+
+def _read_camera_setup_and_settings(image: Image) -> dict:
+    try:
+        info = ExifReader(image)
+
+        return dict(
+            camera_make=info.get(ExifTags.Base.Make),
+            camera_model=info.get(ExifTags.Base.Model),
+            lens_make=info.get(ExifTags.Base.LensMake),
+            lens_model=info.get(ExifTags.Base.LensModel),
+            focal_length=info.get(ExifTags.Base.FocalLength),
+            f_number=info.get(ExifTags.Base.FNumber),
+            exposure_time=info.get(ExifTags.Base.ExposureTime),
+            iso_speed=info.get(ExifTags.Base.ISOSpeedRatings),
+        )
+    except Exception as e:
+        raise e
+        return dict()
 
 
 def _image_format(filename):
@@ -50,6 +80,7 @@ def photo_details(photo_file):
 
     width, height = image.size
     timestamp = _read_original_datetime(image) or utcnow()
+    camera_setup_and_settings = _read_camera_setup_and_settings(image)
 
     # TODO: remove all extra data from the image
     resized = image.resize((3, 3))
@@ -61,7 +92,8 @@ def photo_details(photo_file):
         timestamp=timestamp,
         width=width,
         height=height,
-        tiny_base64=b64encode(b.getvalue()).decode('ascii')
+        tiny_base64=b64encode(b.getvalue()).decode('ascii'),
+        **camera_setup_and_settings,
     )
 
 

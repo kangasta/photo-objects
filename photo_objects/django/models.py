@@ -65,8 +65,8 @@ class Album(BaseModel):
         null=True,
         on_delete=models.SET_NULL,
         related_name="+")
-    first_timestamp = models.DateTimeField(null=True)
-    last_timestamp = models.DateTimeField(null=True)
+    first_timestamp = models.DateTimeField(blank=True, null=True)
+    last_timestamp = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
         return _str(self.key, title=self.title, visibility=self.visibility)
@@ -95,6 +95,16 @@ class Photo(BaseModel):
     height = models.PositiveIntegerField()
     width = models.PositiveIntegerField()
     tiny_base64 = models.TextField(blank=True)
+
+    camera_make = models.CharField(blank=True)
+    camera_model = models.CharField(blank=True)
+    lens_make = models.CharField(blank=True)
+    lens_model = models.CharField(blank=True)
+
+    focal_length = models.FloatField(blank=True, null=True)
+    f_number = models.FloatField(blank=True, null=True)
+    exposure_time = models.FloatField(blank=True, null=True)
+    iso_speed = models.IntegerField(blank=True, null=True)
 
     def __str__(self):
         return _str(
@@ -127,4 +137,12 @@ class Photo(BaseModel):
             height=self.height,
             width=self.width,
             tiny_base64=self.tiny_base64,
+            camera_make=self.camera_make,
+            camera_model=self.camera_model,
+            lens_make=self.lens_make,
+            lens_model=self.lens_model,
+            focal_length=self.focal_length,
+            f_number=self.f_number,
+            exposure_time=self.exposure_time,
+            iso_speed=self.iso_speed,
         )

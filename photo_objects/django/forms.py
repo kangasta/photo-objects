@@ -182,7 +182,16 @@ class CreatePhotoForm(ModelForm):
             'timestamp',
             'height',
             'width',
-            'tiny_base64']
+            'tiny_base64',
+            'camera_make',
+            'camera_model',
+            'lens_make',
+            'lens_model',
+            'focal_length',
+            'f_number',
+            'exposure_time',
+            'iso_speed',
+        ]
         error_messages = {
             'album': {
                 'invalid_choice': _('Album with %(value)s key does not exist.')

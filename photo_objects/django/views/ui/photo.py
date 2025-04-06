@@ -1,10 +1,12 @@
 from django.http import HttpRequest, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django.utils.safestring import mark_safe
 
 from photo_objects.django import api
 from photo_objects.django.api.utils import AlbumNotFound, FormValidationFailed
 from photo_objects.django.forms import ModifyPhotoForm, UploadPhotosForm
+from photo_objects.django.models import Photo
 from photo_objects.django.views.utils import BackLink, render_markdown
 
 from .utils import json_problem_as_html
@@ -39,6 +41,41 @@ def upload_photos(request: HttpRequest, album_key: str):
     })
 
 
+def _camera_setup(photo: Photo):
+    r = []
+    if photo.camera_make or photo.camera_model:
+        r.append(
+            " ".join(i for i in [
+                photo.camera_make,
+                photo.camera_model,
+            ] if i))
+    if photo.lens_make or photo.lens_model:
+        r.append(" ".join(i for i in [photo.lens_make, photo.lens_model] if i))
+    return r
+
+
+def _exposure_time_to_string(exposure_time: float | None):
+    if exposure_time is None:
+        return None
+    if exposure_time < 1:
+        return f"1/{int(1 / exposure_time)}\u202Fs"
+    else:
+        return f"{int(exposure_time)}\u202Fs"
+
+
+def _camera_settings(photo: Photo):
+    r = []
+    if photo.focal_length:
+        r.append(f"{round(photo.focal_length)}\u202Fmm")
+    if photo.f_number:
+        r.append(f"f/{photo.f_number}")
+    if photo.exposure_time:
+        r.append(_exposure_time_to_string(photo.exposure_time))
+    if photo.iso_speed:
+        r.append(f"ISO\u202F{photo.iso_speed}")
+    return r
+
+
 @json_problem_as_html
 def show_photo(request: HttpRequest, album_key: str, photo_key: str):
     photo = api.check_photo_access(request, album_key, photo_key, "lg")
@@ -70,6 +107,8 @@ def show_photo(request: HttpRequest, album_key: str, photo_key: str):
     details = {
         "Description": render_markdown(photo.description),
         "Timestamp": photo.timestamp,
+        "Camera": _camera_setup(photo),
+        "Settings": _camera_settings(photo),
     }
 
     return render(request, "photo_objects/photo/show.html", {
