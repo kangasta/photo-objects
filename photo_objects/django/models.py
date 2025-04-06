@@ -137,4 +137,12 @@ class Photo(BaseModel):
             height=self.height,
             width=self.width,
             tiny_base64=self.tiny_base64,
+            camera_make=self.camera_make,
+            camera_model=self.camera_model,
+            lens_make=self.lens_make,
+            lens_model=self.lens_model,
+            focal_length=self.focal_length,
+            f_number=self.f_number,
+            exposure_time=self.exposure_time,
+            iso_speed=self.iso_speed,
         )
