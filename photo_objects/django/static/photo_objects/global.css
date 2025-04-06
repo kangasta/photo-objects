@@ -657,6 +657,16 @@ dl dd {
   margin: 0 0 16px;
 }
 
+dd.list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 16px;
+}
+
+dd.list div.item {
+  white-space: nowrap;
+}
+
 dd p:first-of-type {
   margin-top: 0;
 }

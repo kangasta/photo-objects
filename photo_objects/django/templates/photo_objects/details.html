@@ -1,8 +1,19 @@
+{% load photo_objects_extras %}
 <dl>
   {% for key, value in details.items %}
   {% if value %}
   <dt>{{ key }}</dt>
+  {% if value|is_iterable %}
+  <dd class="list">
+    {% for i in value %}
+    <span class="item">
+      {{ i }}
+    </span>
+    {% endfor %}
+  </dd>
+  {% else %}
   <dd>{{ value }}</dd>
+  {% endif %}
   {% endif %}
   {% endfor %}
 </dl>
