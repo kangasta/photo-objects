@@ -24,11 +24,13 @@ const withRandomSuffix = (prefix: string, length: number): string => {
   return prefix + suffix;
 }
 
+export const albumPrefix = 'E2E Tests ';
+
 export const createAlbum = async (page: Page): Promise<string> => {
   await page.goto('/');
 
   await page.getByText('New album').click();
-  const title = withRandomSuffix('E2E Tests ', 5);
+  const title = withRandomSuffix(albumPrefix, 5);
   await page.getByLabel('Title').fill(title);
   await page.getByLabel('Description').fill('Album created by E2E tests.');
   await page.getByText('Save').click();
@@ -45,6 +47,17 @@ const openAlbum = async (page: Page, title: string) => {
 
 export const deleteAlbum = async (page: Page, title: string) => {
   await openAlbum(page, title);
+  const albumKey = page.url().split('/').pop();
+
+  const response = await page.request.get(`/api/albums/${albumKey}/photos`);
+  if (!response.ok()) {
+    throw new Error(`Failed to fetch: HTTP ${response.status()}\n\n${await response.text()}`);
+  }
+
+  const photos = await response.json();
+  for (const photo of photos) {
+    await deletePhoto(page, title, photo.title || photo.filename);
+  }
 
   await page.getByText('Delete album').click();
   await page.getByText('Delete', { exact: true }).click();
@@ -72,7 +85,7 @@ const openPhoto = async (page: Page, albumTitle: string, title: string) => {
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(title);
 };
 
-export const deletePhoto = async (page: Page, albumTitle: string, title: string) => {
+const deletePhoto = async (page: Page, albumTitle: string, title: string) => {
   await openPhoto(page, albumTitle, title);
 
   await page.getByText('Delete photo').click();

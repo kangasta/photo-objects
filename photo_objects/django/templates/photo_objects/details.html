@@ -3,12 +3,12 @@
   {% for key, value in details.items %}
   {% if value %}
   <dt>{{ key }}</dt>
-  {% if value|is_iterable %}
+  {% if value|is_list %}
   <dd class="list">
     {% for i in value %}
-    <span class="item">
+    <div class="item">
       {{ i }}
-    </span>
+    </div>
     {% endfor %}
   </dd>
   {% else %}
