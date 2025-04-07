@@ -26,12 +26,8 @@ def display_name(user):
 
 
 @register.filter
-def is_iterable(value):
-    try:
-        iter(value)
-        return True
-    except Exception:
-        return False
+def is_list(value):
+    return isinstance(value, list)
 
 
 @register.inclusion_tag("photo_objects/meta-og.html", takes_context=True)

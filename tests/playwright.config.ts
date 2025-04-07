@@ -6,7 +6,7 @@ dotenv.config({ path: path.resolve(__dirname, '.env') });
 
 export default defineConfig({
   expect: {
-    timeout: 15000,
+    timeout: 2500,
   },
   testDir: './e2e',
   fullyParallel: true,
