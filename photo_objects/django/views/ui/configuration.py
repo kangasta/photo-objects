@@ -60,8 +60,8 @@ def domain_matches_request(request: HttpRequest) -> Validation:
         ok = request.get_host() == request.site.domain
         if not ok:
             detail = (
-                f'Host in the request does not match domain configured for '
-                'the site: expected "{domain}", got "{host}".')
+                'Host in the request does not match domain configured for '
+                f'the site: expected "{domain}", got "{host}".')
     except Exception as e:
         ok = False
         detail = (
