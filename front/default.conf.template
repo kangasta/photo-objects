@@ -7,7 +7,6 @@ upstream objsto {
 }
 
 server {
-  set $static_root "${STATIC_ROOT}";
   set $bucket "${OBJSTO_BUCKET}";
 
   listen 80;
@@ -21,12 +20,8 @@ server {
   gzip_types *;
 
   location /static/ {
-    if ($static_root = "") {
-        return 404;
-    }
-
     rewrite ^/static/(.+) /$1 break;
-    root $static_root;
+    root /app/static;
   }
 
   location / {

@@ -11,24 +11,23 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
   front:
-    build: front/
+    build:
+      context: .
+      target: front
     environment:
-      STATIC_ROOT: /app/static
       OBJSTO_URL: objsto:9000
     ports:
       - 8080:80
-    volumes:
-      - 'staticfiles:/app/static'
   api:
-    build: ./
+    build:
+      context: .
+      target: back
     environment:
       DB_HOST: db
       OBJSTO_URL: objsto:9000
-      STATIC_ROOT: /app/static
       URL: http://localhost:8080
     volumes:
       - 'photo_objects:/var/photo_objects'
-      - 'staticfiles:/app/static'
   objsto:
     image: minio/minio
     command: server /data --console-address ":9001"
@@ -45,5 +44,4 @@ services:
 volumes:
   pgdata:
   miniodata:
-  staticfiles:
   photo_objects:
