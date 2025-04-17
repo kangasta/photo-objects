@@ -35,8 +35,8 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Push container image to GitHub Container Registry
         run: |
-          docker build front/ -t front
-          docker build . -t api
+          docker build . --target front -t front
+          docker build . --target back -t api
           for tag in ${{ github.ref_name }} latest; do
             docker tag front ghcr.io/${{ github.repository }}-front:$tag
             docker push ghcr.io/${{ github.repository }}-front:$tag
