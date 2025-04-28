@@ -41,17 +41,19 @@ def upload_photos(request: HttpRequest, album_key: str):
     })
 
 
-def _camera_setup(photo: Photo):
-    r = []
+def _camera(photo: Photo):
     if photo.camera_make or photo.camera_model:
-        r.append(
-            " ".join(i for i in [
+        return " ".join(i for i in [
                 photo.camera_make,
                 photo.camera_model,
-            ] if i))
+            ] if i)
+    return None
+
+
+def _lens(photo: Photo):
     if photo.lens_make or photo.lens_model:
-        r.append(" ".join(i for i in [photo.lens_make, photo.lens_model] if i))
-    return r
+        return " ".join(i for i in [photo.lens_make, photo.lens_model] if i)
+    return None
 
 
 def _exposure_time_to_string(exposure_time: float | None):
@@ -107,7 +109,8 @@ def show_photo(request: HttpRequest, album_key: str, photo_key: str):
     details = {
         "Description": render_markdown(photo.description),
         "Timestamp": photo.timestamp,
-        "Camera": _camera_setup(photo),
+        "Camera": _camera(photo),
+        "Lens": _lens(photo),
         "Settings": _camera_settings(photo),
     }
 
