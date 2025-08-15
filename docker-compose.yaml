@@ -15,7 +15,9 @@ services:
       context: .
       target: front
     environment:
-      OBJSTO_URL: objsto:9000
+      OBJSTO_HOST: objsto
+      OBJSTO_PORT: 9000
+      OBJSTO_PROTOCOL: http
     ports:
       - 8080:80
   api:

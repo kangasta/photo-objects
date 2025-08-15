@@ -19,8 +19,10 @@ RUN python3 manage.py collectstatic --no-input;
 
 FROM nginx:alpine as front
 
-ENV OBJSTO_URL=""
+ENV OBJSTO_HOST=""
 ENV OBJSTO_BUCKET=photos
+ENV OBJSTO_PROTOCOL=https
+ENV OBJSTO_PORT=443
 
 COPY --from=static /app/static /app/static
 RUN rm -f /etc/nginx/conf.d/*
