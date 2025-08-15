@@ -44,7 +44,7 @@ def uses_https(request: HttpRequest) -> Validation:
             detail += _(
                 ' If you are running the API server behind a reverse proxy or '
                 'a load-balancer, ensure that HTTPS termination is configured '
-                f'correctly. ({request.META})')
+                f'correctly.')
 
     return Validation(
         check=_("Site is served over HTTPS"),
