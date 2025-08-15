@@ -24,8 +24,8 @@ resource "kubernetes_namespace" "this" {
 }
 
 resource "random_password" "db" {
-  length           = 16
-  special          = false
+  length  = 16
+  special = false
 }
 
 resource "kubernetes_secret" "api" {
@@ -88,7 +88,7 @@ resource "kubernetes_deployment" "api" {
               }
             }
           }
-          
+
           env {
             name = "OBJSTO_SECRET_KEY"
             value_from {
@@ -207,8 +207,8 @@ resource "kubernetes_deployment" "ui" {
 
 resource "kubernetes_service" "ui" {
   metadata {
-    name      = "ui"
-    namespace = var.namespace
+    name        = "ui"
+    namespace   = var.namespace
     annotations = var.ui_service_annotations
   }
 

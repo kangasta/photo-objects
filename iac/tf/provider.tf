@@ -6,7 +6,7 @@ terraform {
     }
 
     upcloud = {
-      source = "UpCloudLtd/upcloud"
+      source  = "UpCloudLtd/upcloud"
       version = "~> 5.24"
     }
   }
