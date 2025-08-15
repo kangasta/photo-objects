@@ -4,3 +4,8 @@ __pycache__/
 
 build/
 *.egg-info
+
+.terraform*
+terraform.tfstate*
+*.tfvars
+*kubeconfig.yaml
