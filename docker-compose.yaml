@@ -26,7 +26,8 @@ services:
       target: back
     environment:
       DB_URL: postgresql://user:pass@db:5432/django
-      OBJSTO_URL: objsto:9000
+      OBJSTO_HOST: objsto
+      OBJSTO_PORT: 9000
       OBJSTO_SECURE: 'false'
       URL: http://localhost:8080
     volumes:

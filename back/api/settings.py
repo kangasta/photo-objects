@@ -96,12 +96,20 @@ DATABASES = {
     'default': db
 }
 
+objsto_url = getenv('OBJSTO_HOST', 'localhost:9000')
+objsto_port = getenv('OBJSTO_PORT')
+if objsto_port:
+    objsto_url = f"{objsto_url}:{objsto_port}"
+
 PHOTO_OBJECTS_OBJSTO = {
-    'URL': getenv('OBJSTO_URL', 'localhost:9000'),
+    'URL': objsto_url,
     'ACCESS_KEY': getenv('OBJSTO_ACCESS_KEY', 'access_key'),
     'SECRET_KEY': getenv('OBJSTO_SECRET_KEY', 'secret_key'),
     'BUCKET': getenv('OBJSTO_BUCKET', 'photos'),
-    'SECURE': getenv('OBJSTO_SECURE', 'true').lower() == 'true',
+    'SECURE': getenv(
+        'OBJSTO_SECURE',
+        'false' if objsto_url.split(':')[0] == 'localhost' else 'true',
+    ).lower() == 'true',
 }
 
 # Password validation
