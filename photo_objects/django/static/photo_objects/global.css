@@ -3,6 +3,11 @@
   src: url("./SourceSans3.ttf");
 }
 
+@font-face {
+  font-family: "Source Sans Pro";
+  src: url("./SourceSansPro.ttf");
+}
+
 :root {
   --bg-primary: #191b1f;
   --bg-secondary: #202327;
@@ -11,6 +16,8 @@
   --bg-error-border: #8f3d3f;
   --bg-info: #1e242b;
   --bg-info-border: #4d6280;
+  --bg-warning: #2b2e2f;
+  --bg-warning-border: #8f6f3f;
 
   --fg-primary: #d1d3d7;
   --fg-secondary: #a9acb1;
@@ -18,6 +25,7 @@
   --fg-blue: #9a9fef;
   --fg-red: #ef8a8c;
   --fg-info: #a8c6f0;
+  --fg-warning: #f0c68a;
 }
 
 body {
@@ -206,6 +214,14 @@ footer svg {
   width: auto;
 }
 
+/* Inline code */
+code {
+  background-color: var(--bg-secondary);
+  border-radius: 4px;
+  font-family: "Source Sans Pro", monospace;
+  padding: 2px 4px;
+}
+
 /* Links */
 a {
   color: var(--fg-blue);
@@ -341,6 +357,12 @@ form .helptext {
   max-width: 916px;
 }
 
+.configuration .helptext p,
+form .helptext p {
+  margin: 0;
+  display: inline;
+}
+
 form ul.errorlist {
   color: var(--fg-red);
   margin: 0;
@@ -369,6 +391,13 @@ form ul.errorlist li {
   flex-direction: row;
   margin: 8px 0;
   padding: 4px 8px;
+}
+
+.configuration .status.warning,
+p.warning-banner {
+  color: var(--fg-warning);
+  background: var(--bg-warning);
+  border-color: var(--bg-warning-border);
 }
 
 .configuration .status.ok,
