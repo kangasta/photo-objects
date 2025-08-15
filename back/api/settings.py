@@ -14,6 +14,8 @@ from pathlib import Path
 from os import getenv
 from urllib.parse import urlparse
 
+import dj_database_url
+
 from photo_objects.config import get_secret_key
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -83,15 +85,15 @@ WSGI_APPLICATION = 'api.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+db_url = getenv('DB_URL', "postgresql://user:pass@localhost:5432/django")
+db = dj_database_url.parse(
+    db_url,
+    conn_max_age=600,
+    conn_health_checks=True,
+)
+
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        'NAME': getenv('DB_NAME', 'django'),
-        'USER': getenv('DB_USER', 'user'),
-        'PASSWORD': getenv('DB_PASSWORD', 'pass'),
-        'HOST': getenv('DB_HOST', 'localhost'),
-        'PORT': getenv('DB_PORT', '5432'),
-    }
+    'default': db
 }
 
 PHOTO_OBJECTS_OBJSTO = {
@@ -99,7 +101,7 @@ PHOTO_OBJECTS_OBJSTO = {
     'ACCESS_KEY': getenv('OBJSTO_ACCESS_KEY', 'access_key'),
     'SECRET_KEY': getenv('OBJSTO_SECRET_KEY', 'secret_key'),
     'BUCKET': getenv('OBJSTO_BUCKET', 'photos'),
-    'SECURE': getenv('OBJSTO_SECURE', 'false').lower() == 'true',
+    'SECURE': getenv('OBJSTO_SECURE', 'true').lower() == 'true',
 }
 
 # Password validation

@@ -32,6 +32,7 @@ def _objsto_test_settings():
     return {
         **settings.PHOTO_OBJECTS_OBJSTO,
         "BUCKET": "test-bucket",
+        "SECURE": False,
     }
 
 
