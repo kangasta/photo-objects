@@ -3,7 +3,7 @@ upstream api {
 }
 
 upstream objsto {
-  server "${OBJSTO_URL}";
+  server "${OBJSTO_HOST}:${OBJSTO_PORT}";
 }
 
 server {
@@ -36,7 +36,10 @@ server {
       expires 7d;
       proxy_intercept_errors on;
       error_page 404 = @scale_photo;
-      proxy_pass http://objsto/$bucket/$key;
+      proxy_ssl_name ${OBJSTO_HOST};
+      proxy_ssl_server_name on;
+      proxy_set_header Host ${OBJSTO_HOST};
+      proxy_pass ${OBJSTO_PROTOCOL}://objsto/$bucket/$key;
     }
 
     proxy_set_header Referer $http_referer;
