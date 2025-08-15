@@ -4,8 +4,8 @@
 }
 
 @font-face {
-  font-family: "Source Sans Pro";
-  src: url("./SourceSansPro.ttf");
+  font-family: "Source Code Pro";
+  src: url("./SourceCodePro.ttf");
 }
 
 :root {
@@ -218,7 +218,7 @@ footer svg {
 code {
   background-color: var(--bg-secondary);
   border-radius: 4px;
-  font-family: "Source Sans Pro", monospace;
+  font-family: "Source Code Pro", monospace;
   padding: 2px 4px;
 }
 
@@ -327,8 +327,14 @@ form select {
   color: var(--fg-primary);
   border: 1px solid var(--bg-border);
   border-radius: 4px;
+  font-size: 14px;
   padding: 8px;
   max-width: 916px;
+}
+
+form textarea {
+  font-family: "Source Code Pro", monospace;
+  resize: vertical;
 }
 
 .configuration ul,
