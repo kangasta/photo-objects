@@ -36,17 +36,15 @@ def uses_https(request: HttpRequest) -> Validation:
         'The request received by the API server was '
         f'{"" if ok else "not "}secure.')
 
-
     if not ok:
         referer = request.META.get("HTTP_REFERER", "")
         if request.site.domain in referer and referer.startswith("https://"):
             warning = True
 
             detail += _(
-                ' If you are running the API server behind a reverse proxy or a '
-                'load-balancer, ensure that HTTPS termination is configured '
-                f'correctly. ({request.META})'
-            )
+                ' If you are running the API server behind a reverse proxy or '
+                'a load-balancer, ensure that HTTPS termination is configured '
+                f'correctly. ({request.META})')
 
     return Validation(
         check=_("Site is served over HTTPS"),
@@ -93,7 +91,8 @@ def domain_matches_request(request: HttpRequest) -> Validation:
                 f'the site: expected `{domain}`, got `{host}`.')
         else:
             detail = (
-                f'Host in the request, `{host}`, matches domain configured for the site, `{domain}`.'
+                f'Host in the request, `{host}`, matches domain configured '
+                f'for the site, `{domain}`.'
             )
     except Exception as e:
         ok = False
@@ -109,7 +108,9 @@ def domain_matches_request(request: HttpRequest) -> Validation:
     )
 
 
-def site_preview_configured(request: HttpRequest, album: Album | Exception) -> Validation:
+def site_preview_configured(
+        request: HttpRequest,
+        album: Album | Exception) -> Validation:
     detail = None
 
     if isinstance(album, Exception):
@@ -134,7 +135,9 @@ def site_preview_configured(request: HttpRequest, album: Album | Exception) -> V
     )
 
 
-def site_description_configured(request: HttpRequest, album: Album | Exception) -> Validation:
+def site_description_configured(
+        request: HttpRequest,
+        album: Album | Exception) -> Validation:
     detail = None
 
     if isinstance(album, Exception):

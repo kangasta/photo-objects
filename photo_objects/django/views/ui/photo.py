@@ -44,9 +44,9 @@ def upload_photos(request: HttpRequest, album_key: str):
 def _camera(photo: Photo):
     if photo.camera_make or photo.camera_model:
         return " ".join(i for i in [
-                photo.camera_make,
-                photo.camera_model,
-            ] if i)
+            photo.camera_make,
+            photo.camera_model,
+        ] if i)
     return None
 
 
