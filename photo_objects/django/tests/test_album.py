@@ -3,6 +3,7 @@ from time import sleep
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
+from django.contrib.sites.models import Site
 
 from photo_objects.django.models import Album
 from photo_objects.img import utcnow
@@ -375,3 +376,25 @@ class AlbumViewTests(TestCase):
 
         response = self.client.delete("/api/albums/copenhagen")
         self.assertStatus(response, 204)
+
+    def test_site_config_album_title_change(self):
+        site = Site.objects.get(id=1)
+        album, _ = Album.objects.get_or_create(
+            key="_site_1",
+            defaults={
+                "title": "Site 1",
+                "visibility": Album.Visibility.ADMIN,
+            }
+        )
+
+        site.name = "Changed in site"
+        site.save()
+
+        album.refresh_from_db()
+        self.assertEqual(album.title, "Changed in site")
+
+        album.title = "Changed in album"
+        album.save()
+
+        site.refresh_from_db()
+        self.assertEqual(site.name, "Changed in album")
