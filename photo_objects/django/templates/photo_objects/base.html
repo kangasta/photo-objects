@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-  <title>{% if title %}{{ title }} - {% endif %}Photo Objects</title>
+  <title>{% if title %}{{ title }} - {% endif %}{% if request.site and request.site.domain != "example.com" %}{{ request.site.name }}{% else %}Photo Objects{% endif %}</title>
   {% if description %}
   <meta name="description" content="{{ description }}">
   {% endif %}
