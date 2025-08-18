@@ -5,6 +5,7 @@ from django.urls import reverse_lazy
 from photo_objects.django.api.album import get_site_album
 from photo_objects.django.views.utils import BackLink
 
+
 def login(request: HttpRequest):
     album, _ = get_site_album(request.site)
 
