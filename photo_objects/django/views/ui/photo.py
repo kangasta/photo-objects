@@ -1,7 +1,6 @@
 from django.http import HttpRequest, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
-from django.utils.safestring import mark_safe
 
 from photo_objects.django import api
 from photo_objects.django.api.utils import AlbumNotFound, FormValidationFailed
