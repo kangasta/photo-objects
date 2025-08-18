@@ -1,6 +1,6 @@
 {% if photo %}
 <div class="photo surface">
-  <img src="/img/{{ photo.album.key }}/{{ photo.filename }}/md" alt="{{ photo.description|default:photo.filename }}"
+  <img src="/img/{{ photo.album.key }}/{{ photo.filename }}/lg" alt="{{ photo.description|default:photo.filename }}"
     style="background: url(data:image/png;base64,{{ photo.tiny_base64 }}); background-size: 100% 100%; font-size: 0;"
     height="{{ photo.height }}" width="{{ photo.width }}" />
 </div>

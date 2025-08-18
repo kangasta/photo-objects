@@ -1,6 +1,6 @@
 from django import template
 
-from photo_objects.django.models import Album
+from photo_objects.django.api.album import get_site_album
 
 
 register = template.Library()
@@ -41,7 +41,7 @@ def meta_og(context):
     try:
         request = context.get("request")
         site = request.site
-        album = Album.objects.get(key=f'_site_{site.id}')
+        album = get_site_album(site.id)
 
         return {
             'request': request,

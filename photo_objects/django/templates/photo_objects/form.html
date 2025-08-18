@@ -8,7 +8,7 @@
 {% if info %}
 <p class="info-banner">{{ info }}</p>
 {% endif %}
-<div class="form">
+<div class="form {{ class|default:'' }}">
   <!-- TODO: Instructions? -->
   {% include 'photo_objects/form-photo.html' %}
   <form action="" method="post">
