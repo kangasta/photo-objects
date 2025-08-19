@@ -51,13 +51,13 @@ def new_album(request: HttpRequest):
 def get_info(request: HttpRequest, album_key: str):
     site_id = parse_site_id(album_key)
     if site_id is not None and request.site:
-        return (
+        return render_markdown(
             "This is a special album for configuring site metadata for "
-            f"{request.site.name}. Use album title to override the site name, "
-            "albums cover photo to configure the preview image, and album "
-            "description to configure the site description. The album title "
-            "is automatically updated when the related sites name is changed "
-            "and vice versa.")
+            f"**{request.site.name}**. Use album title to change the site "
+            "name, albums cover photo to configure the preview image, and "
+            "album description to configure the site description. The album "
+            "title is automatically updated when the related sites name is "
+            "changed and vice versa.")
 
 
 @json_problem_as_html

@@ -381,7 +381,7 @@ form input[type="submit"] {
 }
 
 .configuration .status,
-p.info-banner,
+div.info-banner,
 form .error,
 form ul.errorlist li {
   color: var(--fg-red);
@@ -390,7 +390,7 @@ form ul.errorlist li {
   border-radius: 4px;
 }
 
-p.info-banner,
+div.info-banner,
 form .error,
 form ul.errorlist li {
   display: flex;
@@ -407,7 +407,7 @@ p.warning-banner {
 }
 
 .configuration .status.ok,
-p.info-banner {
+div.info-banner {
   color: var(--fg-info);
   background: var(--bg-info);
   border-color: var(--bg-info-border);
@@ -418,22 +418,25 @@ p.info-banner {
   padding: 0 4px;
 }
 
-p.info-banner {
+div.info-banner {
   margin: 16px 0 0;
 }
 
-p.info-banner::before,
+div.info-banner p {
+  margin: 0;
+}
+
+div.info-banner::before,
 form .error::before,
 form ul.errorlist li::before {
   content: "!";
   font-weight: bold;
-  padding: 0 8px 0 4px;
+  padding: 0 .75em 0 .25em;
+  margin: auto 0;
 }
 
-p.info-banner::before {
+div.info-banner::before {
   content: "i";
-  font-weight: bold;
-  padding: 0 8px 0 4px;
 }
 
 
