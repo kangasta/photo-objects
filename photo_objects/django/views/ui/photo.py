@@ -40,13 +40,23 @@ def upload_photos(request: HttpRequest, album_key: str):
     })
 
 
+def _lower(input: str):
+    return input.lower() if input else ''
+
+
 def _camera(photo: Photo):
-    if photo.camera_make or photo.camera_model:
-        return " ".join(i for i in [
-            photo.camera_make,
-            photo.camera_model,
-        ] if i)
-    return None
+    if not photo.camera_make and not photo.camera_model:
+        return None
+
+    # If camera model includes camera make, return model value to avoid
+    # stuttering.
+    if _lower(photo.camera_make) in _lower(photo.camera_model):
+        return photo.camera_model
+
+    return " ".join(i for i in [
+        photo.camera_make,
+        photo.camera_model,
+    ] if i)
 
 
 def _lens(photo: Photo):
