@@ -709,7 +709,7 @@ dl.problem {
 
 /* Login form */
 div.login.form {
-  gap: 2rem;
+  align-content: normal;
 }
 
 div.login.form form {
@@ -718,6 +718,7 @@ div.login.form form {
 
 div.login.form div.surface {
   flex: 1.8;
+  height: unset;
 }
 
 div.login.form div.surface img {
