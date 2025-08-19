@@ -395,8 +395,8 @@ form .error,
 form ul.errorlist li {
   display: flex;
   flex-direction: row;
-  margin: 8px 0;
-  padding: 4px 8px;
+  margin: .5rem 0;
+  padding: .5rem;
 }
 
 .configuration .status.warning,
@@ -419,7 +419,7 @@ div.info-banner {
 }
 
 div.info-banner {
-  margin: 16px 0 0;
+  margin: 1rem 0 0;
 }
 
 div.info-banner p {
