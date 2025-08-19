@@ -11,6 +11,8 @@
     </div>
     {% endfor %}
   </dd>
+  {% elif value|is_datetime %}
+  <dd>{{ value|date:"r" }}</dd>
   {% else %}
   <dd>{{ value }}</dd>
   {% endif %}

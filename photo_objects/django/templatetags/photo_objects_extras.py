@@ -1,3 +1,4 @@
+from datetime import datetime
 from django import template
 
 from photo_objects.django.api.album import get_site_album
@@ -23,6 +24,11 @@ def display_name(user):
     if user.first_name or user.last_name:
         return f'{user.first_name} {user.last_name}'.strip()
     return user.username
+
+
+@register.filter
+def is_datetime(value):
+    return isinstance(value, datetime)
 
 
 @register.filter
