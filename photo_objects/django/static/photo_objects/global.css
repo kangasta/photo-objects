@@ -199,13 +199,13 @@ main {
 
 footer {
   display: flex;
-  gap: 8px;
+  gap: .5rem;
   justify-content: center;
   align-items: center;
 
   font-size: 0.8em;
-  margin-top: 64px;
-  padding-bottom: 16px;
+  margin-top: 4rem;
+  padding-bottom: 1rem;
   text-align: center;
 }
 
@@ -219,7 +219,7 @@ code {
   background-color: var(--bg-secondary);
   border-radius: 4px;
   font-family: "Source Code Pro", monospace;
-  padding: 2px 4px;
+  padding: .125rem .25rem;
 }
 
 /* Links */
@@ -248,7 +248,7 @@ form input[type="submit"] {
   box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.5);
   color: var(--bg-primary);
   border-radius: 4px;
-  padding: 8px 16px;
+  padding: .5rem 1rem;
   cursor: pointer;
   appearance: none;
   border: none;
@@ -265,7 +265,7 @@ form input[type="submit"].delete {
 
 div.actions {
   display: flex;
-  gap: 8px;
+  gap: .5rem;
 }
 
 
@@ -287,7 +287,7 @@ div.photo-select div:focus-within {
 /* Forms */
 div.form {
   flex: 1;
-  margin: 16px 0 0;
+  margin: 1rem 0 0;
 
   display: flex;
   flex-direction: row-reverse;
@@ -298,7 +298,7 @@ div.form {
 }
 
 div.configuration {
-  margin: 16px 0;
+  margin: 1rem 0;
 }
 
 div.form div.photo {
@@ -327,8 +327,8 @@ form select {
   color: var(--fg-primary);
   border: 1px solid var(--bg-border);
   border-radius: 4px;
-  font-size: 14px;
-  padding: 8px;
+  font-size: 0.875rem;
+  padding: .5rem;
   max-width: 916px;
 }
 
@@ -346,7 +346,7 @@ form ul {
 
 .configuration ul li,
 form ul li {
-  margin: 24px 0;
+  margin: 1.5rem 0;
   display: flex;
   flex-direction: column;
 }
@@ -359,7 +359,7 @@ form ul li:first-of-type {
 .configuration .helptext,
 form .helptext {
   font-size: .75em;
-  margin: 4px 0;
+  margin: .25rem 0;
   max-width: 916px;
 }
 
@@ -377,7 +377,7 @@ form ul.errorlist {
 
 form input[type="submit"] {
   /* Other definitions shared with action links. */
-  margin: 24px 0;
+  margin: 1.5rem 0;
 }
 
 .configuration .status,
@@ -395,8 +395,8 @@ form .error,
 form ul.errorlist li {
   display: flex;
   flex-direction: row;
-  margin: 8px 0;
-  padding: 4px 8px;
+  margin: .5rem 0;
+  padding: .5rem;
 }
 
 .configuration .status.warning,
@@ -414,12 +414,12 @@ div.info-banner {
 }
 
 .configuration .status {
-  margin-left: 8px;
-  padding: 0 4px;
+  margin-left: .5rem;
+  padding: 0 .25rem;
 }
 
 div.info-banner {
-  margin: 16px 0 0;
+  margin: 1rem 0 0;
 }
 
 div.info-banner p {
@@ -641,7 +641,7 @@ ul.photo-list div.photo-placeholder {
 
 /* Photo details */
 div.photo-and-details {
-  margin: 16px 0;
+  margin: 1rem 0;
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
@@ -684,13 +684,13 @@ dl dt {
 }
 
 dl dd {
-  margin: 0 0 16px;
+  margin: 0 0 1rem;
 }
 
 dd.list {
   display: flex;
   flex-wrap: wrap;
-  gap: 0 16px;
+  gap: 0 1rem;
 }
 
 dd.list div.item {
@@ -707,7 +707,7 @@ dd p:last-of-type {
 
 /* Problem */
 dl.problem {
-  margin: 16px 0;
+  margin: 1rem 0;
 }
 
 /* Login form */
