@@ -1,10 +1,17 @@
+from dataclasses import asdict
+from io import BytesIO
 import json
 import mimetypes
 import urllib3
 
-from django.conf import settings
 
 from minio import Minio
+
+from photo_objects.django.conf import (
+    PhotoSizes,
+    objsto_settings,
+    parse_photo_sizes,
+)
 
 
 MEGABYTE = 1 << 20
@@ -26,8 +33,7 @@ def _anonymous_readonly_policy(bucket: str):
 
 
 def _objsto_access() -> tuple[Minio, str]:
-    conf = settings.PHOTO_OBJECTS_OBJSTO
-
+    conf = objsto_settings()
     http = urllib3.PoolManager(
         retries=urllib3.util.Retry(connect=1),
         timeout=urllib3.util.Timeout(connect=2.5, read=20),
@@ -51,7 +57,7 @@ def _objsto_access() -> tuple[Minio, str]:
 
 
 def photo_path(album_key, photo_key, size_key):
-    return f"{album_key}/{photo_key}/{size_key}"
+    return f"{size_key}/{album_key}/{photo_key}"
 
 
 def put_photo(album_key, photo_key, size_key, photo_file):
@@ -89,6 +95,25 @@ def delete_photo(album_key, photo_key):
         client.remove_object(bucket, i.object_name)
 
 
+def delete_scaled_photos(sizes):
+    client, bucket = _objsto_access()
+
+    for size in sizes:
+        while True:
+            objects = client.list_objects(
+                bucket,
+                prefix=f"{size}/")
+
+            empty = True
+            for i in objects:
+                empty = False
+                client.remove_object(bucket, i.object_name)
+                yield i.object_name
+
+            if empty:
+                return
+
+
 def get_error_code(e: Exception) -> str:
     try:
         return e.code
@@ -101,3 +126,27 @@ def with_error_code(msg: str, e: Exception) -> str:
     if code:
         return f'{msg} ({code})'
     return msg
+
+
+def put_photo_sizes(sizes: PhotoSizes):
+    data = json.dumps(asdict(sizes))
+    stream = BytesIO(data.encode('utf-8'))
+
+    client, bucket = _objsto_access()
+    client.put_object(
+        bucket,
+        "photo_sizes.json",
+        stream,
+        length=-1,
+        part_size=10 * MEGABYTE,
+        content_type="application/json",
+    )
+
+
+def get_photo_sizes() -> PhotoSizes:
+    client, bucket = _objsto_access()
+    try:
+        data = client.get_object(bucket, "photo_sizes.json")
+        return parse_photo_sizes(**json.loads(data.read()))
+    except Exception:
+        None

@@ -6,7 +6,7 @@ from .utils import TestCase, create_dummy_photo
 
 
 def _path_fn(album, photo):
-    return lambda size: f"{album}/{photo}/{size}"
+    return lambda size: f"{size}/{album}/{photo}"
 
 
 class AuthViewTests(TestCase):

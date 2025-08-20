@@ -201,7 +201,7 @@ class PhotoViewTests(TestCase):
             "/api/albums/test-photo-a/photos/tower.jpg/img?size=sm")
         self.assertStatus(small_response, 200)
         _, height = Image.open(BytesIO(small_response.content)).size
-        self.assertEqual(height, 256)
+        self.assertEqual(height, 512)
 
         # Does not scale image up from the original size
         large_response = self.client.get(

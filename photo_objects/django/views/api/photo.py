@@ -1,3 +1,4 @@
+from dataclasses import asdict
 import mimetypes
 
 from django.http import HttpRequest, HttpResponse, JsonResponse
@@ -5,7 +6,7 @@ from minio.error import S3Error
 from urllib3.exceptions import HTTPError
 
 from photo_objects import logger
-from photo_objects.django import Size
+from photo_objects.django.conf import PhotoSize, photo_sizes
 from photo_objects.django import api
 from photo_objects.django.api.utils import (
     JsonProblem,
@@ -78,7 +79,7 @@ def get_img(request: HttpRequest, album_key: str, photo_key: str):
     except S3Error:
         try:
             original_photo = objsto.get_photo(
-                album_key, photo_key, Size.ORIGINAL.value)
+                album_key, photo_key, PhotoSize.ORIGINAL.value)
         except (S3Error, HTTPError) as e:
             msg = objsto.with_error_code(
                 f"Could not fetch photo from object storage", e)
@@ -90,11 +91,10 @@ def get_img(request: HttpRequest, album_key: str, photo_key: str):
                 404 if code == "NoSuchKey" else 500,
             ).json_response
 
-        # TODO: make configurable
-        sizes = dict(sm=(None, 256), md=(1024, 1024),
-                     lg=(2048, 2048), xl=(4096, 4096))
+        sizes = photo_sizes()
         # TODO: handle error
-        scaled_photo = scale_photo(original_photo, photo_key, *sizes[size])
+        scaled_photo = scale_photo(
+            original_photo, photo_key, **asdict(getattr(sizes, size)))
 
         # TODO: handle error
         scaled_photo.seek(0)

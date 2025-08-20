@@ -1,6 +1,6 @@
 from django.http import HttpRequest
 
-from photo_objects.django import Size
+from photo_objects.django.conf import PhotoSize
 from photo_objects.django.models import Album, Photo
 
 from photo_objects.django.api.utils import (
@@ -35,7 +35,7 @@ def check_photo_access(
         photo_key: str,
         size_key: str):
     try:
-        size = Size(size_key)
+        size = PhotoSize(size_key)
     except ValueError:
         raise InvalidSize(size_key)
 
@@ -47,7 +47,7 @@ def check_photo_access(
     if not request.user.is_authenticated:
         if photo.album.visibility == Album.Visibility.PRIVATE:
             raise AlbumNotFound(album_key)
-        if size == Size.ORIGINAL:
+        if size == PhotoSize.ORIGINAL:
             raise Unauthorized()
 
     return photo

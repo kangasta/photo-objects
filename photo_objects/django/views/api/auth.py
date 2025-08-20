@@ -15,7 +15,7 @@ def has_permission(request: HttpRequest):
     '''
     path = request.GET.get('path')
     try:
-        album_key, photo_key, raw_size = path.lstrip('/').split('/')
+        raw_size, album_key, photo_key = path.lstrip('/').split('/')
     except (AttributeError, ValueError):
         return HttpResponse(status=403)
 
