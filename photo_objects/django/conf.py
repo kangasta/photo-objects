@@ -33,8 +33,8 @@ class PhotoSizeDimensions:
 
 
 DEFAULT_SM = dict(
-    max_width=768,
-    max_height=768,
+    max_width=512,
+    max_height=512,
     max_aspect_ratio=1.5
 )
 DEFAULT_MD = dict(
@@ -71,8 +71,11 @@ def validate_photo_sizes(data: dict, prefix=None) -> list[str]:
             errors.append(
                 f"{prefix} '{key}' must define at least one dimension.")
 
-        if 'max_aspect_ratio' in value and not isinstance(
-                value['max_aspect_ratio'], (float, int)):
+        if (
+            'max_aspect_ratio' in value and
+            value['max_aspect_ratio'] is not None and
+            not isinstance(value['max_aspect_ratio'], (float, int))
+        ):
             errors.append(
                 f"{prefix} '{key}' max_aspect_ratio must be a number.")
 

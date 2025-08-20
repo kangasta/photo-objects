@@ -12,8 +12,8 @@ class ImgTests(TestCase):
     def test_scale_photo(self):
         testdata = [
             ((1000, 200), (300, 200)),
-            ((600, 2000), (512, 768)),
-            ((1000, 1000), (768, 768)),
+            ((600, 2000), (341, 512)),
+            ((1000, 1000), (512, 512)),
         ]
 
         for input, expected in testdata:

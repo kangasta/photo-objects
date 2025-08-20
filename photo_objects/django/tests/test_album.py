@@ -94,7 +94,7 @@ class AlbumViewTests(TestCase):
         User = get_user_model()
         User.objects.create_user(username='no_permission', password='test')
 
-        has_permission = User.objects.create_user(
+        User.objects.create_user(
             username='superuser',
             password='test',
             is_staff=True,

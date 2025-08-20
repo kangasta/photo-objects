@@ -47,19 +47,17 @@ class Command(BaseCommand):
             )
 
         try:
-            deleted_keys = delete_scaled_photos(to_delete)
-
             total = 0
-            for key in deleted_keys:
+            for key in delete_scaled_photos(to_delete):
                 self.stdout.write(f"  {key}")
                 total += 1
-            self.stdout.write(f"  Total deleted photos: {total}")
+            self.stdout.write(f"Total deleted photos: {total}")
         except Exception as e:
             self.stdout.write(
                 self.style.ERROR(
                     f"Error occurred while deleting scaled photos: {e}"
                 )
             )
-            return
+            exit(1)
 
         put_photo_sizes(current)

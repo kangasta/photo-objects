@@ -4,10 +4,10 @@ import json
 import mimetypes
 import urllib3
 
-
-from minio import Minio
+from minio import Minio, S3Error
 
 from photo_objects.django.conf import (
+    PhotoSize,
     PhotoSizes,
     objsto_settings,
     parse_photo_sizes,
@@ -85,14 +85,8 @@ def get_photo(album_key, photo_key, size_key):
 def delete_photo(album_key, photo_key):
     client, bucket = _objsto_access()
 
-    for i in client.list_objects(
-            bucket,
-            prefix=photo_path(
-                album_key,
-                photo_key,
-                ""),
-            recursive=True):
-        client.remove_object(bucket, i.object_name)
+    for i in PhotoSize:
+        client.remove_object(bucket, photo_path(album_key, photo_key, i.value))
 
 
 def delete_scaled_photos(sizes):
@@ -102,7 +96,11 @@ def delete_scaled_photos(sizes):
         while True:
             objects = client.list_objects(
                 bucket,
-                prefix=f"{size}/")
+                prefix=f"{size}/",
+                recursive=True)
+
+            if not objects:
+                break
 
             empty = True
             for i in objects:
@@ -111,7 +109,7 @@ def delete_scaled_photos(sizes):
                 yield i.object_name
 
             if empty:
-                return
+                break
 
 
 def get_error_code(e: Exception) -> str:
@@ -147,6 +145,8 @@ def get_photo_sizes() -> PhotoSizes:
     client, bucket = _objsto_access()
     try:
         data = client.get_object(bucket, "photo_sizes.json")
-        return parse_photo_sizes(**json.loads(data.read()))
-    except Exception:
-        None
+        return parse_photo_sizes(json.loads(data.read()))
+    except S3Error as e:
+        if e.code == "NoSuchKey":
+            return None
+        raise
