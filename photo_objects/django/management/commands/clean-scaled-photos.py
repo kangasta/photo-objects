@@ -1,3 +1,4 @@
+# pylint: disable=invalid-name
 from django.core.management.base import BaseCommand
 
 from photo_objects.utils import pretty_list

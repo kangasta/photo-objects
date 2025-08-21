@@ -5,7 +5,9 @@ from django.conf import settings
 from django.test import TestCase as DjangoTestCase, override_settings
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
+from minio import S3Error
 
+from photo_objects.django import objsto
 from photo_objects.django.models import Album, Photo
 from photo_objects.django.objsto import _objsto_access
 
@@ -38,14 +40,47 @@ def _objsto_test_settings():
 
 @override_settings(PHOTO_OBJECTS_OBJSTO=_objsto_test_settings())
 class TestCase(DjangoTestCase):
+    # pylint: disable=invalid-name
     @classmethod
-    def tearDownClass(_):
+    def tearDownClass(cls):
         client, bucket = _objsto_access()
 
         for i in client.list_objects(bucket, recursive=True):
             client.remove_object(bucket, i.object_name)
 
         client.remove_bucket(bucket)
+
+    def assertPhotoInObjsto(self, album_key, photo_key, sizes):
+        if not isinstance(sizes, list):
+            sizes = [sizes]
+
+        for size in sizes:
+            try:
+                objsto.get_photo(album_key, photo_key, size)
+            except S3Error as e:
+                if e.code == "NoSuchKey":
+                    raise AssertionError(
+                        f"Photo not found: {size}/{album_key}/{photo_key}"
+                    ) from None
+                else:
+                    raise e
+
+    def assertPhotoNotInObjsto(self, album_key, photo_key, sizes):
+        if not isinstance(sizes, list):
+            sizes = [sizes]
+
+        for size in sizes:
+            with self.assertRaises(
+                S3Error,
+                msg=f"Photo found: {size}/{album_key}/{photo_key}"
+            ) as e:
+                objsto.get_photo(album_key, photo_key, size)
+
+            self.assertEqual(
+                e.exception.code,
+                "NoSuchKey",
+                f"Photo not found: {size}/{album_key}/{photo_key}")
+
 
     def assertTimestampLess(self, a, b, **kwargs):
         '''Assert a is less than b. Automatically parses strings to datetime

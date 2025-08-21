@@ -1,5 +1,3 @@
-import re
-
 from django.http import HttpRequest, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
@@ -58,6 +56,7 @@ def get_info(request: HttpRequest, album_key: str):
             "album description to configure the site description. The album "
             "title is automatically updated when the related sites name is "
             "changed and vice versa.")
+    return None
 
 
 @json_problem_as_html
@@ -147,7 +146,7 @@ def delete_album(request: HttpRequest, album_key: str):
                 'This album is managed by the system and can not be deleted.')}
 
     return render(request, 'photo_objects/delete.html', {
-        "title": f"Delete album",
+        "title": "Delete album",
         "back": back,
         "photo": album.cover_photo,
         "resource": target,

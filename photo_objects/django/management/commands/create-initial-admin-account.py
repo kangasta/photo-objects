@@ -1,3 +1,4 @@
+# pylint: disable=invalid-name
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
 from secrets import token_urlsafe
@@ -9,13 +10,13 @@ class Command(BaseCommand):
     help = "Create initial admin user account."
 
     def handle(self, *args, **options):
-        User = get_user_model()
-        superuser_count = User.objects.filter(is_superuser=True).count()
+        user = get_user_model()
+        superuser_count = user.objects.filter(is_superuser=True).count()
 
         if superuser_count == 0:
             username = 'admin'
             password = token_urlsafe(32)
-            User.objects.create_superuser(username, password=password)
+            user.objects.create_superuser(username, password=password)
 
             write_to_home_directory("initial_admin_password", password)
 

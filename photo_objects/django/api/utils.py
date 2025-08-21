@@ -50,7 +50,7 @@ class JsonProblem(PhotoObjectsError):
         return render(request, "photo_objects/problem.html", {
             "title": "Error",
             "back": BackLink(
-                f'Back to albums',
+                'Back to albums',
                 reverse_lazy('photo_objects:list_albums')),
             "problem_title": self.title,
             "status": self.status
@@ -153,7 +153,7 @@ def parse_json_body(request: HttpRequest):
         raise JsonProblem(
             "Could not parse JSON data from request body.",
             400,
-        )
+        ) from None
 
 
 def parse_input_data(request: HttpRequest):

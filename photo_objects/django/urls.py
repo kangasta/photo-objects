@@ -1,9 +1,8 @@
 from django.contrib.auth import views as auth_views
 from django.http import HttpResponseRedirect
-from django.urls import path, reverse_lazy
+from django.urls import path
 
 from .views import api, ui
-from .views.utils import BackLink
 
 app_name = "photo_objects"
 urlpatterns = [

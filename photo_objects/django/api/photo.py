@@ -36,7 +36,7 @@ def _upload_photo(album_key: str, photo_file: UploadedFile):
         raise JsonProblem(
             "Could not open photo file.",
             400,
-        )
+        ) from None
 
     f = CreatePhotoForm(dict(
         key=f"{album_key}/{slugify(photo_file.name)}",
@@ -59,7 +59,7 @@ def _upload_photo(album_key: str, photo_file: UploadedFile):
         msg = objsto.with_error_code(
             "Could not save photo to object storage", e)
         logger.error(f"{msg}: {str(e)}")
-        raise JsonProblem(f"{msg}.", 500)
+        raise JsonProblem(f"{msg}.", 500) from e
 
     return photo
 
@@ -125,11 +125,11 @@ def delete_photo(request: HttpRequest, album_key: str, photo_key: str):
         msg = objsto.with_error_code(
             "Could not delete photo from object storage", e)
         logger.error(f"{msg}: {str(e)}")
-        raise JsonProblem("{msg}.", 500)
+        raise JsonProblem(f"{msg}.", 500) from e
 
     try:
         photo.delete()
     except Exception as e:
         msg = "Could not delete photo from database"
         logger.error(f"{msg}: {str(e)}")
-        raise JsonProblem(f"{msg}.", 500)
+        raise JsonProblem(f"{msg}.", 500) from e
