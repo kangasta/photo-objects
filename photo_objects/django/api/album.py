@@ -16,7 +16,7 @@ from .utils import (
 )
 
 
-def get_site_album(site: Site) -> Album:
+def get_site_album(site: Site) -> tuple[Album, bool]:
     album_key = f'_site_{site.id}'
     return Album.objects.get_or_create(
         key=album_key,

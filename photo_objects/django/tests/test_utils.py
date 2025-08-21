@@ -1,9 +1,11 @@
 from unittest import TestCase
+from unittest.mock import MagicMock
 
 from minio import S3Error
 
 from photo_objects.django import objsto
 from photo_objects.django.forms import slugify
+from photo_objects.django.views.utils import meta_description
 
 
 class TestUtils(TestCase):
@@ -41,3 +43,22 @@ class TestUtils(TestCase):
             objsto.with_error_code("Failed", e),
             "Failed (Test)",
         )
+
+    def test_meta_description(self):
+        md_multi_p = (
+            "Description with **bold** and *italics*...\n\n"
+            "...and multiple paragraphs")
+        testdata = [
+            ("Plain text description",
+             "Plain text description"),
+            (md_multi_p,
+             "Description with bold and italics..."),
+            (None,
+             "A simple self-hosted photo server."),
+        ]
+
+        for description, expected in testdata:
+            with self.subTest(expected=expected):
+                self.assertEqual(
+                    meta_description(MagicMock(), description),
+                    expected)
