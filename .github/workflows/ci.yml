@@ -30,7 +30,7 @@ jobs:
         pycodestyle --exclude back/api/settings.py,*/migrations/*.py back photo_objects
     - name: Run pylint
       run: |
-        pylint -E --enable=invalid-name,unused-import,useless-object-inheritance back/api photo_objects
+        pylint back/api photo_objects
     - name: Run tests
       run: |
         docker compose up -d db objsto
