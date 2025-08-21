@@ -6,7 +6,11 @@ from photo_objects.django import api
 from photo_objects.django.api.utils import AlbumNotFound, FormValidationFailed
 from photo_objects.django.forms import ModifyPhotoForm, UploadPhotosForm
 from photo_objects.django.models import Photo
-from photo_objects.django.views.utils import BackLink, render_markdown
+from photo_objects.django.views.utils import (
+    BackLink,
+    meta_description,
+    render_markdown,
+)
 
 from .utils import json_problem_as_html
 
@@ -128,7 +132,7 @@ def show_photo(request: HttpRequest, album_key: str, photo_key: str):
         "previous_filename": previous_filename,
         "next_filename": next_filename,
         "title": photo.title or photo.filename,
-        "description": photo.description,
+        "description": meta_description(request, photo),
         "back": back,
         "details": details,
     })

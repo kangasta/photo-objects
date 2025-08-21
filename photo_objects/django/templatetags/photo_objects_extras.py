@@ -2,6 +2,7 @@ from datetime import datetime
 from django import template
 
 from photo_objects.django.api.album import get_site_album
+from photo_objects.django.views.utils import meta_description
 
 
 register = template.Library()
@@ -47,12 +48,12 @@ def meta_og(context):
     try:
         request = context.get("request")
         site = request.site
-        album = get_site_album(site.id)
+        album, _ = get_site_album(site)
 
         return {
             'request': request,
             "title": album.title or site.name,
-            "description": album.description,
+            "description": meta_description(request, album.description),
             "photo": album.cover_photo,
         }
     except Exception:

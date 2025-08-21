@@ -8,7 +8,11 @@ from photo_objects.django.api.album import parse_site_id
 from photo_objects.django.api.utils import FormValidationFailed
 from photo_objects.django.forms import CreateAlbumForm, ModifyAlbumForm
 from photo_objects.django.models import Album
-from photo_objects.django.views.utils import BackLink, render_markdown
+from photo_objects.django.views.utils import (
+    BackLink,
+    meta_description,
+    render_markdown,
+)
 
 from .utils import json_problem_as_html
 
@@ -74,7 +78,7 @@ def show_album(request: HttpRequest, album_key: str):
         "album": album,
         "photos": photos,
         "title": album.title or album.key,
-        "description": album.description,
+        "description": meta_description(request, album),
         "back": back,
         "details": details,
         "photo": album.cover_photo,
