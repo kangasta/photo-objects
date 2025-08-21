@@ -22,9 +22,9 @@ PHOTOS_DIRECTORY = "photos"
 class ViewVisibilityTests(TestCase):
     @classmethod
     def setUpTestData(cls):
-        User = get_user_model()
-        User.objects.create_user(username='test-visibility', password='test')
-        User.objects.create_user(
+        user = get_user_model()
+        user.objects.create_user(username='test-visibility', password='test')
+        user.objects.create_user(
             username='test-staff-visibility',
             password='test',
             is_staff=True)
@@ -91,16 +91,16 @@ class ViewVisibilityTests(TestCase):
 
 class AlbumViewTests(TestCase):
     def setUp(self):
-        User = get_user_model()
-        User.objects.create_user(username='no_permission', password='test')
+        user = get_user_model()
+        user.objects.create_user(username='no_permission', password='test')
 
-        User.objects.create_user(
+        user.objects.create_user(
             username='superuser',
             password='test',
             is_staff=True,
             is_superuser=True)
 
-        has_permission = User.objects.create_user(
+        has_permission = user.objects.create_user(
             username='has_permission', password='test')
         permissions = [
             'add_album',

@@ -18,10 +18,10 @@ from .utils import TestCase, open_test_photo, parse_timestamps
 
 class PhotoViewTests(TestCase):
     def setUp(self):
-        User = get_user_model()
-        User.objects.create_user(username='no_permission', password='test')
+        user = get_user_model()
+        user.objects.create_user(username='no_permission', password='test')
 
-        has_permission = User.objects.create_user(
+        has_permission = user.objects.create_user(
             username='has_permission', password='test')
         permissions = [
             'add_photo',

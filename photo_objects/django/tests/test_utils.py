@@ -16,9 +16,9 @@ class TestUtils(TestCase):
             ("album__photo_-key", "album-photo-key"),
         ]
 
-        for input, expected in checks:
-            with self.subTest(input=input, expected=expected):
-                self.assertEqual(slugify(input), expected)
+        for title, expected in checks:
+            with self.subTest(input=title, expected=expected):
+                self.assertEqual(slugify(title), expected)
 
     def test_slugify_lower(self):
         self.assertEqual(slugify("QwErTy!", True), "qwerty-")

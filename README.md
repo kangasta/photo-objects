@@ -26,7 +26,7 @@ autopep8 -aaar --in-place --exclude back/api/settings.py,*/migrations/*.py back 
 Run static analysis with:
 
 ```sh
-pylint -E --enable=invalid-name,unused-import,useless-object-inheritance back/api photo_objects
+pylint back/api photo_objects
 ```
 
 ### Integration tests

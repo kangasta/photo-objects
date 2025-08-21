@@ -40,8 +40,8 @@ def upload_photos(request: HttpRequest, album_key: str):
     })
 
 
-def _lower(input: str):
-    return input.lower() if input else ''
+def _lower(value: str):
+    return value.lower() if value else ''
 
 
 def _camera(photo: Photo):

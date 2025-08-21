@@ -23,9 +23,9 @@ KEY_POSTFIX_CHARS = 'bcdfghjklmnpqrstvwxz2456789'
 KEY_POSTFIX_LEN = 5
 
 
-def slugify(input: str, lower=False, replace_leading_underscores=False) -> str:
+def slugify(title: str, lower=False, replace_leading_underscores=False) -> str:
     key = unicodedata.normalize(
-        'NFKD', input).encode(
+        'NFKD', title).encode(
         'ascii', 'ignore').decode('ascii')
     if lower:
         key = key.lower()

@@ -12,8 +12,8 @@ def _path_fn(album, photo):
 class AuthViewTests(TestCase):
     @classmethod
     def setUpTestData(cls):
-        User = get_user_model()
-        User.objects.create_user(username='test-auth', password='test')
+        user = get_user_model()
+        user.objects.create_user(username='test-auth', password='test')
 
         public_album = Album.objects.create(
             key="test-auth-public", visibility=Album.Visibility.PUBLIC)

@@ -1,8 +1,8 @@
+# pylint: disable=invalid-name
 from django.core.management.base import BaseCommand
 from django.contrib.sites.models import Site
 
 from photo_objects.django.api.album import get_site_album
-from photo_objects.django.models import Album
 
 
 class Command(BaseCommand):

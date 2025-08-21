@@ -89,4 +89,4 @@ def delete_album(request: HttpRequest, album_key: str):
             f"Album with {album_key} key can not be deleted because it "
             "contains photos.",
             409,
-        )
+        ) from None

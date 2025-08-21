@@ -29,3 +29,9 @@ def get_secret_key() -> str:
     write_to_home_directory("secret_key", key)
 
     return key
+
+
+def add_port_to_host(url: str, port: str | None) -> str:
+    if port:
+        return f"{url}:{port}"
+    return url

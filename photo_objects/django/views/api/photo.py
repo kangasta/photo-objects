@@ -82,7 +82,7 @@ def get_img(request: HttpRequest, album_key: str, photo_key: str):
                 album_key, photo_key, PhotoSize.ORIGINAL.value)
         except (S3Error, HTTPError) as e:
             msg = objsto.with_error_code(
-                f"Could not fetch photo from object storage", e)
+                "Could not fetch photo from object storage", e)
             logger.error(f"{msg}: {str(e)}")
 
             code = objsto.get_error_code(e)

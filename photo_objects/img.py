@@ -30,6 +30,7 @@ class ExifReader:
             value = d.get(key)
             if value is not None:
                 return value
+        return None
 
 
 def _read_original_datetime(image: Image) -> datetime:
@@ -63,7 +64,6 @@ def _read_camera_setup_and_settings(image: Image) -> dict:
         )
     except Exception as e:
         raise e
-        return dict()
 
 
 def _image_format(filename):

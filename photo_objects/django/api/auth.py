@@ -16,7 +16,7 @@ def check_album_access(request: HttpRequest, album_key: str):
     try:
         album = Album.objects.get(key=album_key)
     except Album.DoesNotExist:
-        raise AlbumNotFound(album_key)
+        raise AlbumNotFound(album_key) from None
 
     if not request.user.is_authenticated:
         if album.visibility == Album.Visibility.PRIVATE:
@@ -37,12 +37,12 @@ def check_photo_access(
     try:
         size = PhotoSize(size_key)
     except ValueError:
-        raise InvalidSize(size_key)
+        raise InvalidSize(size_key) from None
 
     try:
         photo = Photo.objects.get(key=join_key(album_key, photo_key))
     except Photo.DoesNotExist:
-        raise PhotoNotFound(album_key, photo_key)
+        raise PhotoNotFound(album_key, photo_key) from None
 
     if not request.user.is_authenticated:
         if photo.album.visibility == Album.Visibility.PRIVATE:
