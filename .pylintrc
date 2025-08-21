@@ -22,4 +22,5 @@ enable=E,
        unreachable,
        unused-import,
        useless-object-inheritance,
-       useless-suppression
+       useless-suppression,
+       wrong-import-order

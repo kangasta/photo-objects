@@ -1,7 +1,8 @@
 # pylint: disable=invalid-name
+from secrets import token_urlsafe
+
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
-from secrets import token_urlsafe
 
 from photo_objects.config import write_to_home_directory
 
