@@ -97,9 +97,51 @@ def photo_details(photo_file):
     )
 
 
-def scale_photo(photo_file, filename, max_width=None, max_height=None):
+def _calculate_box(
+    width,
+    height,
+    max_aspect_ratio
+) -> tuple[float, float, float, float]:
+    if max_aspect_ratio is None:
+        return None
+
+    min_aspect_ratio = 1.0 / max_aspect_ratio
+
+    aspect_ratio = width / height
+
+    if aspect_ratio > max_aspect_ratio:
+        new_width = height * max_aspect_ratio
+        crop_amount = width - new_width
+        left = round(crop_amount / 2)
+        right = round(width - crop_amount / 2)
+        return (left, 0, right, height)
+
+    if aspect_ratio < min_aspect_ratio:
+        new_height = width / min_aspect_ratio
+        crop_amount = height - new_height
+        top = round(crop_amount / 2)
+        bottom = round(height - crop_amount / 2)
+        return (0, top, width, bottom)
+
+    return None
+
+
+def scale_photo(
+        photo_file,
+        filename,
+        max_width=None,
+        max_height=None,
+        max_aspect_ratio=None):
     image = Image.open(photo_file)
     width, height = image.size
+
+    # Crop image if aspect ratio is:
+    # - greater than max_aspect_ratio, or
+    # - less than 1/max_aspect_ratio
+    box = _calculate_box(width, height, max_aspect_ratio)
+    if box:
+        image = image.crop(box)
+        width, height = image.size
 
     if max_width and max_height:
         ratio = min(

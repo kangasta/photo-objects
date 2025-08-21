@@ -7,19 +7,15 @@ from django.shortcuts import render
 from django.urls import reverse_lazy
 
 from photo_objects.error import PhotoObjectsError
+from photo_objects.utils import pretty_list
 from photo_objects.django.views.utils import BackLink
-from photo_objects.django import Size
+from photo_objects.django.conf import PhotoSize
 
 
 APPLICATION_JSON = "application/json"
 APPLICATION_X_WWW_FORM = "application/x-www-form-urlencoded"
 MULTIPART_FORMDATA = "multipart/form-data"
 APPLICATION_PROBLEM = "application/problem+json"
-
-
-def _pretty_list(in_: list, conjunction: str):
-    return f' {conjunction} '.join(
-        i for i in (', '.join(in_[:-1]), in_[-1],) if i)
 
 
 class JsonProblem(PhotoObjectsError):
@@ -63,7 +59,7 @@ class JsonProblem(PhotoObjectsError):
 
 class MethodNotAllowed(JsonProblem):
     def __init__(self, expected: list[str], actual: str):
-        expected_human = _pretty_list(expected, "or")
+        expected_human = pretty_list(expected, "or")
 
         super().__init__(
             f"Expected {expected_human} method, got {actual}.",
@@ -74,7 +70,7 @@ class MethodNotAllowed(JsonProblem):
 
 class UnsupportedMediaType(JsonProblem):
     def __init__(self, expected: list[str], actual: str):
-        expected_human = _pretty_list(expected, "or")
+        expected_human = pretty_list(expected, "or")
 
         super().__init__(
             f"Expected {expected_human} content-type, got {actual}.",
@@ -93,7 +89,7 @@ class Unauthorized(JsonProblem):
 
 class InvalidSize(JsonProblem):
     def __init__(self, actual: str):
-        expected = _pretty_list([i.value for i in Size], "or")
+        expected = pretty_list([i.value for i in PhotoSize], "or")
 
         super().__init__(
             f"Expected {expected} size, got {actual or 'none'}.",
@@ -138,7 +134,7 @@ def check_permissions(request: HttpRequest, *permissions: str):
         raise Unauthorized()
     if not request.user.has_perms(permissions):
         raise JsonProblem(
-            f"Expected {_pretty_list(permissions, 'and')} permissions",
+            f"Expected {pretty_list(permissions, 'and')} permissions",
             403,
             headers=dict(Allow="GET, POST")
         )
