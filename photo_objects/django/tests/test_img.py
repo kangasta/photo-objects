@@ -16,10 +16,10 @@ class ImgTests(TestCase):
             ((1000, 1000), (512, 512)),
         ]
 
-        for input, expected in testdata:
-            with self.subTest(w=input[0], h=input[1]):
+        for size, expected in testdata:
+            with self.subTest(w=size[0], h=size[1]):
                 original = BytesIO()
-                image = Image.new("RGB", input, color="red")
+                image = Image.new("RGB", size, color="red")
                 image.save(original, format="JPEG")
                 original.seek(0)
 
