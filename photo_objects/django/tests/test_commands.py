@@ -41,8 +41,8 @@ class PhotoViewTests(TestCase):
         self.assertStatus(response, 201)
 
         self._scale_image("test-photo-sizes", "tower.jpg")
-        self.assertPhotoInObjsto("test-photo-sizes",
-                              "tower.jpg", ["sm", "md", "lg", "og"])
+        self.assertPhotoInObjsto(
+            "test-photo-sizes", "tower.jpg", ["sm", "md", "lg", "og"])
 
         out = StringIO()
         call_command('clean-scaled-photos', stdout=out)
@@ -56,8 +56,8 @@ class PhotoViewTests(TestCase):
         self.assertPhotoInObjsto("test-photo-sizes", "tower.jpg", "og")
 
         self._scale_image("test-photo-sizes", "tower.jpg")
-        self.assertPhotoInObjsto("test-photo-sizes",
-                              "tower.jpg", ["sm", "md", "lg", "og"])
+        self.assertPhotoInObjsto(
+            "test-photo-sizes", "tower.jpg", ["sm", "md", "lg", "og"])
 
         with self.settings(PHOTO_OBJECTS_PHOTO_SIZES=dict(
             sm=dict(max_width=256, max_height=256),
@@ -70,8 +70,8 @@ class PhotoViewTests(TestCase):
                 output)
             self.assertIn("Total deleted photos: 1", output)
             self.assertPhotoNotInObjsto("test-photo-sizes", "tower.jpg", "sm")
-            self.assertPhotoInObjsto("test-photo-sizes",
-                                  "tower.jpg", ["md", "lg", "og"])
+            self.assertPhotoInObjsto(
+                "test-photo-sizes", "tower.jpg", ["md", "lg", "og"])
 
         response = self.client.delete(
             "/api/albums/test-photo-sizes/photos/tower.jpg")

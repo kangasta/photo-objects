@@ -81,7 +81,6 @@ class TestCase(DjangoTestCase):
                 "NoSuchKey",
                 f"Photo not found: {size}/{album_key}/{photo_key}")
 
-
     def assertTimestampLess(self, a, b, **kwargs):
         '''Assert a is less than b. Automatically parses strings to datetime
         objects.
