@@ -1,10 +1,24 @@
-[MASTER]
-load-plugins=pylint_django
-django-settings-module=back.api.settings
-
 [BASIC]
 good-names=a,b,c,
            d,e,f,
            i,j,k,
            ok,
            _
+
+[MAIN]
+ignore=migrations
+load-plugins=pylint_django
+django-settings-module=back.api.settings
+
+[MESSAGES CONTROL]
+disable=all
+enable=E,
+       bad-classmethod-argument,
+       f-string-without-interpolation,
+       inconsistent-return-statements,
+       invalid-name,
+       raise-missing-from,
+       unreachable,
+       unused-import,
+       useless-object-inheritance,
+       useless-suppression
