@@ -10,37 +10,15 @@ output "objsto" {
   }
 }
 
-locals {
-  rules = var.url == "" ? [] : [
-    {
-      name     = "reject-invalid-host"
-      priority = 100
-      matchers = [
-        {
-          type    = "host"
-          inverse = true
-          match_host = {
-            value = var.url
-          }
-        }
-      ]
-      actions = [
-        {
-          type              = "tcp_reject"
-          action_tcp_reject = {}
-        }
-      ]
-    }
-  ]
-}
-
 output "service_annotations" {
   value = {
     "service.beta.kubernetes.io/upcloud-load-balancer-config" = jsonencode({
+      name = "${var.prefix}lb"
       plan = var.lb_plan
       frontends = [
         {
-          rules = local.rules
+          rules       = local.rules
+          tls_configs = local.tls_configs
         }
       ]
     })

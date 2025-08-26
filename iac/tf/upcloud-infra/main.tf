@@ -99,3 +99,13 @@ resource "upcloud_managed_object_storage_user_policy" "django_full_access" {
   username     = upcloud_managed_object_storage_user.django.username
   service_uuid = upcloud_managed_object_storage.this.id
 }
+
+resource "upcloud_loadbalancer_dynamic_certificate_bundle" "this" {
+  count = local.hostname != "" ? 1 : 0
+
+  name = "${var.prefix}cert"
+  hostnames = [
+    local.hostname,
+  ]
+  key_type = "ecdsa"
+}
