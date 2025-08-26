@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from photo_objects.django.models import Album
+from photo_objects.django.api.utils import JsonProblem
 from photo_objects.django.views.utils import BackLink, render_markdown
 
 from .utils import json_problem_as_html
@@ -108,25 +108,20 @@ def domain_matches_request(request: HttpRequest) -> Validation:
     )
 
 
-def site_preview_configured(
-        request: HttpRequest,
-        album: Album | Exception) -> Validation:
+def site_preview_configured(request: HttpRequest) -> Validation:
     detail = None
 
-    if isinstance(album, Exception):
-        ok = False
-        detail = f'Failed to resolve site or album: `{str(album)}`'
+    ok = request.site.settings.preview_image is not None
+    if ok:
+        detail = (
+            f'The site settings for `{request.site.domain}` configure a '
+            'preview image.'
+        )
     else:
-        ok = album.cover_photo is not None
-        if ok:
-            detail = (
-                f'The `{album.key}` album has a cover photo configured. This '
-                'photo will be used as the site preview image.'
-            )
-        else:
-            detail = (
-                f'Set cover photo for `{album.key}` album to configure '
-                'the preview image.')
+        detail = (
+            'Configure a preview image in site settings for '
+            f'`{request.site.domain}`.'
+        )
 
     return Validation(
         check=_("Site has a default preview image"),
@@ -135,25 +130,21 @@ def site_preview_configured(
     )
 
 
-def site_description_configured(
-        request: HttpRequest,
-        album: Album | Exception) -> Validation:
+def site_description_configured(request: HttpRequest) -> Validation:
     detail = None
 
-    if isinstance(album, Exception):
-        ok = False
-        detail = f'Failed to resolve site or album: `{str(album)}`'
+    settings = request.site.settings
+    ok = settings.description is not None and len(settings.description) > 0
+    if ok:
+        detail = (
+            f'The site settings for `{request.site.domain}` configure a '
+            'description.'
+        )
     else:
-        ok = album.description is not None and len(album.description) > 0
-        if ok:
-            detail = (
-                f'The `{album.key}` album has a description. This description '
-                'will be used as the site description.'
-            )
-        else:
-            detail = (
-                f'Set description for `{album.key}` album to configure '
-                'the site description.')
+        detail = (
+            'Configure a description in site settings for '
+            f'`{request.site.domain}`.'
+        )
 
     return Validation(
         check=_("Site has a default description"),
@@ -164,19 +155,15 @@ def site_description_configured(
 
 @json_problem_as_html
 def configuration(request: HttpRequest):
-    try:
-        site_id = request.site.id
-        album_key = f"_site_{site_id}"
-        album = Album.objects.get(key=album_key)
-    except Exception as e:
-        album = e
+    if not request.user.is_staff:
+        raise JsonProblem("Page not found", status=404)
 
     validations = [
         uses_https(request),
         site_is_configured(request),
         domain_matches_request(request),
-        site_preview_configured(request, album),
-        site_description_configured(request, album),
+        site_preview_configured(request),
+        site_description_configured(request),
     ]
 
     back = BackLink("Back to albums", reverse('photo_objects:list_albums'))

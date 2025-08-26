@@ -1,9 +1,7 @@
-from django.contrib.sites.models import Site
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
-from .api.album import parse_site_id, get_site_album
-from .models import Album, Photo
+from .models import Photo
 
 
 @receiver(post_save, sender=Photo)
@@ -58,30 +56,3 @@ def update_album_on_photo_delete(sender, **kwargs):
 
     if needs_save:
         album.save()
-
-
-@receiver(post_save, sender=Site)
-def update_album_on_site_save(sender, **kwargs):
-    site = kwargs.get('instance', None)
-    album, created = get_site_album(site)
-
-    if not created and album.title != site.name:
-        album.title = site.name
-        album.save()
-
-
-@receiver(post_save, sender=Album)
-def update_site_on_album_save(sender, **kwargs):
-    album = kwargs.get('instance', None)
-    site_id = parse_site_id(album.key)
-    if site_id is None:
-        return
-
-    try:
-        site = Site.objects.get(id=site_id)
-    except Site.DoesNotExist:
-        return
-
-    if site.name != album.title:
-        site.name = album.title
-        site.save()

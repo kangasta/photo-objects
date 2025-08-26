@@ -1,4 +1,6 @@
 from django.db import models
+from django.db.models.signals import pre_delete, pre_save
+from django.contrib.sites.models import Site
 from django.core.validators import RegexValidator
 from django.utils.translation import gettext_lazy as _
 
@@ -146,3 +148,43 @@ class Photo(BaseModel):
             exposure_time=self.exposure_time,
             iso_speed=self.iso_speed,
         )
+
+
+SETTINGS_CACHE = {}
+
+
+class SiteSettingsManager(models.Manager):
+    def get(self, site: Site):
+        cached = SETTINGS_CACHE.get(site.id)
+        if cached:
+            return cached
+        settings, _ = self.get_or_create(site=site)
+        SETTINGS_CACHE[site.id] = settings
+        return settings
+
+
+class SiteSettings(models.Model):
+    class Meta:
+        verbose_name_plural = "site settings"
+
+    site = models.OneToOneField(
+        Site, on_delete=models.CASCADE, related_name="settings")
+
+    description = models.TextField(blank=True)
+    preview_image = models.ForeignKey(
+        Photo, blank=True, null=True, on_delete=models.SET_NULL)
+
+    objects = SiteSettingsManager()
+
+    def __str__(self):
+        return f"Settings for {self.site.name}"
+
+
+def clear_cached_settings(sender, **kwargs):
+    site_id = kwargs.get("instance").site.id
+    if site_id in SETTINGS_CACHE:
+        del SETTINGS_CACHE[site_id]
+
+
+pre_save.connect(clear_cached_settings, sender=SiteSettings)
+pre_delete.connect(clear_cached_settings, sender=SiteSettings)

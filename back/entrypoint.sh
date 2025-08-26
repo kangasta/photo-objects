@@ -9,7 +9,6 @@ until python3 manage.py migrate 2> /dev/null; do
 done;
 
 python3 manage.py create-initial-admin-account
-python3 manage.py create-site-albums
 python3 manage.py clean-scaled-photos
 
 exec gunicorn api.wsgi

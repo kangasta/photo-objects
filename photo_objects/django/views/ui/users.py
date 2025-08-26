@@ -2,18 +2,18 @@ from django.contrib.auth import views as auth_views
 from django.http import HttpRequest
 from django.urls import reverse_lazy
 
-from photo_objects.django.api.album import get_site_album
+from photo_objects.django.models import SiteSettings
 from photo_objects.django.views.utils import BackLink
 
 
 def login(request: HttpRequest):
-    album, _ = get_site_album(request.site)
+    settings = SiteSettings.objects.get(request.site)
 
     return auth_views.LoginView.as_view(
         template_name="photo_objects/form.html",
         extra_context={
             "title": "Login",
-            "photo": album.cover_photo,
+            "photo": settings.preview_image,
             "action": "Login",
             "back": BackLink(
                 'Back to albums',
