@@ -1,6 +1,3 @@
-import re
-
-from django.contrib.sites.models import Site
 from django.db.models.deletion import ProtectedError
 from django.http import HttpRequest
 
@@ -14,24 +11,6 @@ from .utils import (
     check_permissions,
     parse_input_data,
 )
-
-
-def get_site_album(site: Site) -> tuple[Album, bool]:
-    album_key = f'_site_{site.id}'
-    return Album.objects.get_or_create(
-        key=album_key,
-        defaults={
-            'title': site.name,
-            'visibility': Album.Visibility.ADMIN,
-        })
-
-
-def parse_site_id(album_key: str) -> int | None:
-    key_match = re.match(r'_site_([0-9]+)', album_key)
-    if not key_match:
-        return None
-
-    return int(key_match.group(1))
 
 
 def get_albums(request: HttpRequest):

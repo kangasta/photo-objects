@@ -1,7 +1,7 @@
 from datetime import datetime
 from django import template
 
-from photo_objects.django.api.album import get_site_album
+from photo_objects.django.models import SiteSettings
 from photo_objects.django.views.utils import meta_description
 
 
@@ -48,13 +48,14 @@ def meta_og(context):
     try:
         request = context.get("request")
         site = request.site
-        album, _ = get_site_album(site)
+
+        settings = SiteSettings.objects.get(site)
 
         return {
             'request': request,
-            "title": album.title or site.name,
-            "description": meta_description(request, album.description),
-            "photo": album.cover_photo,
+            "title": site.name,
+            "description": meta_description(request, settings.description),
+            "photo": settings.preview_image,
         }
     except Exception:
         return context
