@@ -17,3 +17,14 @@ variable "region" {
   type    = string
   default = "europe-1"
 }
+
+// For service annotations
+variable "lb_plan" {
+  type    = string
+  default = "essentials"
+}
+
+variable "url" {
+  type    = string
+  default = ""
+}
