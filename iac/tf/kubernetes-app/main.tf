@@ -140,6 +140,7 @@ resource "kubernetes_config_map" "ui" {
   }
   data = {
     resolver = "resolver ${var.dns_service}.kube-system.svc.cluster.local;"
+    real_ip  = local.real_ip_config
   }
   depends_on = [kubernetes_service.api]
 }
@@ -185,6 +186,12 @@ resource "kubernetes_deployment" "ui" {
           env {
             name  = "OBJSTO_PROTOCOL"
             value = "https"
+          }
+
+          volume_mount {
+            name       = "ui"
+            mount_path = "/etc/nginx/conf.d/real_ip.conf"
+            sub_path   = "real_ip"
           }
 
           volume_mount {

@@ -18,4 +18,6 @@ module "app" {
   objsto_secret_key = module.infra.objsto.secret_key
 
   ui_service_annotations = module.infra.service_annotations
+
+  real_ip_from = var.real_ip_from
 }

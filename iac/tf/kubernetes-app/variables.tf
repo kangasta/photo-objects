@@ -50,3 +50,8 @@ variable "ui_service_annotations" {
   type    = map(string)
   default = {}
 }
+
+variable "real_ip_from" {
+  type    = string
+  default = ""
+}
