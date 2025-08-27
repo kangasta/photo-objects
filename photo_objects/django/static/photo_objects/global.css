@@ -203,6 +203,7 @@ footer {
   justify-content: center;
   align-items: center;
 
+  color: var(--fg-secondary);
   font-size: 0.8em;
   margin-top: 4rem;
   padding-bottom: 1rem;
@@ -214,6 +215,18 @@ footer svg {
   width: auto;
 }
 
+footer a,
+footer a:visited {
+  color: currentColor;
+  text-decoration: none;
+}
+
+footer a:hover,
+footer a:focus-visible {
+  color: var(--fg-blue);
+  text-decoration: underline;
+}
+
 /* Inline code */
 code {
   background-color: var(--bg-secondary);
@@ -223,10 +236,7 @@ code {
 }
 
 /* Links */
-a {
-  color: var(--fg-blue);
-}
-
+a,
 a:visited {
   color: var(--fg-blue);
 }
