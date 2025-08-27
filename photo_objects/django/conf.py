@@ -30,20 +30,25 @@ class PhotoSizeDimensions:
     max_width: int = None
     max_height: int = None
     max_aspect_ratio: float = None
+    image_format: str = None
 
 
 DEFAULT_SM = dict(
     max_width=512,
     max_height=512,
-    max_aspect_ratio=1.5
+    max_aspect_ratio=1.5,
+    image_format='WEBP'
 )
 DEFAULT_MD = dict(
-    max_width=2048,
-    max_height=2048
+    max_width=1024,
+    max_height=1024,
+    max_aspect_ratio=1.5,
+    image_format="JPEG"
 )
 DEFAULT_LG = dict(
-    max_width=4096,
-    max_height=4096
+    max_width=2048,
+    max_height=2048,
+    image_format='WEBP'
 )
 
 

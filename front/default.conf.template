@@ -32,7 +32,6 @@ server {
 
       set $key $size/$album/$photo;
       auth_request /_auth/;
-      add_header Content-Disposition 'inline; filename="$photo"';
       expires 7d;
       proxy_intercept_errors on;
       error_page 404 = @scale_photo;

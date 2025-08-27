@@ -2,6 +2,7 @@ from dataclasses import asdict
 from io import BytesIO
 import json
 import mimetypes
+import re
 import urllib3
 
 from minio import Minio, S3Error
@@ -60,8 +61,30 @@ def photo_path(album_key, photo_key, size_key):
     return f"{size_key}/{album_key}/{photo_key}"
 
 
-def put_photo(album_key, photo_key, size_key, photo_file):
-    content_type = mimetypes.guess_type(photo_key)[0]
+def _photo_filename(photo_key: str, image_format: str = None) -> str:
+    if image_format:
+        filename = re.sub(r'\.[^.]+$', '', photo_key)
+        return f"{filename}.{image_format.lower()}"
+
+    return photo_key
+
+
+def photo_content_headers(
+    photo_key: str,
+    image_format: str = None,
+) -> tuple[str, dict[str, str]]:
+    filename = _photo_filename(photo_key, image_format)
+
+    content_type = mimetypes.guess_type(filename, strict=False)[0]
+    headers = {
+        "Content-Disposition": f"inline; filename={filename}"
+    }
+
+    return content_type, headers
+
+
+def put_photo(album_key, photo_key, size_key, photo_file, image_format=None):
+    content_type, headers = photo_content_headers(photo_key, image_format)
 
     client, bucket = _objsto_access()
     return client.put_object(
@@ -71,6 +94,7 @@ def put_photo(album_key, photo_key, size_key, photo_file):
         length=-1,
         part_size=10 * MEGABYTE,
         content_type=content_type,
+        metadata=headers
     )
 
 

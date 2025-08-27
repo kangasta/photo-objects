@@ -91,14 +91,23 @@ def get_img(request: HttpRequest, album_key: str, photo_key: str):
                 404 if code == "NoSuchKey" else 500,
             ).json_response
 
-        sizes = photo_sizes()
+        size_params = getattr(photo_sizes(), size)
         # TODO: handle error
         scaled_photo = scale_photo(
-            original_photo, photo_key, **asdict(getattr(sizes, size)))
+            original_photo, photo_key, **asdict(size_params))
 
         # TODO: handle error
         scaled_photo.seek(0)
-        objsto.put_photo(album_key, photo_key, size, scaled_photo)
+        objsto.put_photo(
+            album_key,
+            photo_key,
+            size,
+            scaled_photo,
+            size_params.image_format)
+
+        content_type, headers = objsto.photo_content_headers(
+            photo_key, size_params.image_format)
 
         scaled_photo.seek(0)
-        return HttpResponse(scaled_photo.read(), content_type=content_type)
+        return HttpResponse(
+            scaled_photo.read(), content_type=content_type, headers=headers)
