@@ -66,7 +66,10 @@ def _read_camera_setup_and_settings(image: Image) -> dict:
         raise e
 
 
-def _image_format(filename):
+def _image_format(image_format, filename):
+    if image_format:
+        return image_format
+
     image_format = filename.split('.')[-1].upper()
 
     if image_format == "JPG":
@@ -131,7 +134,8 @@ def scale_photo(
         filename,
         max_width=None,
         max_height=None,
-        max_aspect_ratio=None):
+        max_aspect_ratio=None,
+        image_format=None):
     image = Image.open(photo_file)
     width, height = image.size
 
@@ -164,5 +168,5 @@ def scale_photo(
         resized = image.resize(new_size, Image.Resampling.LANCZOS)
 
     b = BytesIO()
-    resized.save(b, _image_format(filename))
+    resized.save(b, _image_format(image_format, filename))
     return b
