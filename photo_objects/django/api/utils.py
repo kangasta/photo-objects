@@ -6,7 +6,6 @@ from django.core.files.uploadedfile import UploadedFile
 from django.shortcuts import render
 from django.urls import reverse_lazy
 
-from photo_objects.django.models import Photo
 from photo_objects.error import PhotoObjectsError
 from photo_objects.utils import pretty_list
 from photo_objects.django.views.utils import BackLink
