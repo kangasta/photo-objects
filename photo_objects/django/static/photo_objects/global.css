@@ -432,6 +432,10 @@ div.info-banner {
   margin: 1rem 0 0;
 }
 
+form div.info-banner {
+  margin: 0;
+}
+
 div.info-banner p {
   margin: 0;
 }

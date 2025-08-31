@@ -3,7 +3,7 @@ from django.shortcuts import render
 from django.urls import reverse
 
 from photo_objects.django import api
-from photo_objects.django.api.utils import AlbumNotFound, FormValidationFailed
+from photo_objects.django.api.utils import AlbumNotFound, FormValidationFailed, UploadPhotosFailed
 from photo_objects.django.forms import ModifyPhotoForm, UploadPhotosForm
 from photo_objects.django.models import Photo
 from photo_objects.django.views.utils import (
@@ -24,10 +24,17 @@ def upload_photos(request: HttpRequest, album_key: str):
                 reverse(
                     'photo_objects:show_album',
                     kwargs={"album_key": album_key}))
-        except FormValidationFailed as e:
+        except UploadPhotosFailed as e:
             form = e.form
+            uploaded_count = len(e.uploaded_photos)
+            if uploaded_count > 0:
+                plural = 's' if uploaded_count != 1 else ''
+                info = f"Successfully uploaded {uploaded_count} photo{plural}."
+            else:
+                info = None
     else:
         form = UploadPhotosForm()
+        info = None
 
     album = api.check_album_access(request, album_key)
     target = album.title or album.key
@@ -38,6 +45,7 @@ def upload_photos(request: HttpRequest, album_key: str):
 
     return render(request, 'photo_objects/photo/upload.html', {
         "form": form,
+        "info": info,
         "title": "Upload photos",
         "back": back,
         "photo": album.cover_photo,

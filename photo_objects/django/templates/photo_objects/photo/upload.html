@@ -11,6 +11,9 @@
   {% include 'photo_objects/form-photo.html' %}
   <form action="" enctype="multipart/form-data" method="post">
     {% csrf_token %}
+    {% if info %}
+    <div class="info-banner">{{ info }}</div>
+    {% endif %}
     <ul>
       {{ form.as_ul }}
     </ul>

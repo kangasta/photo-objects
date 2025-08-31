@@ -6,6 +6,7 @@ from django.core.files.uploadedfile import UploadedFile
 from django.shortcuts import render
 from django.urls import reverse_lazy
 
+from photo_objects.django.models import Photo
 from photo_objects.error import PhotoObjectsError
 from photo_objects.utils import pretty_list
 from photo_objects.django.views.utils import BackLink
@@ -127,6 +128,12 @@ class FormValidationFailed(JsonProblem):
         )
 
         self.form = form
+
+
+class UploadPhotosFailed(FormValidationFailed):
+    def __init__(self, form: ModelForm, uploaded_photos: list[str]):
+        super().__init__(form)
+        self.uploaded_photos = uploaded_photos
 
 
 def check_permissions(request: HttpRequest, *permissions: str):

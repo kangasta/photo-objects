@@ -17,6 +17,7 @@ from photo_objects.img import photo_details
 from .auth import check_album_access, check_photo_access
 from .utils import (
     FormValidationFailed,
+    UploadPhotosFailed,
     JsonProblem,
     check_permissions,
     parse_input_data,
@@ -114,7 +115,7 @@ def upload_photos(request: HttpRequest, album_key: str):
                 f"Failed to upload {photo_file.name}. {e.title}")
 
     if not f.is_valid():
-        raise FormValidationFailed(f)
+        raise UploadPhotosFailed(f, [i.filename for i in photos])
 
     return photos
 
