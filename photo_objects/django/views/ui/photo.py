@@ -3,7 +3,11 @@ from django.shortcuts import render
 from django.urls import reverse
 
 from photo_objects.django import api
-from photo_objects.django.api.utils import AlbumNotFound, FormValidationFailed, UploadPhotosFailed
+from photo_objects.django.api.utils import (
+    AlbumNotFound,
+    FormValidationFailed,
+    UploadPhotosFailed,
+)
 from photo_objects.django.forms import ModifyPhotoForm, UploadPhotosForm
 from photo_objects.django.models import Photo
 from photo_objects.django.views.utils import (
