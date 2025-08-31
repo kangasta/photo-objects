@@ -195,7 +195,11 @@ class CreatePhotoForm(ModelForm):
         error_messages = {
             'album': {
                 'invalid_choice': _('Album with %(value)s key does not exist.')
-            }
+            },
+            'key': {
+                'unique': _(
+                    'Photo with this filename already exists in the album.'),
+            },
         }
 
 
