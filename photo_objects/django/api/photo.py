@@ -17,6 +17,7 @@ from photo_objects.img import photo_details
 from .auth import check_album_access, check_photo_access
 from .utils import (
     FormValidationFailed,
+    UploadPhotosFailed,
     JsonProblem,
     check_permissions,
     parse_input_data,
@@ -57,7 +58,7 @@ def _upload_photo(album_key: str, photo_file: UploadedFile):
         photo.delete()
 
         msg = objsto.with_error_code(
-            "Could not save photo to object storage", e)
+            "Could not save photo to object storage.", e)
         logger.error(f"{msg}: {str(e)}")
         raise JsonProblem(f"{msg}.", 500) from e
 
@@ -71,6 +72,17 @@ def upload_photo(request: HttpRequest, album_key: str):
         'photo_objects.change_album')
     photo_file = parse_single_file(request)
     return _upload_photo(album_key, photo_file)
+
+
+def _join_errors(errors: dict) -> str:
+    messages = []
+    for _, errs in errors.items():
+        for err in errs:
+            try:
+                messages.append(err.get('message'))
+            except AttributeError:
+                messages.append(str(err))
+    return " ".join(messages) if messages else "Unknown error."
 
 
 def upload_photos(request: HttpRequest, album_key: str):
@@ -92,12 +104,18 @@ def upload_photos(request: HttpRequest, album_key: str):
     for photo_file in f.cleaned_data["photos"]:
         try:
             photos.append(_upload_photo(album_key, photo_file))
-        except JsonProblem:
-            # TODO: include error type in the message
-            f.add_error("photos", f"Failed to upload {photo_file.name}.")
+        except FormValidationFailed as e:
+            message = _join_errors(e.form.errors.get_json_data())
+            f.add_error(
+                "photos",
+                f"Failed to upload {photo_file.name}. {message}")
+        except JsonProblem as e:
+            f.add_error(
+                "photos",
+                f"Failed to upload {photo_file.name}. {e.title}")
 
     if not f.is_valid():
-        raise FormValidationFailed(f)
+        raise UploadPhotosFailed(f, [i.filename for i in photos])
 
     return photos
 

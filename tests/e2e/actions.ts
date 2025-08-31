@@ -72,8 +72,10 @@ export const uploadPhotos = async (page: Page, albumTitle: string, photos: strin
   const input = page.getByLabel('Drag and drop photos here or click to open upload dialog.');
   await input.setInputFiles(photos.map(photoPath));
   await page.getByText('Upload', { exact: true }).click();
+}
 
-  await Promise.all(photos.map(async (photo) => {
+export const checkTitlesExist = async (page: Page, titles: string[]) => {
+  await Promise.all(titles.map(async (photo) => {
     await expect(page.getByTitle(photo)).toBeVisible();
   }));
 }
