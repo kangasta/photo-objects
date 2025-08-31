@@ -405,7 +405,7 @@ form .error,
 form ul.errorlist li {
   display: flex;
   flex-direction: row;
-  margin: .5rem 0;
+  margin: 0 0 .5rem;
   padding: .5rem;
 }
 
@@ -433,7 +433,7 @@ div.info-banner {
 }
 
 form div.info-banner {
-  margin: 0;
+  margin: 0 0 .5rem;
 }
 
 div.info-banner p {
