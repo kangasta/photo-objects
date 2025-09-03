@@ -1,9 +1,9 @@
 {% if request.site and request.site.domain != "example.com" and photo and title %}
-<meta property="og:title" content="{{ title }}">
+<meta property="og:title" content="{{ title }}" />
 {% if description %}
-<meta property="og:description" content="{{ description }}">
+<meta property="og:description" content="{{ description }}" />
 {% endif %}
 <meta property="og:image" content="https://{{ request.site.domain }}/img/{{ photo.album.key }}/{{ photo.filename }}/md" />
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://{{ request.site.domain }}{{ request.path }}">
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://{{ request.site.domain }}{{ request.path }}" />
 {% endif %}

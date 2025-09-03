@@ -1,7 +1,11 @@
 from dataclasses import dataclass
+from io import StringIO
 import os
+import shutil
+import tempfile
 
 from django.conf import settings
+from django.core.management import call_command
 from django.test import TestCase as DjangoTestCase, override_settings
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
@@ -120,3 +124,20 @@ def parse_timestamps(data):
     return Timestamps(
         created_at=data.get('created_at'),
         updated_at=data.get('updated_at'))
+
+
+# Based on https://stackoverflow.com/a/76745063
+def temp_static_files(func):
+    '''Decorator that creates a temporary directory, configures that as
+    STATIC_ROOT, and collects static files there.'''
+    def wrapper(*args, **kwargs):
+        static_root = tempfile.mkdtemp(prefix="test_static_")
+        with override_settings(STATIC_ROOT=static_root):
+            try:
+                out = StringIO()
+                call_command("collectstatic", "--noinput", stdout=out)
+                func(*args, **kwargs)
+            finally:
+                shutil.rmtree(static_root)
+
+    return wrapper

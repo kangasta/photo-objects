@@ -5,7 +5,7 @@
 <head>
   <title>{% if title %}{{ title }} - {% endif %}{% if request.site and request.site.domain != "example.com" %}{{ request.site.name }}{% else %}Photo Objects{% endif %}</title>
   {% if description %}
-  <meta name="description" content="{{ description }}">
+  <meta name="description" content="{{ description }}" />
   {% endif %}
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -35,7 +35,7 @@
     </svg>
     <span>
       <a href="https://github.com/kangasta/photo-objects" target="_blank">photo-objects</a>
-      {% if photo_objects_metadata %}
+      {% if photo_objects_metadata and photo_objects_metadata.version %}
       at v{{ photo_objects_metadata.version }}
       {% endif %}
     </span>
