@@ -1,8 +1,12 @@
-from importlib.metadata import version
+from importlib.metadata import PackageNotFoundError, version
 
 
 class Metadata:
-    version = version('photo_objects')
+    def __init__(self):
+        try:
+            self.version = version('photo_objects')
+        except PackageNotFoundError:
+            self.version = None
 
 
 def metadata(_):
