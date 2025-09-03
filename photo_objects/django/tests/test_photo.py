@@ -184,6 +184,15 @@ class PhotoViewTests(TestCase):
                 {filename: file})
         self.assertStatus(response, 500)
 
+        response = self.client.get(
+            "/api/albums/test-photo-a/photos/tower.jpg")
+        self.assertStatus(response, 404)
+
+        response = self.client.get(
+            "/api/albums/test-photo-a/photos")
+        self.assertStatus(response, 200)
+        self.assertEqual(len(response.json()), 0)
+
     def test_get_image_scales_the_image(self):
         login_success = self.client.login(
             username='has_permission', password='test')
