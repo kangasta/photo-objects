@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "photo-objects"
-version = "0.6.0"
+version = "0.7.0"
 dependencies = [
     "markdown~=3.7",
     "minio~=7.2",
