@@ -40,10 +40,10 @@
 </div>
 
 <div class="actions">
-  {% if perms.photo_objects.change_album %}
+  {% if perms.photo_objects.change_album and perms.photo_objects.add_photo %}
   <a class="action" href="{% url 'photo_objects:upload_photos' album.key %}">Upload photos</a>
   {% endif %}
-  {% if perms.photo_objects.change_album and perms.photo_objects.add_photo %}
+  {% if perms.photo_objects.change_album %}
   <a class="action" href="{% url 'photo_objects:edit_album' album.key %}">Edit album</a>
   {% endif %}
   {% if perms.photo_objects.delete_album %}
