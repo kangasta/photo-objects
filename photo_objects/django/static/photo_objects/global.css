@@ -25,7 +25,8 @@
   --fg-blue: #9a9fef;
   --fg-red: #ef8a8c;
   --fg-info: #a8c6f0;
-  --fg-warning: #f0c68a;
+  --fg-yellow: #f0c68a;
+  --fg-green: #679572;
 }
 
 body {
@@ -411,7 +412,7 @@ form ul.errorlist li {
 
 .configuration .status.warning,
 p.warning-banner {
-  color: var(--fg-warning);
+  color: var(--fg-yellow);
   background: var(--bg-warning);
   border-color: var(--bg-warning-border);
 }
@@ -637,6 +638,8 @@ ul.photo-list a {
 
 ul.photo-list li {
   display: block;
+  overflow: hidden;
+  position: relative;
 }
 
 ul.photo-list img {
@@ -652,6 +655,29 @@ ul.photo-list div.photo-placeholder {
   aspect-ratio: 1;
 }
 
+ul.photo-list div.visibility {
+  position: absolute;
+  top: 0;
+  right: 0;
+
+  background-color: var(--fg-red);
+  border-radius: 0 0 0 2px;
+  color: var(--bg-primary);
+  font-size: 0.75em;
+  padding: 0 0.25em;
+}
+
+ul.photo-list div.visibility.public {
+  background-color: var(--fg-green);
+}
+
+ul.photo-list div.visibility.hidden {
+  background-color: var(--fg-blue);
+}
+
+ul.photo-list div.visibility.private {
+  background-color: var(--fg-yellow);
+}
 
 /* Photo details */
 div.photo-and-details {

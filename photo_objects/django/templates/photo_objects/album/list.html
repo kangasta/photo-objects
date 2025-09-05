@@ -12,6 +12,9 @@
     {% for album in albums %}
     <li class="surface">
       <a href="{% url 'photo_objects:show_album' album.key %}">
+        {% if user.is_authenticated %}
+        <div class="visibility {{ album.visibility }}">{{ album.get_visibility_display }}</div>
+        {% endif %}
         {% if album.cover_photo %}
         <img src="/img/{{ album.key }}/{{ album.cover_photo.filename }}/sm"
           alt="{{ album.cover_photo.description|default:album.cover_photo.filename }}"
