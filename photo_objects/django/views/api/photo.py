@@ -111,3 +111,34 @@ def get_img(request: HttpRequest, album_key: str, photo_key: str):
         scaled_photo.seek(0)
         return HttpResponse(
             scaled_photo.read(), content_type=content_type, headers=headers)
+
+
+@json_problem_as_json
+def photo_change_requests(
+        request: HttpRequest,
+        album_key: str,
+        photo_key: str):
+    if request.method == "POST":
+        return create_change_request(request, album_key, photo_key)
+    else:
+        return MethodNotAllowed(["POST"], request.method).json_response
+
+
+def create_change_request(
+        request: HttpRequest,
+        album_key: str,
+        photo_key: str):
+    change_request = api.create_photo_change_request(
+        request, album_key, photo_key)
+    return JsonResponse(change_request.to_json(), status=201)
+
+
+@json_problem_as_json
+def expected_photo_change_requests(request: HttpRequest):
+    if request.method != "GET":
+        return MethodNotAllowed(["GET"], request.method).json_response
+
+    return JsonResponse(
+        api.get_expected_photo_change_requests(request),
+        safe=False,
+    )

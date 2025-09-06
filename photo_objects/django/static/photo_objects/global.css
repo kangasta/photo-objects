@@ -345,6 +345,7 @@ form select {
 
 form textarea {
   font-family: "Source Code Pro", monospace;
+  height: 9em;
   resize: vertical;
 }
 
@@ -365,6 +366,11 @@ form ul li {
 .configuration ul li:first-of-type,
 form ul li:first-of-type {
   margin-top: 0;
+}
+
+.form form p {
+  font-size: 0.75em;
+  margin: 0 0 1.5rem;
 }
 
 .configuration .helptext,

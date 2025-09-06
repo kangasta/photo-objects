@@ -4,6 +4,8 @@ from django.contrib.sites.models import Site
 from django.core.validators import RegexValidator
 from django.utils.translation import gettext_lazy as _
 
+from photo_objects.utils import first_paragraph_textcontent
+
 
 album_key_validator = RegexValidator(
     r"^[a-zA-Z0-9._-]+$",
@@ -108,12 +110,26 @@ class Photo(BaseModel):
     exposure_time = models.FloatField(blank=True, null=True)
     iso_speed = models.IntegerField(blank=True, null=True)
 
+    alt_text = models.TextField(blank=True)
+
     def __str__(self):
         return _str(
             self.key,
             title=self.title,
             timestamp=self.timestamp.isoformat()
         )
+
+    @property
+    def alt(self):
+        if self.alt_text:
+            return self.alt_text
+
+        if self.description:
+            text = first_paragraph_textcontent(self.description)
+            if text:
+                return text
+
+        return self.title or self.filename
 
     @property
     def filename(self):
@@ -147,6 +163,35 @@ class Photo(BaseModel):
             f_number=self.f_number,
             exposure_time=self.exposure_time,
             iso_speed=self.iso_speed,
+            alt_text=self.alt_text,
+        )
+
+
+class PhotoChangeRequest(models.Model):
+    class Meta:
+        ordering = ["-created_at"]
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    photo = models.ForeignKey(
+        "Photo",
+        on_delete=models.CASCADE,
+        related_name="change_requests")
+
+    alt_text = models.TextField()
+
+    def __str__(self):
+        return _str(
+            self.photo.key,
+            created_at=self.created_at.isoformat()
+        )
+
+    def to_json(self):
+        return dict(
+            id=self.id,
+            photo=self.photo.key,
+            created_at=_timestamp_str(self.created_at),
+            alt_text=self.alt_text,
         )
 
 

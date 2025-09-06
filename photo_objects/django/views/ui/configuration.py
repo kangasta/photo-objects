@@ -6,7 +6,8 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from photo_objects.django.api.utils import JsonProblem
-from photo_objects.django.views.utils import BackLink, render_markdown
+from photo_objects.django.views.utils import BackLink
+from photo_objects.utils import render_markdown
 
 from .utils import json_problem_as_html
 

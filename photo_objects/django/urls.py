@@ -11,6 +11,14 @@ urlpatterns = [
     path("api/albums/<str:album_key>", api.album),
     path("api/albums/<str:album_key>/photos", api.photos),
     path("api/albums/<str:album_key>/photos/<str:photo_key>", api.photo),
+    path(
+        "api/albums/<str:album_key>/photos/<str:photo_key>/change-requests",
+        api.photo_change_requests,
+    ),
+    path(
+        "api/photo-change-requests/expected",
+        api.expected_photo_change_requests,
+    ),
     path("api/albums/<str:album_key>/photos/<str:photo_key>/img", api.get_img),
     # TODO: ui views
     path('', lambda _: HttpResponseRedirect('albums')),
@@ -58,6 +66,16 @@ urlpatterns = [
         "albums/<str:album_key>/photos/<str:photo_key>/_delete",
         ui.delete_photo,
         name="delete_photo",
+    ),
+    path(
+        "photo-change-requests/_next",
+        ui.next_photo_change_request,
+        name="next_photo_change_request",
+    ),
+    path(
+        "photo-change-requests/<int:cr_id>/_review",
+        ui.review_photo_change_request,
+        name="review_photo_change_request",
     ),
     path(
         "configuration",

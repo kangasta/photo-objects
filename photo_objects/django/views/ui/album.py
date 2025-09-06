@@ -10,8 +10,8 @@ from photo_objects.django.models import Album
 from photo_objects.django.views.utils import (
     BackLink,
     meta_description,
-    render_markdown,
 )
+from photo_objects.utils import render_markdown
 
 from .utils import json_problem_as_html
 

@@ -40,6 +40,11 @@
       <a href="{% url 'photo_objects:configuration' %}">Show configuration status</a>
     </div>
     {% endif %}
+    {% if perms.photo_objects.change_photo and perms.photo_objects.delete_photochangerequest %}
+    <div class="user-modal-action">
+      <a href="{% url 'photo_objects:next_photo_change_request' %}">Review photo change requests</a>
+    </div>
+    {% endif %}
     <form class="user-modal-action" method="POST" action="/users/logout?next={{ request.path }}">
       {% csrf_token %}
       <button id="user-modal-logout" class="link" type="submit">Logout</button>

@@ -5,7 +5,7 @@ let albumTitle: string;
 
 test('create album and upload photo', async ({ page }) => {
   await login(page);
-  albumTitle = await createAlbum(page);
+  albumTitle = await createAlbum(page, "create and upload");
 
   // Visibility should be private by default.
   await expect(page.getByText('Private')).toBeVisible();
