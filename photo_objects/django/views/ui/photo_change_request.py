@@ -8,6 +8,7 @@ from photo_objects.django.api.utils import (
 )
 from photo_objects.django.forms import ReviewPhotoChangeRequestForm
 from photo_objects.django.views.utils import BackLink
+from photo_objects.utils import render_markdown
 
 from .utils import json_problem_as_html
 
@@ -54,4 +55,7 @@ def review_photo_change_request(request: HttpRequest, cr_id: str):
         "back": back,
         "photo": photo,
         "info": info,
+        "instructions": render_markdown(
+            f'The current alt text for `{photo.key}` is: '
+            f'_"{photo.alt_text}"_.'),
     })

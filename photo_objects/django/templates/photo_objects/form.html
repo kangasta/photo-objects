@@ -9,9 +9,9 @@
 <div class="info-banner">{{ info }}</div>
 {% endif %}
 <div class="form {{ class|default:'' }}">
-  <!-- TODO: Instructions? -->
   {% include 'photo_objects/form-photo.html' %}
   <form action="" method="post">
+    {{ instructions }}
     {% csrf_token %}
     <ul>
       {{ form.as_ul }}

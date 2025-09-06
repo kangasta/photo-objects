@@ -24,13 +24,13 @@ const withRandomSuffix = (prefix: string, length: number): string => {
   return prefix + suffix;
 }
 
-export const albumPrefix = 'E2E Tests ';
+export const albumPrefix = 'E2E Tests: ';
 
-export const createAlbum = async (page: Page): Promise<string> => {
+export const createAlbum = async (page: Page, name: string): Promise<string> => {
   await page.goto('/');
 
   await page.getByText('New album').click();
-  const title = withRandomSuffix(albumPrefix, 5);
+  const title = withRandomSuffix(`${albumPrefix} ${name} `, 5);
   await page.getByLabel('Title').fill(title);
   await page.getByLabel('Description').fill('Album created by E2E tests.');
   await page.getByText('Save').click();
@@ -39,15 +39,25 @@ export const createAlbum = async (page: Page): Promise<string> => {
   return title;
 }
 
-const openAlbum = async (page: Page, title: string) => {
+export const openAlbum = async (page: Page, title: string) => {
   await page.goto('/');
   await page.getByText(title).click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(title);
 }
 
+export const getCurrentAlbumKey = (page: Page): string => {
+  const keyRegex = /\/albums\/([^/]+)/;
+  const url = page.url();
+
+  const match = keyRegex.exec(url);
+  expect(match).not.toBeNull();
+
+  return match![1];
+}
+
 export const deleteAlbum = async (page: Page, title: string) => {
   await openAlbum(page, title);
-  const albumKey = page.url().split('/').pop();
+  const albumKey = getCurrentAlbumKey(page);
 
   const response = await page.request.get(`/api/albums/${albumKey}/photos`);
   if (!response.ok()) {

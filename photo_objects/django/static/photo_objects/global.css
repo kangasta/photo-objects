@@ -368,6 +368,11 @@ form ul li:first-of-type {
   margin-top: 0;
 }
 
+.form form p {
+  font-size: 0.75em;
+  margin: 0 0 1.5rem;
+}
+
 .configuration .helptext,
 form .helptext {
   font-size: .75em;
