@@ -113,6 +113,14 @@ class PhotoNotFound(JsonProblem):
         )
 
 
+class PhotoChangeRequestNotFound(JsonProblem):
+    def __init__(self, id_: int):
+        super().__init__(
+            f"Photo change request with id {id_} does not exist.",
+            404,
+        )
+
+
 class FormValidationFailed(JsonProblem):
     def __init__(self, form: ModelForm):
         try:

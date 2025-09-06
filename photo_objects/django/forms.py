@@ -2,6 +2,7 @@ import random
 import re
 import unicodedata
 
+from django import forms
 from django.forms import (
     CharField,
     ClearableFileInput,
@@ -15,12 +16,14 @@ from django.forms import (
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
-from .models import Album, Photo
+from .models import Album, Photo, PhotoChangeRequest
 
 
 # From Kubernetes random postfix.
 KEY_POSTFIX_CHARS = 'bcdfghjklmnpqrstvwxz2456789'
 KEY_POSTFIX_LEN = 5
+
+ALT_TEXT_HELP = _('Alternative text content for the photo.')
 
 
 def slugify(title: str, lower=False, replace_leading_underscores=False) -> str:
@@ -206,13 +209,32 @@ class CreatePhotoForm(ModelForm):
 class ModifyPhotoForm(ModelForm):
     class Meta:
         model = Photo
-        fields = ['title', 'description']
+        fields = ['title', 'description', 'alt_text']
         help_texts = {
             **description_help('photo'),
             'title': _(
                 'Title for the photo. If not defined, the filename of the '
                 'photo is used as the title.'
             ),
+            'alt_text': ALT_TEXT_HELP,
+        }
+
+
+class CreatePhotoChangeRequestForm(ModelForm):
+    class Meta:
+        model = PhotoChangeRequest
+        fields = ['photo', 'alt_text']
+
+
+class ReviewPhotoChangeRequestForm(ModelForm):
+    action = forms.ChoiceField(
+        choices=[('approve', 'Approve'), ('reject', 'Reject')], widget=None)
+
+    class Meta:
+        model = PhotoChangeRequest
+        fields = ['alt_text']
+        help_texts = {
+            'alt_text': ALT_TEXT_HELP,
         }
 
 

@@ -345,6 +345,7 @@ form select {
 
 form textarea {
   font-family: "Source Code Pro", monospace;
+  height: 9em;
   resize: vertical;
 }
 
