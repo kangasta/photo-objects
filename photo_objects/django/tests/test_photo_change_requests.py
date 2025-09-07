@@ -1,10 +1,9 @@
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Permission
 
 from photo_objects.django.models import Album
 
 
-from .utils import TestCase, create_dummy_photo
+from .utils import TestCase, add_permissions, create_dummy_photo
 
 
 TEST_PREFIX = "test-photo-change-request"
@@ -27,15 +26,7 @@ class PhotoChangeRequestTests(TestCase):
 
         has_permission = user.objects.create_user(
             username='has_permission', password='test')
-        permissions = [
-            'change_photo',
-            'delete_photochangerequest',
-        ]
-        for permission in permissions:
-            has_permission.user_permissions.add(
-                Permission.objects.get(
-                    content_type__app_label='photo_objects',
-                    codename=permission))
+        add_permissions(has_permission, 'add_photochangerequest')
 
         self.private_album = Album.objects.create(
             key=f"{TEST_PREFIX}-private", visibility=Album.Visibility.PRIVATE)
@@ -64,13 +55,13 @@ class PhotoChangeRequestTests(TestCase):
                     self.assertEqual(len(photos), expected_count)
 
     def test_create_photo_change_requests(self):
-        self.client.login(username="superuser", password='test')
+        self.client.login(username="has_permission", password='test')
 
         response = self.client.get(
             '/api/photo-change-requests/expected')
         self.assertEqual(response.status_code, 200)
         photos = _filter_by_test_prefix(response.json())
-        self.assertEqual(len(photos), 3)
+        self.assertEqual(len(photos), 2)
 
         response = self.client.post(
             f'/api/albums/{TEST_PREFIX}-private/photos/001.jpg/change-requests',  # noqa: E501
@@ -88,4 +79,4 @@ class PhotoChangeRequestTests(TestCase):
             '/api/photo-change-requests/expected')
         self.assertEqual(response.status_code, 200)
         photos = _filter_by_test_prefix(response.json())
-        self.assertEqual(len(photos), 2)
+        self.assertEqual(len(photos), 1)

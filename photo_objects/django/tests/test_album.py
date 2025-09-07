@@ -2,13 +2,13 @@ import json
 from time import sleep
 
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Permission
 
 from photo_objects.django.models import Album
 from photo_objects.img import utcnow
 
 from .utils import (
     TestCase,
+    add_permissions,
     parse_timestamps,
     create_dummy_photo,
     open_test_photo
@@ -101,17 +101,14 @@ class AlbumViewTests(TestCase):
 
         has_permission = user.objects.create_user(
             username='has_permission', password='test')
-        permissions = [
+        add_permissions(
+            has_permission,
             'add_album',
             'add_photo',
             'change_album',
             'delete_album',
-            'delete_photo']
-        for permission in permissions:
-            has_permission.user_permissions.add(
-                Permission.objects.get(
-                    content_type__app_label='photo_objects',
-                    codename=permission))
+            'delete_photo',
+        )
 
     def test_post_album_with_non_json_data_fails(self):
         login_success = self.client.login(

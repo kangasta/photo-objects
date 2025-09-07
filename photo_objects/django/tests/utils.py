@@ -5,6 +5,7 @@ import shutil
 import tempfile
 
 from django.conf import settings
+from django.contrib.auth.models import Permission
 from django.core.management import call_command
 from django.test import TestCase as DjangoTestCase, override_settings
 from django.utils import timezone
@@ -14,6 +15,14 @@ from minio import S3Error
 from photo_objects.django import objsto
 from photo_objects.django.models import Album, Photo
 from photo_objects.django.objsto import _objsto_access
+
+
+def add_permissions(user, *permissions):
+    for permission in permissions:
+        user.user_permissions.add(
+            Permission.objects.get(
+                content_type__app_label='photo_objects',
+                codename=permission))
 
 
 def open_test_photo(filename):
