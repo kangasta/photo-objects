@@ -5,7 +5,6 @@ from time import sleep
 from unittest import mock
 
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Permission
 from PIL import Image
 from urllib3.exceptions import HTTPError
 
@@ -13,7 +12,7 @@ from photo_objects.django.models import Album
 from photo_objects.img import utcnow
 from photo_objects.django.objsto import get_photo
 
-from .utils import TestCase, open_test_photo, parse_timestamps
+from .utils import TestCase, add_permissions, open_test_photo, parse_timestamps
 
 
 class PhotoViewTests(TestCase):
@@ -23,16 +22,13 @@ class PhotoViewTests(TestCase):
 
         has_permission = user.objects.create_user(
             username='has_permission', password='test')
-        permissions = [
+        add_permissions(
+            has_permission,
             'add_photo',
             'change_album',
             'change_photo',
-            'delete_photo']
-        for permission in permissions:
-            has_permission.user_permissions.add(
-                Permission.objects.get(
-                    content_type__app_label='photo_objects',
-                    codename=permission))
+            'delete_photo',
+        )
 
         Album.objects.create(
             key="test-photo-a",

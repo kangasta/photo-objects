@@ -57,10 +57,7 @@ def get_next_photo_change_request(request: HttpRequest):
 
 
 def get_expected_photo_change_requests(request: HttpRequest):
-    check_permissions(
-        request,
-        'photo_objects.change_photo',
-        'photo_objects.delete_photochangerequest')
+    check_permissions(request, 'photo_objects.add_photochangerequest')
 
     photos = Photo.objects.filter(
         alt_text="",
