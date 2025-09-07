@@ -1,5 +1,7 @@
+from argparse import ArgumentParser
 from io import BytesIO
 import os
+from random import shuffle
 import sys
 
 from PIL import Image
@@ -29,8 +31,8 @@ class PhotoObjectsSession(Session):
     def _login(self):
         username = os.getenv('PHOTO_OBJECTS_USERNAME')
         password = os.getenv('PHOTO_OBJECTS_PASSWORD')
-        assert username, "Set PHOTO_OBJECTS_USERNAME environment variable"
-        assert password, "Set PHOTO_OBJECTS_PASSWORD environment variable"
+        assert username, 'Set PHOTO_OBJECTS_USERNAME environment variable'
+        assert password, 'Set PHOTO_OBJECTS_PASSWORD environment variable'
 
         csrf_token = self._get_csrf_token()
         response = self.post(
@@ -42,7 +44,7 @@ class PhotoObjectsSession(Session):
             },
             allow_redirects=False,
         )
-        assert response.status_code == 302, f"Login failed: {response.text}"
+        assert response.status_code == 302, f'Login failed: {response.text}'
 
     def get_target_photos(self):
         response = self.get('/api/photo-change-requests/expected')
@@ -68,46 +70,52 @@ class PhotoObjectsSession(Session):
 
 
 class Generator:
-    def __init__(self):
+    def __init__(self, model):
         transformers.utils.logging.set_verbosity(transformers.logging.ERROR)
-        self._processor = transformers.AutoProcessor.from_pretrained(
-            "microsoft/git-large-coco")
-        self._model = transformers.AutoModelForCausalLM.from_pretrained(
-            "microsoft/git-large-coco")
+        device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        self._pipeline = transformers.pipeline('image-to-text', model=model, device=device)
 
-        self._device = "cuda" if torch.cuda.is_available() else "cpu"
-        self._model.to(self._device)
-
-    def generate_alt_text(self, image: Image.Image, max_length=90) -> str:
-        inputs = self._processor(
-            images=image,
-            return_tensors="pt").to(
-            self._device)
-        generated_ids = self._model.generate(
-            pixel_values=inputs.pixel_values, max_length=max_length)
-        generated_caption = self._processor.batch_decode(
-            generated_ids, skip_special_tokens=True)[0]
-
-        return generated_caption.capitalize()
+    def generate_alt_text(self, image: Image.Image) -> str:
+        output = self._pipeline(image)
+        text = output[0].get('generated_text', '').capitalize()
+        if not text.endswith('.'):
+            text += '.'
+        return text
 
 
 if __name__ == '__main__':
+    parser = ArgumentParser()
+    parser.add_argument('-m','--model',
+        type=str,
+        default='Salesforce/blip-image-captioning-large',
+        help='model to use to generate the alt texts')
+    parser.add_argument('-n','--max-photos',
+        type=int,
+        default=25,
+        help='maximum amount of photos to analyze')
+    parser.add_argument('--randomize',
+        action='store_true',
+        help='analyze photos in random order')
+    args = parser.parse_args()
+
     session = PhotoObjectsSession()
 
-    max_photos = int(sys.argv[1]) if len(sys.argv) > 1 else 10
-
     photos = session.get_target_photos()
-    print(f"Found {len(photos)} photos without alt text and change requests.")
+    print(f'Found {len(photos)} photos without alt text and change requests.')
 
-    if max_photos > 0:
-        photos = photos[:max_photos]
-        print(f"Generating alt text for up to {max_photos} photos.")
+    if args.randomize:
+        print(f'Randomizing the order of photos.')
+        shuffle(photos)
+
+    if args.max_photos > 0:
+        photos = photos[:args.max_photos]
+        print(f'Generating alt text for up to {args.max_photos} photos.')
 
     if not photos:
         exit(0)
 
     print('Loading AI model...')
-    generator = Generator()
+    generator = Generator(args.model)
 
     for key in photos:
         print(f'Generating alt text for {key}...')

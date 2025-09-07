@@ -3,6 +3,7 @@
 First clone the repository and install the dependencies on a (virtual) machine with access to a GPU:
 
 ```sh
+apt update
 apt install python3-pip
 
 git clone https://github.com/kangasta/photo-objects.git
