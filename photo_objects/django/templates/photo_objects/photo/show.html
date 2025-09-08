@@ -33,8 +33,12 @@
     }
   });
 
-  const photo = document.querySelector('.photo img');
-  if (photo) {
+  addEventListener("DOMContentLoaded", function () {
+    const photo = document.querySelector('.photo img');
+    if (!photo) {
+      return
+    }
+
     var startX;
     var clicked = false;
 
@@ -67,6 +71,6 @@
         photo.style.opacity = 1;
       }
     });
-  }
+  });
 </script>
 {% endblock %}
