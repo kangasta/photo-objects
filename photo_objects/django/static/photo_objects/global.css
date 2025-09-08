@@ -1,11 +1,11 @@
 @font-face {
   font-family: "Source Sans 3";
-  src: url("./SourceSans3.ttf");
+  src: url("/static/photo_objects/SourceSans3.ttf");
 }
 
 @font-face {
   font-family: "Source Code Pro";
-  src: url("./SourceCodePro.ttf");
+  src: url("/static/photo_objects/SourceCodePro.ttf");
 }
 
 :root {
