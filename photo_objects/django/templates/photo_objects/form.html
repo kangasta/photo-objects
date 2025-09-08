@@ -11,7 +11,11 @@
 <div class="form {{ class|default:'' }}">
   {% include 'photo_objects/form-photo.html' %}
   <form action="" method="post">
-    {{ instructions }}
+    {% if instructions %}
+    <div class="instructions">
+      {{ instructions }}
+    </div>
+    {% endif %}
     {% csrf_token %}
     <ul>
       {{ form.as_ul }}
