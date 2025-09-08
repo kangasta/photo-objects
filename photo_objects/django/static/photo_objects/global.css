@@ -715,6 +715,31 @@ div.photo img {
   transition: left 125ms, opacity 125ms;
 }
 
+div.photo.surface {
+  overflow: hidden;
+  position: relative;
+}
+
+div.photo.surface.previous:after,
+div.photo.surface.next:after {
+  content: "←";
+  position: absolute;
+  left: 1rem;
+  right: unset;
+  padding: 0.5rem 1rem;
+  background: var(--fg-blue);
+  border-radius: 4px;
+  font-size: 0.8em;
+  color: var(--bg-primary);
+  font-weight: 600;
+}
+
+div.photo.surface.next:after {
+  content: "→";
+  left: unset;
+  right: 1rem;
+}
+
 /* Details */
 div.album dl,
 div.photo-and-details dl {

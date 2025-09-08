@@ -35,38 +35,43 @@
 
   addEventListener("DOMContentLoaded", function () {
     const photo = document.querySelector('.photo img');
-    if (!photo) {
+    const surface = document.querySelector('.photo.surface');
+
+    if (!photo || !surface) {
       return
     }
 
+    const trigger = photo.offsetWidth * 0.4;
+
     var startX;
-    var clicked = false;
+    var deltaX;
+
 
     photo.addEventListener('touchstart', function (event) {
       startX = event.changedTouches[0].pageX;
     });
 
     photo.addEventListener('touchmove', function (event) {
-      if (clicked) {
-        return;
-      }
-      const deltaX = event.changedTouches[0].pageX - startX;
-      const trigger = photo.offsetWidth / 3;
+      deltaX = event.changedTouches[0].pageX - startX;
 
       photo.style.left = deltaX + 'px';
-      photo.style.opacity = 1 - Math.abs(deltaX) / trigger;
+      photo.style.opacity = 1 - Math.abs(deltaX) / trigger * 0.4;
 
       if (deltaX > trigger) {
-        document.querySelector('a#previous').click();
-        clicked = true;
+        surface.classList.add("previous");
       } else if (deltaX < -trigger) {
-        document.querySelector('a#next').click();
-        clicked = true;
+        surface.classList.add("next");
+      } else {
+        surface.classList.remove("previous", "next");
       }
     });
 
     photo.addEventListener('touchend', function (event) {
-      if (!clicked) {
+      if (deltaX > trigger) {
+        document.querySelector('a#previous').click();
+      } else if (deltaX < -trigger) {
+        document.querySelector('a#next').click();
+      } else {
         photo.style.left = 0;
         photo.style.opacity = 1;
       }
