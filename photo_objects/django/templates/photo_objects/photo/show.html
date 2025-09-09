@@ -33,7 +33,8 @@
     }
   });
 
-  addEventListener("DOMContentLoaded", function () {
+  // Wait for load event instead of DOMContentLoaded so that images and styles have been loaded before configuring the event listeners.
+  addEventListener("load", function () {
     const photo = document.querySelector('.photo img');
     const surface = document.querySelector('.photo.surface');
 
