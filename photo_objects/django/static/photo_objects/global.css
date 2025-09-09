@@ -720,8 +720,8 @@ div.photo.surface {
   position: relative;
 }
 
-div.photo.surface.previous:after,
-div.photo.surface.next:after {
+div.photo.surface.previous:before,
+div.photo.surface.next:before {
   content: "←";
   position: absolute;
   left: 1rem;
@@ -734,7 +734,7 @@ div.photo.surface.next:after {
   font-weight: 600;
 }
 
-div.photo.surface.next:after {
+div.photo.surface.next:before {
   content: "→";
   left: unset;
   right: 1rem;
