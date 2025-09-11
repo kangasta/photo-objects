@@ -33,6 +33,20 @@
     }
   });
 
+  window.addEventListener('pageshow', function (event) {
+    // Reset page position to (almost) top and hide mobile browsers address bar.
+    window.scrollTo(0, 1);
+
+    const photo = document.querySelector('.photo img');
+    if (!photo) {
+      return;
+    }
+
+    // Firefox remembers photo position when navigating back to photo with browesrs back button.
+    photo.style.left = 0;
+    photo.style.opacity = 1;
+  });
+
   // Wait for load event instead of DOMContentLoaded so that images and styles have been loaded before configuring the event listeners.
   addEventListener("load", function () {
     const photo = document.querySelector('.photo img');
@@ -50,6 +64,7 @@
 
     photo.addEventListener('touchstart', function (event) {
       startX = event.changedTouches[0].pageX;
+      photo.classList.add('touch');
     });
 
     photo.addEventListener('touchmove', function (event) {
@@ -76,6 +91,8 @@
         photo.style.left = 0;
         photo.style.opacity = 1;
       }
+
+      photo.classList.remove('touch');
     });
   });
 </script>

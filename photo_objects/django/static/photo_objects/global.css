@@ -712,6 +712,9 @@ div.photo img {
   max-height: 100%;
   width: auto;
   height: auto;
+}
+
+div.photo.touch img {
   transition: left 125ms, opacity 125ms;
 }
 
