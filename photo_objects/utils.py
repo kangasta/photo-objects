@@ -1,3 +1,6 @@
+from datetime import datetime
+import re
+import unicodedata
 from xml.etree import ElementTree as ET
 
 from django.utils.safestring import mark_safe
@@ -22,3 +25,23 @@ def first_paragraph_textcontent(raw: str) -> str | None:
         return None
 
     return ''.join(first.itertext())
+
+
+def timestamp_str(timestamp: datetime):
+    return timestamp.isoformat() if timestamp else None
+
+
+def slugify(title: str, lower=False, replace_leading_underscores=False) -> str:
+    key = unicodedata.normalize(
+        'NFKD', title).encode(
+        'ascii', 'ignore').decode('ascii')
+    if lower:
+        key = key.lower()
+
+    key = re.sub(r'[^a-zA-Z0-9._-]', '-', key)
+    key = re.sub(r'[-_]{2,}', '-', key)
+
+    if replace_leading_underscores:
+        key = re.sub(r'^_+', '-', key)
+
+    return key

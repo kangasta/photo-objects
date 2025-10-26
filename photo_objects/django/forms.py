@@ -1,6 +1,4 @@
 import random
-import re
-import unicodedata
 
 from django import forms
 from django.forms import (
@@ -16,6 +14,8 @@ from django.forms import (
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
+from photo_objects.utils import slugify
+
 from .models import Album, Photo, PhotoChangeRequest
 
 
@@ -24,22 +24,6 @@ KEY_POSTFIX_CHARS = 'bcdfghjklmnpqrstvwxz2456789'
 KEY_POSTFIX_LEN = 5
 
 ALT_TEXT_HELP = _('Alternative text content for the photo.')
-
-
-def slugify(title: str, lower=False, replace_leading_underscores=False) -> str:
-    key = unicodedata.normalize(
-        'NFKD', title).encode(
-        'ascii', 'ignore').decode('ascii')
-    if lower:
-        key = key.lower()
-
-    key = re.sub(r'[^a-zA-Z0-9._-]', '-', key)
-    key = re.sub(r'[-_]{2,}', '-', key)
-
-    if replace_leading_underscores:
-        key = re.sub(r'^_+', '-', key)
-
-    return key
 
 
 def _postfix_generator():
