@@ -1,11 +1,14 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission
+from django.db import transaction
 
-from photo_objects.django.models import Album, Backup
+from photo_objects.django.models import Album, Backup, Photo
 from photo_objects.django.objsto import (
     backup_data_key,
     backup_info_key,
     delete_backup_objects,
+    get_backup_data,
+    get_backup_objects,
     put_backup_json,
 )
 from photo_objects.utils import timestamp_str
@@ -16,6 +19,13 @@ def _permission_dict(permission: Permission):
         "app_label": permission.content_type.app_label,
         "codename": permission.codename,
     }
+
+
+def _get_permissions(permissions=None):
+    for permission in (permissions or []):
+        yield Permission.objects.get(
+            content_type__app_label=permission.get("app_label"),
+            codename=permission.get("codename"))
 
 
 def _user_dict(user):
@@ -100,3 +110,53 @@ def create_backup(backup: Backup):
 
 def delete_backup(backup: Backup):
     return delete_backup_objects(backup.id)
+
+
+def get_backups() -> list[dict]:
+    return get_backup_objects()
+
+
+@transaction.atomic
+def restore_backup(backup_id: int):
+    user_model = get_user_model()
+
+    for i in get_backups():
+        Backup.objects.create(**i)
+
+    for i in get_backup_data(backup_id, "group"):
+        group = Group.objects.create(name=i.get('name'))
+
+        for permission in _get_permissions(i.get('permissions')):
+            group.permissions.add(permission)
+
+        group.save()
+
+    for i in get_backup_data(backup_id, "user"):
+        permissions = i.pop("user_permissions")
+        groups = i.pop("groups")
+
+        user = user_model.objects.create(**i)
+
+        for group in groups:
+            user.groups.add(Group.objects.get(name=group))
+
+        for permission in _get_permissions(permissions):
+            user.user_permissions.add(permission)
+
+        user.save()
+
+    for i in get_backup_data(backup_id, "album"):
+        photos = i.pop("photos")
+        cover_photo = i.pop("cover_photo")
+
+        album = Album.objects.create(**i)
+
+        for photo in photos:
+            photo.pop("album", None)
+            filename = photo.pop("filename")
+
+            photo = Photo.objects.create(**photo, album=album)
+
+            if cover_photo == filename:
+                album.cover_photo = photo
+                album.save()

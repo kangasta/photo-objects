@@ -88,12 +88,14 @@ def _put_json(key, data, access_fn):
     )
 
 
-def _delete_all(client: Minio, bucket: str, prefix: str):
+def _list_all(client: Minio, bucket: str, prefix: str):
+    start_after = None
     while True:
         objects = client.list_objects(
             bucket,
             prefix=prefix,
-            recursive=True)
+            recursive=True,
+            start_after=start_after)
 
         if not objects:
             break
@@ -101,11 +103,22 @@ def _delete_all(client: Minio, bucket: str, prefix: str):
         empty = True
         for i in objects:
             empty = False
-            client.remove_object(bucket, i.object_name)
-            yield i.object_name
+            yield i
+            start_after = i.object_name
 
         if empty:
             break
+
+
+def _get_all(client: Minio, bucket: str, prefix: str):
+    for i in _list_all(client, bucket, prefix):
+        yield client.get_object(bucket, i.object_name)
+
+
+def _delete_all(client: Minio, bucket: str, prefix: str):
+    for i in _list_all(client, bucket, prefix):
+        client.remove_object(bucket, i.object_name)
+        yield i.object_name
 
 
 def backup_info_key(id_):
@@ -116,14 +129,29 @@ def backup_data_key(id_, type_, key):
     return f'data_{id_}/{type_}_{slugify(key)}.json'
 
 
+def backup_data_prefix(id_, type_=None):
+    return f'data_{id_}/{type_ or ""}'
+
+
 def put_backup_json(key: str, data: dict):
     return _put_json(key, data, _backup_access)
 
 
-def delete_backup_objects(id_: str):
+def get_backup_objects():
+    client, bucket = _backup_access()
+    return [json.loads(i.read()) for i in _get_all(client, bucket, 'info_')]
+
+
+def get_backup_data(id_: int, type_=None):
+    client, bucket = _backup_access()
+    for i in _get_all(client, bucket, backup_data_prefix(id_, type_)):
+        yield json.loads(i.read())
+
+
+def delete_backup_objects(id_: int):
     client, bucket = _backup_access()
     client.remove_object(bucket, backup_info_key(id_))
-    for _ in _delete_all(client, bucket, f'data_{id_}/'):
+    for _ in _delete_all(client, bucket, backup_data_prefix(id_)):
         continue
 
 
