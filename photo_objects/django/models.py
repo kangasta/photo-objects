@@ -4,7 +4,7 @@ from django.contrib.sites.models import Site
 from django.core.validators import RegexValidator
 from django.utils.translation import gettext_lazy as _
 
-from photo_objects.utils import first_paragraph_textcontent
+from photo_objects.utils import first_paragraph_textcontent, timestamp_str
 
 
 album_key_validator = RegexValidator(
@@ -23,10 +23,6 @@ def _str(key, **kwargs):
     return f'{key} ({details})' if details else key
 
 
-def _timestamp_str(timestamp):
-    return timestamp.isoformat() if timestamp else None
-
-
 class BaseModel(models.Model):
     title = models.CharField(blank=True)
     description = models.TextField(blank=True)
@@ -41,8 +37,8 @@ class BaseModel(models.Model):
         return dict(
             title=self.title,
             description=self.description,
-            created_at=_timestamp_str(self.created_at),
-            updated_at=_timestamp_str(self.updated_at),
+            created_at=timestamp_str(self.created_at),
+            updated_at=timestamp_str(self.updated_at),
         )
 
 
@@ -82,8 +78,8 @@ class Album(BaseModel):
             visibility=self.visibility,
             cover_photo=(
                 self.cover_photo.filename if self.cover_photo else None),
-            first_timestamp=_timestamp_str(self.first_timestamp),
-            last_timestamp=_timestamp_str(self.last_timestamp),
+            first_timestamp=timestamp_str(self.first_timestamp),
+            last_timestamp=timestamp_str(self.last_timestamp),
         )
 
 
@@ -190,7 +186,7 @@ class PhotoChangeRequest(models.Model):
         return dict(
             id=self.id,
             photo=self.photo.key,
-            created_at=_timestamp_str(self.created_at),
+            created_at=timestamp_str(self.created_at),
             alt_text=self.alt_text,
         )
 
@@ -233,3 +229,23 @@ def clear_cached_settings(sender, **kwargs):
 
 pre_save.connect(clear_cached_settings, sender=SiteSettings)
 pre_delete.connect(clear_cached_settings, sender=SiteSettings)
+
+
+class Backup(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    comment = models.TextField(blank=True)
+    status = models.TextField(blank=True)
+
+    def __str__(self):
+        return _str(
+            f'Backup {self.id}',
+            created_at=self.created_at,
+            comment=self.comment,
+        )
+
+    def to_json(self):
+        return dict(
+            id=self.id,
+            created_at=timestamp_str(self.created_at),
+            comment=self.comment,
+        )

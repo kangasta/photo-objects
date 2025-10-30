@@ -1,7 +1,10 @@
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_save, post_delete, pre_delete
 from django.dispatch import receiver
 
-from .models import Photo
+from photo_objects.django.api import create_backup
+from photo_objects.django.api.backup import delete_backup
+
+from .models import Backup, Photo
 
 
 @receiver(post_save, sender=Photo)
@@ -56,3 +59,19 @@ def update_album_on_photo_delete(sender, **kwargs):
 
     if needs_save:
         album.save()
+
+
+@receiver(post_save, sender=Backup)
+def create_backup_to_objsto(sender, **kwargs):
+    created = kwargs.get('created', False)
+    if not created:
+        return None
+
+    backup = kwargs.get('instance', None)
+    return create_backup(backup)
+
+
+@receiver(pre_delete, sender=Backup)
+def delete_backup_from_objsto(sender, **kwargs):
+    backup = kwargs.get('instance', None)
+    return delete_backup(backup)

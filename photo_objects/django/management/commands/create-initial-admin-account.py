@@ -12,7 +12,9 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         user = get_user_model()
-        superuser_count = user.objects.filter(is_superuser=True).count()
+        superuser_count = user.objects.filter(
+            is_superuser=True).exclude(
+            password="").count()
 
         if superuser_count == 0:
             username = 'admin'

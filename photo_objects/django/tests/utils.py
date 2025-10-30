@@ -14,7 +14,7 @@ from minio import S3Error
 
 from photo_objects.django import objsto
 from photo_objects.django.models import Album, Photo
-from photo_objects.django.objsto import _objsto_access
+from photo_objects.django.objsto import _photos_access
 
 
 def add_permissions(user, *permissions):
@@ -56,7 +56,7 @@ class TestCase(DjangoTestCase):
     # pylint: disable=invalid-name
     @classmethod
     def tearDownClass(cls):
-        client, bucket = _objsto_access()
+        client, bucket = _photos_access()
 
         for i in client.list_objects(bucket, recursive=True):
             client.remove_object(bucket, i.object_name)
