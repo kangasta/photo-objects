@@ -2,16 +2,13 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission
 
 from photo_objects.django.models import Album, Backup
-from photo_objects.django.objsto import put_backup_json
-from photo_objects.utils import slugify, timestamp_str
-
-
-def _info_key(id_):
-    return f'info_{id_}.json'
-
-
-def _data_key(id_, type_, key):
-    return f'data_{id_}/{type_}_{slugify(key)}.json'
+from photo_objects.django.objsto import (
+    backup_data_key,
+    backup_info_key,
+    delete_backup_objects,
+    put_backup_json,
+)
+from photo_objects.utils import timestamp_str
 
 
 def _permission_dict(permission: Permission):
@@ -53,30 +50,53 @@ def create_backup(backup: Backup):
     backup.status = "pending"
     backup.save()
 
-    albums = Album.objects.all()
-    for album in albums:
-        album_dict = album.to_json()
-        photos = []
-        for photo in album.photo_set.all():
-            photos.append(photo.to_json())
-        album_dict["photos"] = photos
+    try:
+        albums = Album.objects.all()
+        for album in albums:
+            album_dict = album.to_json()
+            photos = []
+            for photo in album.photo_set.all():
+                photos.append(photo.to_json())
+            album_dict["photos"] = photos
 
-        put_backup_json(_data_key(backup.id, 'album', album.key), album_dict,)
+            put_backup_json(
+                backup_data_key(
+                    backup.id,
+                    'album',
+                    album.key),
+                album_dict,
+            )
 
-    groups = Group.objects.all()
-    for group in groups:
-        put_backup_json(
-            _data_key(backup.id, 'group', group.name), _group_dict(group),)
+        groups = Group.objects.all()
+        for group in groups:
+            put_backup_json(
+                backup_data_key(
+                    backup.id,
+                    'group',
+                    group.name),
+                _group_dict(group),
+            )
 
-    users = user_model.objects.all()
-    for user in users:
-        if user.username == "admin":
-            continue
+        users = user_model.objects.all()
+        for user in users:
+            if user.username == "admin":
+                continue
 
-        put_backup_json(
-            _data_key(backup.id, 'user', user.username), _user_dict(user))
+            put_backup_json(
+                backup_data_key(
+                    backup.id,
+                    'user',
+                    user.username),
+                _user_dict(user))
 
-    put_backup_json(_info_key(backup.id), backup.to_json())
+        put_backup_json(backup_info_key(backup.id), backup.to_json())
+    except Exception:
+        backup.status = "create_failed"
+        backup.save()
 
     backup.status = "ready"
     backup.save()
+
+
+def delete_backup(backup: Backup):
+    return delete_backup_objects(backup.id)

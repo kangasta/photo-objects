@@ -1,7 +1,8 @@
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_save, post_delete, pre_delete
 from django.dispatch import receiver
 
 from photo_objects.django.api import create_backup
+from photo_objects.django.api.backup import delete_backup
 
 from .models import Backup, Photo
 
@@ -68,3 +69,9 @@ def create_backup_to_objsto(sender, **kwargs):
 
     backup = kwargs.get('instance', None)
     return create_backup(backup)
+
+
+@receiver(pre_delete, sender=Backup)
+def delete_backup_from_objsto(sender, **kwargs):
+    backup = kwargs.get('instance', None)
+    return delete_backup(backup)

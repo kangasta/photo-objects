@@ -13,6 +13,7 @@ from photo_objects.django.conf import (
     objsto_settings,
     parse_photo_sizes,
 )
+from photo_objects.utils import slugify
 
 
 MEGABYTE = 1 << 20
@@ -87,8 +88,43 @@ def _put_json(key, data, access_fn):
     )
 
 
+def _delete_all(client: Minio, bucket: str, prefix: str):
+    while True:
+        objects = client.list_objects(
+            bucket,
+            prefix=prefix,
+            recursive=True)
+
+        if not objects:
+            break
+
+        empty = True
+        for i in objects:
+            empty = False
+            client.remove_object(bucket, i.object_name)
+            yield i.object_name
+
+        if empty:
+            break
+
+
+def backup_info_key(id_):
+    return f'info_{id_}.json'
+
+
+def backup_data_key(id_, type_, key):
+    return f'data_{id_}/{type_}_{slugify(key)}.json'
+
+
 def put_backup_json(key: str, data: dict):
     return _put_json(key, data, _backup_access)
+
+
+def delete_backup_objects(id_: str):
+    client, bucket = _backup_access()
+    client.remove_object(bucket, backup_info_key(id_))
+    for _ in _delete_all(client, bucket, f'data_{id_}/'):
+        continue
 
 
 def photo_path(album_key, photo_key, size_key):
@@ -151,23 +187,7 @@ def delete_scaled_photos(sizes):
     client, bucket = _photos_access()
 
     for size in sizes:
-        while True:
-            objects = client.list_objects(
-                bucket,
-                prefix=f"{size}/",
-                recursive=True)
-
-            if not objects:
-                break
-
-            empty = True
-            for i in objects:
-                empty = False
-                client.remove_object(bucket, i.object_name)
-                yield i.object_name
-
-            if empty:
-                break
+        yield from _delete_all(client, bucket, f'{size}/')
 
 
 def get_error_code(e: Exception) -> str:
