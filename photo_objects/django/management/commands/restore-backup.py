@@ -46,7 +46,7 @@ class Command(BaseCommand):
         if not backups:
             self.stdout.write(
                 self.style.NOTICE(
-                    f'Restoring backup skipped: No backups found.'
+                    'Restoring backup skipped: No backups found.'
                 )
             )
             return
