@@ -137,6 +137,14 @@ def put_backup_json(key: str, data: dict):
     return _put_json(key, data, _backup_access)
 
 
+def get_backup_object(backup_id: int):
+    client, bucket = _backup_access()
+    return json.loads(
+        client.get_object(
+            bucket,
+            backup_info_key(backup_id)).read())
+
+
 def get_backup_objects():
     client, bucket = _backup_access()
     return [json.loads(i.read()) for i in _get_all(client, bucket, 'info_')]

@@ -1,13 +1,15 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission
+from django.contrib.sites.models import Site
 from django.db import transaction
 
-from photo_objects.django.models import Album, Backup, Photo
+from photo_objects.django.models import Album, Backup, Photo, SiteSettings
 from photo_objects.django.objsto import (
     backup_data_key,
     backup_info_key,
     delete_backup_objects,
     get_backup_data,
+    get_backup_object,
     get_backup_objects,
     put_backup_json,
 )
@@ -55,6 +57,12 @@ def _group_dict(group: Group):
 
 
 def create_backup(backup: Backup):
+    # Check if backup already exists
+    if get_backup_object(backup.id):
+        backup.status = "ready"
+        backup.save()
+        return
+
     user_model = get_user_model()
 
     backup.status = "pending"
@@ -99,10 +107,34 @@ def create_backup(backup: Backup):
                     user.username),
                 _user_dict(user))
 
+        sites = Site.objects.all()
+        for site in sites:
+            put_backup_json(
+                backup_data_key(backup.id, 'site', site.id),
+                {
+                    "id": site.id,
+                    "domain": site.domain,
+                    "name": site.name,
+                }
+            )
+
+        site_settings = SiteSettings.objects.all()
+        for settings in site_settings:
+            put_backup_json(
+                backup_data_key(backup.id, 'settings', settings.site.id),
+                {
+                    "site_id": settings.site.id,
+                    "description": settings.description,
+                    "preview_image_key": settings.preview_image.key
+                    if settings.preview_image else None,
+                }
+            )
+
         put_backup_json(backup_info_key(backup.id), backup.to_json())
     except Exception:
         backup.status = "create_failed"
         backup.save()
+        raise
 
     backup.status = "ready"
     backup.save()
@@ -160,3 +192,24 @@ def restore_backup(backup_id: int):
             if cover_photo == filename:
                 album.cover_photo = photo
                 album.save()
+
+    for i in get_backup_data(backup_id, "site"):
+        site, _ = Site.objects.get_or_create(id=i.get("id"))
+        site.domain = i.get("domain")
+        site.name = i.get("name")
+        site.save()
+
+    for i in get_backup_data(backup_id, "settings"):
+        site = Site.objects.get(id=i.get("site_id"))
+
+        preview_image = None
+        if key := i.get("preview_image_key"):
+            preview_image = Photo.objects.get(key=key)
+
+        settings = SiteSettings.objects.create(
+            site=site,
+            description=i.get("description"),
+            preview_image=preview_image
+            if i.get("preview_image_key") else None
+        )
+        settings.save()

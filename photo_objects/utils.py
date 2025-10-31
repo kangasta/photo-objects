@@ -31,9 +31,12 @@ def timestamp_str(timestamp: datetime):
     return timestamp.isoformat() if timestamp else None
 
 
-def slugify(title: str, lower=False, replace_leading_underscores=False) -> str:
+def slugify(
+        title: str | int,
+        lower=False,
+        replace_leading_underscores=False) -> str:
     key = unicodedata.normalize(
-        'NFKD', title).encode(
+        'NFKD', str(title)).encode(
         'ascii', 'ignore').decode('ascii')
     if lower:
         key = key.lower()
