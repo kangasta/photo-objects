@@ -139,10 +139,14 @@ def put_backup_json(key: str, data: dict):
 
 def get_backup_object(backup_id: int):
     client, bucket = _backup_access()
-    return json.loads(
-        client.get_object(
-            bucket,
-            backup_info_key(backup_id)).read())
+
+    try:
+        data = client.get_object(bucket, backup_info_key(backup_id))
+        return json.loads(data.read())
+    except S3Error as e:
+        if e.code == "NoSuchKey":
+            return None
+        raise
 
 
 def get_backup_objects():
