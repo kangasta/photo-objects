@@ -25,6 +25,9 @@ class TestUtils(TestCase):
     def test_slugify_lower(self):
         self.assertEqual(slugify("QwErTy!", True), "qwerty-")
 
+    def test_slugify_number(self):
+        self.assertEqual(slugify(123), "123")
+
     def test_slugify_replace_leading_underscores(self):
         self.assertEqual(
             slugify(
