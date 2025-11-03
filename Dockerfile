@@ -17,11 +17,13 @@ ENTRYPOINT ["./entrypoint.sh"]
 
 FROM nginx:alpine AS front
 
+ENV IMG_CACHE_SIZE=1g
 ENV OBJSTO_HOST=""
 ENV OBJSTO_BUCKET=photos
 ENV OBJSTO_PROTOCOL=https
 ENV OBJSTO_PORT=443
 
 COPY --from=back /app/static /app/static
+RUN mkdir -p /data/nginx/cache
 RUN rm -f /etc/nginx/conf.d/*
 COPY front/default.conf.template /etc/nginx/templates/
