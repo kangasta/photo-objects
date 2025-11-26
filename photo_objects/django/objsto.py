@@ -42,9 +42,9 @@ def _objsto_access() -> tuple[dict, Minio]:
     )
 
     return (conf, Minio(
-        conf.get('URL'),
-        conf.get('ACCESS_KEY'),
-        conf.get('SECRET_KEY'),
+        endpoint=conf.get('URL'),
+        access_key=conf.get('ACCESS_KEY'),
+        secret_key=conf.get('SECRET_KEY'),
         http_client=http,
         secure=conf.get('SECURE', True),
     ))
@@ -55,8 +55,8 @@ def _backup_access() -> tuple[Minio, str]:
     bucket = conf.get('BACKUP_BUCKET', 'backups')
 
     # TODO: move this to management command
-    if not client.bucket_exists(bucket):
-        client.make_bucket(bucket)
+    if not client.bucket_exists(bucket_name=bucket):
+        client.make_bucket(bucket_name=bucket)
 
     return client, bucket
 
@@ -66,9 +66,12 @@ def _photos_access() -> tuple[Minio, str]:
     bucket = conf.get('BUCKET', 'photos')
 
     # TODO: move this to management command
-    if not client.bucket_exists(bucket):
-        client.make_bucket(bucket)
-        client.set_bucket_policy(bucket, _anonymous_readonly_policy(bucket))
+    if not client.bucket_exists(bucket_name=bucket):
+        client.make_bucket(bucket_name=bucket)
+        client.set_bucket_policy(
+            bucket_name=bucket,
+            policy=_anonymous_readonly_policy(bucket),
+        )
 
     return client, bucket
 
@@ -79,9 +82,9 @@ def _put_json(key, data, access_fn):
 
     client, bucket = access_fn()
     client.put_object(
-        bucket,
-        key,
-        stream,
+        bucket_name=bucket,
+        object_name=key,
+        data=stream,
         length=-1,
         part_size=10 * MEGABYTE,
         content_type="application/json",
@@ -92,7 +95,7 @@ def _list_all(client: Minio, bucket: str, prefix: str):
     start_after = None
     while True:
         objects = client.list_objects(
-            bucket,
+            bucket_name=bucket,
             prefix=prefix,
             recursive=True,
             start_after=start_after)
@@ -112,12 +115,18 @@ def _list_all(client: Minio, bucket: str, prefix: str):
 
 def _get_all(client: Minio, bucket: str, prefix: str):
     for i in _list_all(client, bucket, prefix):
-        yield client.get_object(bucket, i.object_name)
+        yield client.get_object(
+            bucket_name=bucket,
+            object_name=i.object_name,
+        )
 
 
 def _delete_all(client: Minio, bucket: str, prefix: str):
     for i in _list_all(client, bucket, prefix):
-        client.remove_object(bucket, i.object_name)
+        client.remove_object(
+            bucket_name=bucket,
+            object_name=i.object_name,
+        )
         yield i.object_name
 
 
@@ -141,7 +150,10 @@ def get_backup_object(backup_id: int):
     client, bucket = _backup_access()
 
     try:
-        data = client.get_object(bucket, backup_info_key(backup_id))
+        data = client.get_object(
+            bucket_name=bucket,
+            object_name=backup_info_key(backup_id),
+        )
         return json.loads(data.read())
     except S3Error as e:
         if e.code == "NoSuchKey":
@@ -162,7 +174,10 @@ def get_backup_data(id_: int, type_=None):
 
 def delete_backup_objects(id_: int):
     client, bucket = _backup_access()
-    client.remove_object(bucket, backup_info_key(id_))
+    client.remove_object(
+        bucket_name=bucket,
+        object_name=backup_info_key(id_),
+    )
     for _ in _delete_all(client, bucket, backup_data_prefix(id_)):
         continue
 
@@ -198,9 +213,9 @@ def put_photo(album_key, photo_key, size_key, photo_file, image_format=None):
 
     client, bucket = _photos_access()
     return client.put_object(
-        bucket,
-        photo_path(album_key, photo_key, size_key),
-        photo_file,
+        bucket_name=bucket,
+        object_name=photo_path(album_key, photo_key, size_key),
+        data=photo_file,
         length=-1,
         part_size=10 * MEGABYTE,
         content_type=content_type,
@@ -211,8 +226,8 @@ def put_photo(album_key, photo_key, size_key, photo_file, image_format=None):
 def get_photo(album_key, photo_key, size_key):
     client, bucket = _photos_access()
     return client.get_object(
-        bucket,
-        photo_path(album_key, photo_key, size_key)
+        bucket_name=bucket,
+        object_name=photo_path(album_key, photo_key, size_key)
     )
 
 
@@ -220,7 +235,10 @@ def delete_photo(album_key, photo_key):
     client, bucket = _photos_access()
 
     for i in PhotoSize:
-        client.remove_object(bucket, photo_path(album_key, photo_key, i.value))
+        client.remove_object(
+            bucket_name=bucket,
+            object_name=photo_path(album_key, photo_key, i.value),
+        )
 
 
 def delete_scaled_photos(sizes):
@@ -251,7 +269,10 @@ def put_photo_sizes(sizes: PhotoSizes):
 def get_photo_sizes() -> PhotoSizes:
     client, bucket = _photos_access()
     try:
-        data = client.get_object(bucket, "photo_sizes.json")
+        data = client.get_object(
+            bucket_name=bucket,
+            object_name="photo_sizes.json",
+        )
         return parse_photo_sizes(json.loads(data.read()))
     except S3Error as e:
         if e.code == "NoSuchKey":
