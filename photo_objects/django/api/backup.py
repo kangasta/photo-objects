@@ -1,3 +1,5 @@
+from threading import Thread
+
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission
 from django.contrib.sites.models import Site
@@ -56,17 +58,10 @@ def _group_dict(group: Group):
     }
 
 
-def create_backup(backup: Backup):
-    # Check if backup already exists
-    if get_backup_object(backup.id):
-        backup.status = "ready"
-        backup.save()
-        return
+def _create_backup(backup_id: int):
+    backup = Backup.objects.get(id=backup_id)
 
     user_model = get_user_model()
-
-    backup.status = "pending"
-    backup.save()
 
     try:
         albums = Album.objects.all()
@@ -138,6 +133,21 @@ def create_backup(backup: Backup):
 
     backup.status = "ready"
     backup.save()
+
+
+def create_backup(backup: Backup):
+    # Check if backup already exists
+    if get_backup_object(backup.id):
+        backup.status = "ready"
+        backup.save()
+        return
+
+    backup.status = "pending"
+    backup.save()
+
+    # Start creating backup in a separate thread
+    thread = Thread(target=_create_backup, args=(backup.id,))
+    thread.start()
 
 
 def delete_backup(backup: Backup):
