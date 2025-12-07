@@ -108,6 +108,7 @@ def edit_album(request: HttpRequest, album_key: str):
         reverse(
             'photo_objects:show_album',
             kwargs={"album_key": album_key}))
+    empty = album.cover_photo is None
 
     return render(
         request,
@@ -120,7 +121,10 @@ def edit_album(request: HttpRequest, album_key: str):
                 request,
                 album_key),
             "width": "narrow",
-            "preview": Preview(request, album, preview_helptext("album")),
+            "preview": Preview(
+                request,
+                album,
+                preview_helptext("album", empty)),
         })
 
 
@@ -148,12 +152,14 @@ def delete_album(request: HttpRequest, album_key: str):
             error = {'error': _(
                 'This album is managed by the system and can not be deleted.')}
 
+    empty = album.cover_photo is None
+
     return render(request, 'photo_objects/delete.html', {
         "title": "Delete album",
         "back": back,
         "photo": album.cover_photo,
         "resource": target,
         "width": "narrow",
-        "preview": Preview(request, album, preview_helptext("album")),
+        "preview": Preview(request, album, preview_helptext("album", empty)),
         **error,
     })

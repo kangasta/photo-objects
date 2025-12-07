@@ -47,6 +47,7 @@ def upload_photos(request: HttpRequest, album_key: str):
         target, reverse(
             'photo_objects:show_album', kwargs={
                 "album_key": album_key}))
+    empty = album.cover_photo is None
 
     return render(request, 'photo_objects/photo/upload.html', {
         "form": form,
@@ -55,7 +56,7 @@ def upload_photos(request: HttpRequest, album_key: str):
         "back": back,
         "photo": album.cover_photo,
         "width": "narrow",
-        "preview": Preview(request, album, preview_helptext("album")),
+        "preview": Preview(request, album, preview_helptext("album", empty)),
     })
 
 
