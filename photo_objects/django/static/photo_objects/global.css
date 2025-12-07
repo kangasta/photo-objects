@@ -27,6 +27,8 @@
   --fg-info: #a8c6f0;
   --fg-yellow: #f0c68a;
   --fg-green: #679572;
+
+  --placeholder-gradient: linear-gradient(90deg, rgba(0,0,0,0), rgba(0,0,0,0.33)), linear-gradient(var(--fg-red), var(--fg-blue));
 }
 
 body {
@@ -340,6 +342,14 @@ div.preview div.surface img {
   aspect-ratio: 1;
 }
 
+div.preview div.photo-placeholder {
+  background: var(--placeholder-gradient);
+  width: 160px;
+  height: 160px;
+  aspect-ratio: 1;
+}
+
+
 div.preview div.surface .title-and-description {
   flex: 1;
   padding-left: 8px;
@@ -407,6 +417,7 @@ form .instructions p {
 .configuration .helptext,
 .preview .helptext,
 form .helptext {
+  display: block;
   font-size: .75em;
   margin: .25rem 0;
   max-width: 916px;
@@ -580,7 +591,7 @@ label[for="id_photos"] img {
   border-radius: 4px;
 
   /* For nicely rendering invalid images */
-  background: var(--fg-secondary);
+  background: var(--placeholder-gradient);
   box-sizing: border-box;
   color: var(--bg-primary);
   white-space: pre;
@@ -689,7 +700,7 @@ ul.photo-list img {
 }
 
 ul.photo-list div.photo-placeholder {
-  background-color: #ccc;
+  background: var(--placeholder-gradient);
   aspect-ratio: 1;
 }
 
