@@ -137,12 +137,6 @@ class FormValidationFailed(JsonProblem):
         self.form = form
 
 
-class UploadPhotosFailed(FormValidationFailed):
-    def __init__(self, form: ModelForm, uploaded_photos: list[str]):
-        super().__init__(form)
-        self.uploaded_photos = uploaded_photos
-
-
 def check_permissions(request: HttpRequest, *permissions: str):
     if not request.user.is_authenticated:
         raise Unauthorized()

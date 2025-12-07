@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { checkTitlesExist, createAlbum, deleteAlbum, getCurrentAlbumKey, login, openAlbum, uploadPhotos } from './actions';
+import { createAlbum, deleteAlbum, getCurrentAlbumKey, login, openAlbum, uploadPhotos } from './actions';
 
 let albumTitle: string;
 
@@ -11,6 +11,7 @@ test('review photo change requests', async ({ context, page }) => {
 
   const photos = ['bus-stop.jpg', "tower.jpg", "havfrue.jpg"];
   await uploadPhotos(page, albumTitle, photos);
+  await page.getByText('Done', { exact: true }).click();
 
   const cookies = await context.cookies();
   const csrftoken = cookies.find(c => c.name === 'csrftoken')?.value ?? '';
@@ -30,13 +31,13 @@ test('review photo change requests', async ({ context, page }) => {
   await page.getByText('Review photo change requests').click();
 
   // Approve the first and second review
-  expect(page.getByText('There are 3 change requests in the review queue.')).toBeVisible();
+  expect(page.getByText('There are 3 change requests in the review queue.')).toHaveCount(1, { timeout: 5000 });
   await page.getByText('Save').click();
-  expect(page.getByText('There are 2 change requests in the review queue.')).toBeVisible();
+  expect(page.getByText('There are 2 change requests in the review queue.')).toHaveCount(1, { timeout: 5000 });
   await page.getByText('Save').click();
   
   // Reject the third review
-  expect(page.getByText('This is the last change request in the review queue.')).toBeVisible();
+  expect(page.getByText('This is the last change request in the review queue.')).toHaveCount(1, { timeout: 5000 });
   await page.getByLabel('Action').selectOption('Reject');
   await page.getByText('Save').click();
 

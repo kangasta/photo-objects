@@ -28,7 +28,7 @@
   --fg-yellow: #f0c68a;
   --fg-green: #679572;
 
-  --placeholder-gradient: linear-gradient(90deg, rgba(0,0,0,0), rgba(0,0,0,0.33)), linear-gradient(var(--fg-red), var(--fg-blue));
+  --placeholder-gradient: linear-gradient(90deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.33)), linear-gradient(var(--fg-red), var(--fg-blue));
 }
 
 body {
@@ -574,27 +574,76 @@ label[for="id_photos"] {
   color: var(--fg-primary);
   border: 1px solid var(--bg-border);
   border-radius: 4px;
-  padding: 16px;
-  max-width: 916px;
+  padding: 8px;
   cursor: pointer;
-  min-height: 128px;
+  min-height: 144px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+  gap: 8px;
+}
+
+label[for="id_photos"].empty {
   display: flex;
-  flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  gap: 4px;
 }
 
 label[for="id_photos"] img {
-  height: 96px;
-  width: auto;
-  border-radius: 4px;
+  aspect-ratio: 1;
+  border: none;
+  display: block;
+  height: auto;
+  object-fit: cover;
+  width: 100%;
 
   /* For nicely rendering invalid images */
   background: var(--placeholder-gradient);
   box-sizing: border-box;
   color: var(--bg-primary);
+  font-family: "Source Code Pro", monospace;
+  font-size: .666em;
+  object-fit: cover;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: pre;
+}
+
+label[for="id_photos"] div.photo-upload.uploading img {
+  animation: 1s infinite alternate fade-in-out;
+}
+
+label[for="id_photos"] div.photo-upload {
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+label[for="id_photos"] div.photo-upload.ok div.status ,
+label[for="id_photos"] div.photo-upload.failed div.status ,
+label[for="id_photos"] div.photo-upload.uploading div.status {
+  text-align: center;
+  display: block;
+  background: var(--fg-blue);
+  color: var(--bg-primary);
+  font-size: 0.75em;
+  font-weight: 600;
+}
+
+label[for="id_photos"] div.photo-upload.ok div.status {
+  background: var(--fg-green);
+}
+
+label[for="id_photos"] div.photo-upload.failed div.status {
+  background: var(--fg-red);
+}
+
+@keyframes fade-in-out {
+  from {
+    opacity: 0.25;
+  }
+
+  to {
+    opacity: 0.75;
+  }
 }
 
 

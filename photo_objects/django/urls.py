@@ -9,7 +9,11 @@ urlpatterns = [
     path("_auth", api.has_permission),
     path("api/albums", api.albums),
     path("api/albums/<str:album_key>", api.album),
-    path("api/albums/<str:album_key>/photos", api.photos),
+    path(
+        "api/albums/<str:album_key>/photos",
+        api.photos,
+        name="api_photos",
+    ),
     path("api/albums/<str:album_key>/photos/<str:photo_key>", api.photo),
     path(
         "api/albums/<str:album_key>/photos/<str:photo_key>/change-requests",

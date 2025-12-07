@@ -6,9 +6,8 @@ from photo_objects.django import api
 from photo_objects.django.api.utils import (
     AlbumNotFound,
     FormValidationFailed,
-    UploadPhotosFailed,
 )
-from photo_objects.django.forms import ModifyPhotoForm, UploadPhotosForm
+from photo_objects.django.forms import ModifyPhotoForm
 from photo_objects.django.models import Photo
 from photo_objects.django.views.utils import (
     BackLink,
@@ -22,25 +21,6 @@ from .utils import json_problem_as_html, preview_helptext
 
 @json_problem_as_html
 def upload_photos(request: HttpRequest, album_key: str):
-    if request.method == "POST":
-        try:
-            api.upload_photos(request, album_key)
-            return HttpResponseRedirect(
-                reverse(
-                    'photo_objects:show_album',
-                    kwargs={"album_key": album_key}))
-        except UploadPhotosFailed as e:
-            form = e.form
-            uploaded_count = len(e.uploaded_photos)
-            if uploaded_count > 0:
-                plural = 's' if uploaded_count != 1 else ''
-                info = f"Successfully uploaded {uploaded_count} photo{plural}."
-            else:
-                info = None
-    else:
-        form = UploadPhotosForm()
-        info = None
-
     album = api.check_album_access(request, album_key)
     target = album.title or album.key
     back = BackLink(
@@ -50,10 +30,9 @@ def upload_photos(request: HttpRequest, album_key: str):
     empty = album.cover_photo is None
 
     return render(request, 'photo_objects/photo/upload.html', {
-        "form": form,
-        "info": info,
         "title": "Upload photos",
         "back": back,
+        "album": album,
         "photo": album.cover_photo,
         "width": "narrow",
         "preview": Preview(request, album, preview_helptext("album", empty)),

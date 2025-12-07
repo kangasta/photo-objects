@@ -9,7 +9,6 @@ from photo_objects.django import objsto
 from photo_objects.django.forms import (
     CreatePhotoForm,
     ModifyPhotoForm,
-    UploadPhotosForm,
     slugify,
 )
 from photo_objects.img import photo_details
@@ -17,7 +16,6 @@ from photo_objects.img import photo_details
 from .auth import check_album_access, check_photo_access
 from .utils import (
     FormValidationFailed,
-    UploadPhotosFailed,
     JsonProblem,
     check_permissions,
     parse_input_data,
@@ -72,52 +70,6 @@ def upload_photo(request: HttpRequest, album_key: str):
         'photo_objects.change_album')
     photo_file = parse_single_file(request)
     return _upload_photo(album_key, photo_file)
-
-
-def _join_errors(errors: dict) -> str:
-    messages = []
-    for _, errs in errors.items():
-        for err in errs:
-            try:
-                messages.append(err.get('message'))
-            except AttributeError:
-                messages.append(str(err))
-    return " ".join(messages) if messages else "Unknown error."
-
-
-def upload_photos(request: HttpRequest, album_key: str):
-    check_permissions(
-        request,
-        'photo_objects.add_photo',
-        'photo_objects.change_album')
-
-    f = UploadPhotosForm(request.POST, request.FILES)
-    if not f.is_valid():
-        raise FormValidationFailed(f)
-
-    photo_files = f.cleaned_data["photos"]
-    if len(photo_files) < 1:
-        f.add_error("photos", "Expected at least one file, got 0.")
-        raise FormValidationFailed(f)
-
-    photos = []
-    for photo_file in f.cleaned_data["photos"]:
-        try:
-            photos.append(_upload_photo(album_key, photo_file))
-        except FormValidationFailed as e:
-            message = _join_errors(e.form.errors.get_json_data())
-            f.add_error(
-                "photos",
-                f"Failed to upload {photo_file.name}. {message}")
-        except JsonProblem as e:
-            f.add_error(
-                "photos",
-                f"Failed to upload {photo_file.name}. {e.title}")
-
-    if not f.is_valid():
-        raise UploadPhotosFailed(f, [i.filename for i in photos])
-
-    return photos
 
 
 def modify_photo(request: HttpRequest, album_key: str, photo_key: str):

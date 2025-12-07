@@ -3,9 +3,6 @@ import random
 from django import forms
 from django.forms import (
     CharField,
-    ClearableFileInput,
-    FileField,
-    Form,
     HiddenInput,
     ModelForm,
     RadioSelect,
@@ -220,26 +217,3 @@ class ReviewPhotoChangeRequestForm(ModelForm):
         help_texts = {
             'alt_text': ALT_TEXT_HELP,
         }
-
-
-class MultipleFileInput(ClearableFileInput):
-    allow_multiple_selected = True
-
-
-class MultipleFileField(FileField):
-    def __init__(self, *args, **kwargs):
-        kwargs.setdefault('widget', MultipleFileInput())
-        super().__init__(*args, **kwargs)
-
-    def clean(self, data, initial=None):
-        single_file_clean = super().clean
-        if isinstance(data, (list, tuple)):
-            result = [single_file_clean(d, initial) for d in data]
-        else:
-            result = [single_file_clean(data, initial)]
-        return result
-
-
-class UploadPhotosForm(Form):
-    photos = MultipleFileField(label=_(
-        'Drag and drop photos here or click to open upload dialog.'))
