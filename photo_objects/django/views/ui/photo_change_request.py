@@ -7,7 +7,7 @@ from photo_objects.django.api.utils import (
     FormValidationFailed,
 )
 from photo_objects.django.forms import ReviewPhotoChangeRequestForm
-from photo_objects.django.views.utils import BackLink
+from photo_objects.django.views.utils import BackLink, Preview
 from photo_objects.utils import render_markdown
 
 from .utils import json_problem_as_html
@@ -49,13 +49,14 @@ def review_photo_change_request(request: HttpRequest, cr_id: str):
 
     back = BackLink("Albums", reverse('photo_objects:list_albums'))
 
+    helptext = render_markdown(
+        f'The current alt text for `{photo.key}` is: _"{photo.alt_text}"_.')
+
     return render(request, 'photo_objects/form.html', {
         "form": form,
         "title": "Review photo change request",
         "back": back,
         "info": info,
-        "instructions": render_markdown(
-            f'The current alt text for `{photo.key}` is: '
-            f'_"{photo.alt_text}"_.'),
         "width": "narrow",
+        "preview": Preview(request, photo, helptext),
     })
