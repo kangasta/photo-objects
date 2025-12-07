@@ -1,0 +1,18 @@
+<div class="preview">
+  <div class="surface">
+    <div class="image">
+      <img src="/img/{{ preview.photo.album.key }}/{{ preview.photo.filename }}/sm" alt="{{ preview.photo.alt }}"
+        style="background: url(data:image/png;base64,{{ preview.photo.tiny_base64 }}); background-size: 100% 100%; font-size: 0;"
+        height="{{ preview.photo.thumbnail_height }}" width="{{ preview.photo.thumbnail_width }}" />
+    </div>
+    <div class="title-and-description labels">
+      <span class="label-primary">{{ preview.title }}</span>
+      <p class="label-secondary">{{ preview.description }}</p>
+    </div>
+  </div>
+  {% if preview.helptext %}
+  <span class="helptext">
+    {{ preview.helptext }}
+  </span>
+  {% endif %}
+</div>

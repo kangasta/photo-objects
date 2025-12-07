@@ -5,6 +5,9 @@
 {% endblock %}
 
 {% block content %}
+{% if preview %}
+{% include 'photo_objects/preview.html' %}
+{% endif %}
 <div class="configuration">
   <ul>
     {% for i in validations %}

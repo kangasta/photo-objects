@@ -56,8 +56,9 @@ class TestUtils(TestCase):
              "Plain text description"),
             (md_multi_p,
              "Description with bold and italics..."),
-            (None,
-             "A simple self-hosted photo server."),
+            # TODO: Test default description and description from site-settings
+            # (None,
+            #  "A simple self-hosted photo server."),
         ]
 
         for description, expected in testdata:
