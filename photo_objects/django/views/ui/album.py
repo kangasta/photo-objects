@@ -9,11 +9,12 @@ from photo_objects.django.forms import CreateAlbumForm, ModifyAlbumForm
 from photo_objects.django.models import Album
 from photo_objects.django.views.utils import (
     BackLink,
+    Preview,
     meta_description,
 )
 from photo_objects.utils import render_markdown
 
-from .utils import json_problem_as_html
+from .utils import json_problem_as_html, preview_helptext
 
 
 @json_problem_as_html
@@ -46,6 +47,7 @@ def new_album(request: HttpRequest):
         "form": form,
         "title": "Create album",
         "back": back,
+        "width": "narrow",
     })
 
 
@@ -107,13 +109,19 @@ def edit_album(request: HttpRequest, album_key: str):
             'photo_objects:show_album',
             kwargs={"album_key": album_key}))
 
-    return render(request, 'photo_objects/form.html', {
-        "form": form,
-        "title": "Edit album",
-        "back": back,
-        "photo": album.cover_photo,
-        "info": get_info(request, album_key),
-    })
+    return render(
+        request,
+        'photo_objects/form.html',
+        {
+            "form": form,
+            "title": "Edit album",
+            "back": back,
+            "info": get_info(
+                request,
+                album_key),
+            "width": "narrow",
+            "preview": Preview(request, album, preview_helptext("album")),
+        })
 
 
 @json_problem_as_html
@@ -145,5 +153,7 @@ def delete_album(request: HttpRequest, album_key: str):
         "back": back,
         "photo": album.cover_photo,
         "resource": target,
+        "width": "narrow",
+        "preview": Preview(request, album, preview_helptext("album")),
         **error,
     })

@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from photo_objects.django.api.utils import JsonProblem
-from photo_objects.django.views.utils import BackLink
+from photo_objects.django.views.utils import BackLink, Preview
 from photo_objects.utils import render_markdown
 
 from .utils import json_problem_as_html
@@ -169,8 +169,18 @@ def configuration(request: HttpRequest):
 
     back = BackLink("Albums", reverse('photo_objects:list_albums'))
 
-    return render(request, "photo_objects/configuration.html", {
-        "title": "Configuration",
-        "validations": validations,
-        "back": back,
-    })
+    return render(
+        request,
+        "photo_objects/configuration.html",
+        {
+            "title": "Configuration",
+            "validations": validations,
+            "back": back,
+            "width": "narrow",
+            "preview": Preview(
+                request,
+                None,
+                "This is an example on how the site will appear by default "
+                "when sharing in social media. Note that individual albums "
+                "and photos override this default preview."),
+        })

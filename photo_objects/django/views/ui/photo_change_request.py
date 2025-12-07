@@ -53,9 +53,9 @@ def review_photo_change_request(request: HttpRequest, cr_id: str):
         "form": form,
         "title": "Review photo change request",
         "back": back,
-        "photo": photo,
         "info": info,
         "instructions": render_markdown(
             f'The current alt text for `{photo.key}` is: '
             f'_"{photo.alt_text}"_.'),
+        "width": "narrow",
     })

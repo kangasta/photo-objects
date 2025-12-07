@@ -68,6 +68,12 @@ footer {
   }
 }
 
+header.narrow,
+main.narrow,
+footer.narrow {
+  max-width: 800px;
+}
+
 header {
   display: flex;
   justify-content: space-between;
@@ -315,38 +321,43 @@ div.photo-select div:focus-within {
 }
 
 
+/* Preview */
+div.preview {
+  margin: 1rem 0;
+}
+
+div.preview div.surface {
+  display: flex;
+  max-height: 160px;
+  overflow: hidden;
+}
+
+div.preview div.surface img {
+  display: block;
+  width: 160px;
+  height: 160px;
+  object-fit: cover;
+  aspect-ratio: 1;
+}
+
+div.preview div.surface .title-and-description {
+  flex: 1;
+  padding-left: 8px;
+}
+
+div.preview div.surface .title-and-description p {
+  margin: 0;
+}
+
+
 /* Forms */
 div.form {
   flex: 1;
-  margin: 1rem 0 0;
-
-  display: flex;
-  flex-direction: row-reverse;
-  flex-wrap: wrap;
-  align-content: flex-start;
-  justify-content: flex-end;
-  gap: 2rem 1rem;
+  margin-top: 1rem;
 }
 
 div.configuration {
   margin: 1rem 0;
-}
-
-div.form div.photo {
-  flex: 1;
-  min-width: min(400px, 100%);
-  max-width: 916px;
-}
-
-@media screen and (max-width: 931.5px) {
-  div.form div.photo {
-    max-height: min(500px, 50vh);
-  }
-}
-
-main form {
-  flex: 1.4;
-  min-width: min(500px, 100%);
 }
 
 form input[type="text"],
@@ -394,6 +405,7 @@ form .instructions p {
 }
 
 .configuration .helptext,
+.preview .helptext,
 form .helptext {
   font-size: .75em;
   margin: .25rem 0;
@@ -401,6 +413,7 @@ form .helptext {
 }
 
 .configuration .helptext p,
+.preview .helptext p,
 form .helptext p {
   margin: 0;
   display: inline;

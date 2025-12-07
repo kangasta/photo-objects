@@ -12,11 +12,12 @@ from photo_objects.django.forms import ModifyPhotoForm, UploadPhotosForm
 from photo_objects.django.models import Photo
 from photo_objects.django.views.utils import (
     BackLink,
+    Preview,
     meta_description,
 )
 from photo_objects.utils import render_markdown
 
-from .utils import json_problem_as_html
+from .utils import json_problem_as_html, preview_helptext
 
 
 @json_problem_as_html
@@ -53,6 +54,8 @@ def upload_photos(request: HttpRequest, album_key: str):
         "title": "Upload photos",
         "back": back,
         "photo": album.cover_photo,
+        "width": "narrow",
+        "preview": Preview(request, album, preview_helptext("album")),
     })
 
 
@@ -177,12 +180,16 @@ def edit_photo(request: HttpRequest, album_key: str, photo_key: str):
                 "album_key": album_key,
                 "photo_key": photo_key}))
 
-    return render(request, 'photo_objects/form.html', {
-        "form": form,
-        "title": "Edit photo",
-        "back": back,
-        "photo": photo,
-    })
+    return render(
+        request,
+        'photo_objects/form.html',
+        {
+            "form": form,
+            "title": "Edit photo",
+            "back": back,
+            "width": "narrow",
+            "preview": Preview(request, photo, preview_helptext("photo")),
+        })
 
 
 @json_problem_as_html
@@ -208,4 +215,6 @@ def delete_photo(request: HttpRequest, album_key: str, photo_key: str):
         "back": back,
         "photo": photo,
         "resource": target,
+        "width": "narrow",
+        "preview": Preview(request, photo, preview_helptext("photo")),
     })

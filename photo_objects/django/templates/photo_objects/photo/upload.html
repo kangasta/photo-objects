@@ -7,8 +7,10 @@
 {% block content %}
 <!-- TODO: Instructions? -->
 
+{% if preview %}
+{% include 'photo_objects/preview.html' %}
+{% endif %}
 <div class="form">
-  {% include 'photo_objects/form-photo.html' %}
   <form action="" enctype="multipart/form-data" method="post">
     {% csrf_token %}
     {% if info %}

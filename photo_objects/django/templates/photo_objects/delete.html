@@ -8,8 +8,10 @@
 
 <!-- TODO: Instructions? -->
 
+{% if preview %}
+{% include 'photo_objects/preview.html' %}
+{% endif %}
 <div class="form">
-  {% include 'photo_objects/form-photo.html' %}
   <form action="" method="post">
     <p>Are you sure you want to delete <span class="resource-highlight">{{ resource }}</span>? This action can not be undone.</p>
     {% csrf_token %}
