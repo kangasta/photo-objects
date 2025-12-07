@@ -6,7 +6,7 @@ from photo_objects.utils import first_paragraph_textcontent
 
 
 class BackLink:
-    def __init__(self, text, url):
+    def __init__(self, text: str, url: str):
         self.text = text
         self.url = url
 

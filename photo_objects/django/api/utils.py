@@ -50,7 +50,7 @@ class JsonProblem(PhotoObjectsError):
         return render(request, "photo_objects/problem.html", {
             "title": "Error",
             "back": BackLink(
-                'Back to albums',
+                'Albums',
                 reverse_lazy('photo_objects:list_albums')),
             "problem_title": self.title,
             "status": self.status

@@ -43,7 +43,7 @@ def upload_photos(request: HttpRequest, album_key: str):
     album = api.check_album_access(request, album_key)
     target = album.title or album.key
     back = BackLink(
-        f"Back to {target}", reverse(
+        target, reverse(
             'photo_objects:show_album', kwargs={
                 "album_key": album_key}))
 
@@ -109,7 +109,7 @@ def show_photo(request: HttpRequest, album_key: str, photo_key: str):
 
     previous_filename = photo.key.split("/")[-1]
     next_filename = previous_filename
-    back = BackLink("Back to albums", reverse('photo_objects:list_albums'))
+    back = BackLink("Albums", reverse('photo_objects:list_albums'))
 
     try:
         api.check_album_access(request, photo.album.key)
@@ -125,7 +125,7 @@ def show_photo(request: HttpRequest, album_key: str, photo_key: str):
 
         target = photo.album.title or photo.album.key
         back = BackLink(
-            f"Back to {target}", reverse(
+            target, reverse(
                 'photo_objects:show_album', kwargs={
                     "album_key": album_key}))
     except AlbumNotFound:
@@ -170,7 +170,7 @@ def edit_photo(request: HttpRequest, album_key: str, photo_key: str):
 
     target = photo.title or photo.filename
     back = BackLink(
-        f'Back to {target}',
+        target,
         reverse(
             'photo_objects:show_photo',
             kwargs={
@@ -197,7 +197,7 @@ def delete_photo(request: HttpRequest, album_key: str, photo_key: str):
         photo = api.check_photo_access(request, album_key, photo_key, "xs")
         target = photo.title or photo.filename
         back = BackLink(
-            f'Back to {target}',
+            target,
             reverse(
                 'photo_objects:show_photo',
                 kwargs={
