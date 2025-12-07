@@ -16,7 +16,7 @@ def login(request: HttpRequest):
             "photo": settings.preview_image,
             "action": "Login",
             "back": BackLink(
-                'Back to albums',
+                'Albums',
                 reverse_lazy('photo_objects:list_albums')),
             "class": "login"
         },

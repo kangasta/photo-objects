@@ -167,7 +167,7 @@ def configuration(request: HttpRequest):
         site_description_configured(request),
     ]
 
-    back = BackLink("Back to albums", reverse('photo_objects:list_albums'))
+    back = BackLink("Albums", reverse('photo_objects:list_albums'))
 
     return render(request, "photo_objects/configuration.html", {
         "title": "Configuration",

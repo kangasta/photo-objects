@@ -69,13 +69,23 @@ footer {
 }
 
 header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
   min-height: 56px;
   padding: 8px;
+  padding-bottom: 0;
   overflow: hidden;
 }
 
-h1 {
+header .title-and-back-link {
+  max-width: calc(100vw - 64px);
+}
+
+header h1 {
   font-size: 1.5em;
+  font-weight: 600;
   margin: 0;
   margin-right: 8px;
 
@@ -84,14 +94,29 @@ h1 {
   white-space: nowrap;
 }
 
-header a.back-link {
+header .back-link {
+  display: flex;
+  gap: 1ch;
+
+  font-family: "Source Code Pro", monospace;
+  font-size: 0.75em;
+  height: 1em;
   white-space: nowrap;
 }
 
-header div.title-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+header .back-link a {
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  /* Ensure click target is min 44x44 px */
+  margin: -15px;
+  padding: 15px;
+  position: relative;
+  z-index: 1;
+}
+
+header .back-link span {
+  color: var(--fg-secondary);
 }
 
 button.link {
@@ -702,7 +727,7 @@ div.photo {
   max-width: 100%;
   height: calc(100vh - 100px);
   /* Use smallest viewport height to fit the surface to screen when mobile address bar is visible. */
-  height: calc(100svh - 100px);
+  height: calc(100svh - 82px);
   max-height: 100vh;
 }
 

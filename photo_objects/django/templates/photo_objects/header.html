@@ -1,19 +1,26 @@
 {% load photo_objects_extras %}
 {% url 'photo_objects:login' as login_url %}
-<div class="title-row">
+<div class="title-and-back-link">
+  <div class="back-link">
+    {% if back %}
+    {% if not back.root %}
+    <span>… / </span>
+    {% endif %}<a href="{{ back.url }}">{{ back.text }}</a><span> /</span>
+    {% else %}
+    <span>{{ request.site.name }} /</span>
+    {% endif %}
+  </div>
   <h1>{{ title }}</h1>
-  {% if user.is_authenticated %}
-  <button aria-label="Open user menu" class="user-profile" onclick="openUserModal()"
-    title="Logged in as {{ user|display_name }}">
-    {% include 'photo_objects/user-profile-content.html' %}
-  </button>
-  {% elif request.path != login_url %}
-  <a href="{% url 'photo_objects:login' %}?next={{ request.path }}">Login</a>
-  {% endif %}
 </div>
-{% if back %}
-<a class="back-link" href="{{ back.url }}">{{ back.text }}</a>
+{% if user.is_authenticated %}
+<button aria-label="Open user menu" class="user-profile" onclick="openUserModal()"
+  title="Logged in as {{ user|display_name }}">
+  {% include 'photo_objects/user-profile-content.html' %}
+</button>
+{% elif request.path != login_url %}
+<a href="{% url 'photo_objects:login' %}?next={{ request.path }}">Login</a>
 {% endif %}
+
 {% if user.is_authenticated %}
 <dialog class="user-modal" onclick="handleClick(event)" onclose="handleClose()">
   <!-- Catch click events to easily detect if target is dialog or its backdrop. -->

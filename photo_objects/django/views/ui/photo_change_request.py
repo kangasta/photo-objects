@@ -47,7 +47,7 @@ def review_photo_change_request(request: HttpRequest, cr_id: str):
     else:
         info = f"There are {count} change requests in the review queue."
 
-    back = BackLink("Back to albums", reverse('photo_objects:list_albums'))
+    back = BackLink("Albums", reverse('photo_objects:list_albums'))
 
     return render(request, 'photo_objects/form.html', {
         "form": form,

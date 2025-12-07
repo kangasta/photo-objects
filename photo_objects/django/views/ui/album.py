@@ -40,7 +40,7 @@ def new_album(request: HttpRequest):
     else:
         form = CreateAlbumForm(initial={"key": "_new"}, user=request.user)
 
-    back = BackLink("Back to albums", reverse('photo_objects:list_albums'))
+    back = BackLink("Albums", reverse('photo_objects:list_albums'))
 
     return render(request, 'photo_objects/form.html', {
         "form": form,
@@ -59,7 +59,7 @@ def show_album(request: HttpRequest, album_key: str):
     album = api.check_album_access(request, album_key)
     photos = album.photo_set.all()
 
-    back = BackLink("Back to albums", reverse('photo_objects:list_albums'))
+    back = BackLink("Albums", reverse('photo_objects:list_albums'))
     details = {
         "Description": render_markdown(album.description),
         "Visibility": Album.Visibility(album.visibility).label,
@@ -102,7 +102,7 @@ def edit_album(request: HttpRequest, album_key: str):
 
     target = album.title or album.key
     back = BackLink(
-        f'Back to {target}',
+        target,
         reverse(
             'photo_objects:show_album',
             kwargs={"album_key": album_key}))
@@ -125,7 +125,7 @@ def delete_album(request: HttpRequest, album_key: str):
         album = api.check_album_access(request, album_key)
         target = album.title or album.key
         back = BackLink(
-            f'Back to {target}',
+            target,
             reverse(
                 'photo_objects:show_album',
                 kwargs={
