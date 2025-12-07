@@ -11,38 +11,104 @@
 {% include 'photo_objects/preview.html' %}
 {% endif %}
 <div class="form">
-  <form action="" enctype="multipart/form-data" method="post">
+  <form action="">
     {% csrf_token %}
     {% if info %}
     <div class="info-banner">{{ info }}</div>
     {% endif %}
     <ul>
-      {{ form.as_ul }}
+      <li>
+        <ul class="errorlist" id="id_photos_error"></ul>
+        <label for="id_photos" tabindex="0" class="empty">Drag and drop photos here or click to open upload dialog.</label>
+        <input type="file" name="photos" multiple="" required="" id="id_photos" aria-describedby="id_photos_help" />
+        <span id="id_photos_help" class="helptext">Photo upload will start immediately after dropping or selecting the
+          files. You can see the upload status in the area above.</span>
+      </li>
     </ul>
-    <input type="submit" value="Upload">
+    <a class="action" href="{% url 'photo_objects:show_album' album.key %}">Done</a>
   </form>
 </div>
 <script>
-  function renderPreviews() {
+  const url = "{% url 'photo_objects:api_photos' album.key %}";
+  const csrfToken = document.querySelector('input[name=csrfmiddlewaretoken]').value;
+
+  function addError(filename, message, wrapper, status) {
+    wrapper.classList.remove('uploading');
+    wrapper.classList.add('failed');
+    status.textContent = 'Failed';
+
+    const errorList = document.querySelector('#id_photos_error');
+    const li = document.createElement('li');
+    li.textContent = `Failed to upload ${filename}: ${message}`;
+    errorList.appendChild(li);
+  }
+
+  function uploadPhoto(file, wrapper, status) {
+    const data = new FormData()
+    data.append('file', file)
+
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': csrfToken,
+      },
+      body: data,
+    }).then(response => {
+      if (response.ok) {
+        wrapper.classList.remove('uploading');
+        wrapper.classList.add('ok');
+        status.textContent = 'Ready';
+      } else {
+        return response.json();
+      }
+    }).then(data => {
+      if (data) {
+        try {
+          addError(file.name, data.errors.key[0].message, wrapper, status);
+        } catch (_) {
+          addError(file.name, data.title, wrapper, status);
+        }
+      }
+    }).catch(err => {
+      addError(file.name, err, wrapper, status);
+    });
+  }
+
+  function uploadPhotos() {
     const input = document.querySelector('#id_photos');
     if (input.files.length > 0) {
-      const label = document.querySelector('label[for=id_photos]')
-      label.textContent = '';
+      const label = document.querySelector('label[for=id_photos]');
+      if (label.classList.contains('empty')) {
+        label.textContent = '';
+        label.classList.remove('empty');
+      }
 
       for (let i = 0; i < input.files.length; i++) {
         const file = input.files[i];
 
+        const wrapper = document.createElement('div');
+        wrapper.classList.add('photo-upload');
+        wrapper.classList.add('uploading');
+
+        const status = document.createElement('div');
+        status.classList.add('status');
+        status.textContent = 'Uploading';
+
         const img = document.createElement('img');
-        img.alt = " " + file.name + " ";
+        img.alt = file.name;
         img.src = URL.createObjectURL(file);
 
-        label.appendChild(img);
+        wrapper.appendChild(img);
+        wrapper.appendChild(status);
+        label.appendChild(wrapper);
+
+        uploadPhoto(file, wrapper, status);
       }
     }
   }
 
   // Render images instead of label after selecting files
-  document.querySelector('#id_photos').addEventListener('change', renderPreviews);
+  document.querySelector('#id_photos').addEventListener('change', uploadPhotos);
 
   // Make the label focusable as the input is hidden
   document.querySelector('label[for=id_photos]').setAttribute('tabindex', '0');
@@ -66,7 +132,7 @@
 
     const input = document.querySelector('#id_photos');
     input.files = event.dataTransfer.files;
-    renderPreviews();
+    uploadPhotos();
   });
 </script>
 {% endblock %}

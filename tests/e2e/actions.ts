@@ -81,7 +81,8 @@ export const uploadPhotos = async (page: Page, albumTitle: string, photos: strin
   await page.getByText('Upload photos').click();
   const input = page.getByLabel('Drag and drop photos here or click to open upload dialog.');
   await input.setInputFiles(photos.map(photoPath));
-  await page.getByText('Upload', { exact: true }).click();
+
+  await expect(page.getByText('Uploading')).toHaveCount(0);
 }
 
 export const checkTitlesExist = async (page: Page, titles: string[]) => {
