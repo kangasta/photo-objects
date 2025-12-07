@@ -88,6 +88,7 @@ header h1 {
   font-weight: 600;
   margin: 0;
   margin-right: 8px;
+  margin-top: -0.125em;
 
   overflow: hidden;
   text-overflow: ellipsis;
@@ -100,19 +101,12 @@ header .back-link {
 
   font-family: "Source Code Pro", monospace;
   font-size: 0.75em;
-  height: 1em;
   white-space: nowrap;
 }
 
 header .back-link a {
   overflow: hidden;
   text-overflow: ellipsis;
-
-  /* Ensure click target is min 44x44 px */
-  margin: -15px;
-  padding: 15px;
-  position: relative;
-  z-index: 1;
 }
 
 header .back-link span {
