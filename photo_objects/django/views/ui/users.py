@@ -2,7 +2,7 @@ from django.contrib.auth import views as auth_views
 from django.http import HttpRequest
 from django.urls import reverse_lazy
 
-from photo_objects.django.views.utils import BackLink
+from photo_objects.django.views.utils import BackLink, Preview
 
 
 def login(request: HttpRequest):
@@ -16,5 +16,6 @@ def login(request: HttpRequest):
                 reverse_lazy('photo_objects:list_albums')),
             "class": "login",
             "width": "narrow",
+            "preview": Preview(request, None),
         },
     )(request)
