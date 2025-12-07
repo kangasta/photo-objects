@@ -53,7 +53,8 @@ class JsonProblem(PhotoObjectsError):
                 'Albums',
                 reverse_lazy('photo_objects:list_albums')),
             "problem_title": self.title,
-            "status": self.status
+            "status": self.status,
+            "width": "narrow",
         }, status=self.status)
 
 
