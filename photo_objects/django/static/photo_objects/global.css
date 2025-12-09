@@ -885,24 +885,3 @@ dd p:last-of-type {
 dl.problem {
   margin: 1rem 0;
 }
-
-/* Login form */
-div.login.form {
-  align-content: normal;
-}
-
-div.login.form form {
-  margin: auto 0;
-}
-
-div.login.form div.surface {
-  flex: 1.8;
-  height: unset;
-}
-
-div.login.form div.surface img {
-  flex: 1.8;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
