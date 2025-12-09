@@ -29,6 +29,9 @@
   --fg-green: #679572;
 
   --placeholder-gradient: linear-gradient(90deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.33)), linear-gradient(var(--fg-red), var(--fg-blue));
+
+  --font-main: "Source Sans 3", sans-serif;
+  --font-mono: "Source Code Pro", monospace;
 }
 
 body {
@@ -36,7 +39,7 @@ body {
   box-sizing: border-box;
   color: var(--fg-primary);
   display: flex;
-  font-family: "Source Sans 3", sans-serif;
+  font-family: var(--font-main);
   flex-direction: column;
   margin: 0;
   min-height: 100vh;
@@ -107,7 +110,7 @@ header .back-link {
   display: flex;
   gap: 1ch;
 
-  font-family: "Source Code Pro", monospace;
+  font-family: var(--font-mono);
   font-size: 0.75em;
   white-space: nowrap;
 }
@@ -209,6 +212,11 @@ dialog.user-modal div.user-details {
   align-items: center;
 }
 
+dialog.user-modal div.user-details .label-secondary {
+  color: var(--fg-secondary);
+  font-family: var(--font-mono);
+}
+
 dialog.user-modal div.user-modal-header {
   justify-content: space-between;
   padding-bottom: 24px;
@@ -260,7 +268,7 @@ footer a:focus-visible {
 code {
   background-color: var(--bg-secondary);
   border-radius: 4px;
-  font-family: "Source Code Pro", monospace;
+  font-family: var(--font-mono);
   padding: .125rem .25rem;
 }
 
@@ -385,7 +393,7 @@ form select {
 }
 
 form textarea {
-  font-family: "Source Code Pro", monospace;
+  font-family: var(--font-mono);
   height: 9em;
   resize: vertical;
 }
@@ -600,7 +608,7 @@ label[for="id_photos"] img {
   background: var(--placeholder-gradient);
   box-sizing: border-box;
   color: var(--bg-primary);
-  font-family: "Source Code Pro", monospace;
+  font-family: var(--font-mono);
   font-size: .666em;
   object-fit: cover;
   overflow: hidden;
