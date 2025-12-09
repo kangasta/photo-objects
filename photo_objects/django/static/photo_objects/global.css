@@ -344,7 +344,8 @@ form input[type="password"]:focus-visible,
 form textarea:focus-visible,
 form select:focus-visible,
 label[for="id_photos"]:focus-visible,
-div.photo-select div:focus-within {
+div.photo-select div:focus-within,
+div.visibility-select label:focus-within {
   outline: 2px solid var(--fg-secondary);
   outline-offset: 2px;
 }
@@ -536,7 +537,7 @@ div.info-banner::before {
 div.photo-select {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
-  gap: 8px;
+  gap: 6px;
 }
 
 div.photo-select div {
@@ -554,12 +555,15 @@ div.photo-select div input[type="radio"] {
   top: 8px;
   left: 8px;
   margin: 0;
+}
 
+div.visibility-select div input[type="radio"],
+div.photo-select div input[type="radio"] {
   appearance: none;
   box-sizing: border-box;
   width: 16px;
   height: 16px;
-  background: var(--bg-secondary);
+  background: var(--bg-primary);
   border: 1px solid var(--bg-border);
   border-radius: 50%;
 
@@ -568,10 +572,12 @@ div.photo-select div input[type="radio"] {
   align-items: center;
 }
 
+div.visibility-select div input[type="radio"]:focus,
 div.photo-select div input[type="radio"]:focus {
   outline: none;
 }
 
+div.visibility-select div input[type="radio"]:checked::before,
 div.photo-select div input[type="radio"]:checked::before {
   content: "";
   display: block;
@@ -582,7 +588,9 @@ div.photo-select div input[type="radio"]:checked::before {
 }
 
 div.photo-select div img {
+  border: 1px solid var(--bg-border);
   border-radius: 4px;
+  box-sizing: border-box;
   aspect-ratio: 1;
   width: 100%;
   height: auto;
@@ -590,6 +598,35 @@ div.photo-select div img {
   display: block;
 }
 
+/* Visibility select */
+div.visibility-select {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+div.visibility-select label {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--bg-border);
+  border-radius: 4px;
+  display: flex;
+  padding: 4px 0;
+  align-items: center;
+}
+
+div.visibility-select input[type="radio"] {
+  flex-shrink: 0;
+  margin: 0.5rem;
+}
+
+div.visibility-select span.label {
+  font-size: 14px;
+}
+
+div.visibility-select p.helptext {
+  color: var(--fg-secondary);
+  margin: 0;
+}
 
 /* File input */
 input[type="file"]#id_photos {
@@ -644,8 +681,8 @@ label[for="id_photos"] div.photo-upload {
   overflow: hidden;
 }
 
-label[for="id_photos"] div.photo-upload.ok div.status ,
-label[for="id_photos"] div.photo-upload.failed div.status ,
+label[for="id_photos"] div.photo-upload.ok div.status,
+label[for="id_photos"] div.photo-upload.failed div.status,
 label[for="id_photos"] div.photo-upload.uploading div.status {
   text-align: center;
   display: block;
