@@ -128,10 +128,13 @@ button.link {
   appearance: none;
   background: transparent;
   border: none;
+  box-shadow: none;
   color: var(--fg-blue);
   cursor: pointer;
   font-family: inherit;
   font-size: inherit;
+  font-weight: normal;
+  margin: 0;
   padding: 0;
   text-decoration: underline;
 }
@@ -290,10 +293,11 @@ button.link:focus-visible {
 }
 
 a.action,
-form input[type="submit"] {
+form button {
   background-color: var(--fg-blue);
   box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.5);
   color: var(--bg-primary);
+  display: inline-block;
   border-radius: 4px;
   padding: .5rem 1rem;
   cursor: pointer;
@@ -303,10 +307,25 @@ form input[type="submit"] {
   font-family: inherit;
   font-size: 0.8em;
   text-decoration: none;
+  transition:
+    box-shadow 0.1s ease-in-out,
+    transform 0.1s ease-in-out;
+}
+
+a.action:hover,
+form button:not(.link):hover {
+  box-shadow: 0 3.5px 8px -2px rgba(0, 0, 0, 0.5);
+  transform: translateY(-1.5px);
+}
+
+a.action:active,
+form button:not(.link):active {
+  box-shadow: 0 0 8px -2px rgba(0, 0, 0, 0.5);
+  transform: translateY(1px);
 }
 
 a.action.delete,
-form input[type="submit"].delete {
+form button.delete {
   background-color: var(--fg-red);
 }
 
@@ -319,7 +338,7 @@ div.actions {
 /* Default focus style*/
 button:focus-visible,
 a.action:focus-visible,
-form input[type="submit"]:focus-visible,
+form button:focus-visible,
 form input[type="text"]:focus-visible,
 form input[type="password"]:focus-visible,
 form textarea:focus-visible,
@@ -444,7 +463,7 @@ form ul.errorlist {
   max-width: 916px;
 }
 
-form input[type="submit"] {
+form button {
   /* Other definitions shared with action links. */
   margin: 1.5rem 0;
 }
@@ -884,25 +903,4 @@ dd p:last-of-type {
 /* Problem */
 dl.problem {
   margin: 1rem 0;
-}
-
-/* Login form */
-div.login.form {
-  align-content: normal;
-}
-
-div.login.form form {
-  margin: auto 0;
-}
-
-div.login.form div.surface {
-  flex: 1.8;
-  height: unset;
-}
-
-div.login.form div.surface img {
-  flex: 1.8;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 }
