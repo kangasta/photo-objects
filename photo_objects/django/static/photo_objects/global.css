@@ -377,7 +377,6 @@ div.preview div.photo-placeholder {
   aspect-ratio: 1;
 }
 
-
 div.preview div.surface .title-and-description {
   flex: 1;
   padding-left: 8px;
@@ -385,15 +384,33 @@ div.preview div.surface .title-and-description {
   flex-direction: column;
 }
 
+div.preview div.surface .title-and-description .label-primary {
+  flex-shrink: 0;
+}
+
 div.preview div.surface .title-and-description p {
   flex: 1;
   margin: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+div.preview div.surface .title-and-description p::after {
+  background: linear-gradient(transparent, var(--bg-secondary));
+  bottom: 0;
+  content: "";
+  display: block;
+  height: 2em;
+  position: absolute;
+  width: 100%;
 }
 
 div.preview div.surface .title-and-description span.host {
   color: var(--fg-secondary);
+  flex-shrink: 0;
   font-family: var(--font-mono);
   font-size: 0.75em;
+  margin-top: 4px;
 }
 
 /* Forms */
@@ -417,7 +434,6 @@ form select {
   border-radius: 4px;
   font-size: 0.875rem;
   padding: .5rem;
-  max-width: 916px;
 }
 
 form textarea {
@@ -456,7 +472,6 @@ form .helptext {
   display: block;
   font-size: .75em;
   margin: .25rem 0;
-  max-width: 916px;
 }
 
 .configuration .helptext p,
@@ -469,7 +484,6 @@ form .helptext p {
 form ul.errorlist {
   color: var(--fg-red);
   margin: 0;
-  max-width: 916px;
 }
 
 form button {
