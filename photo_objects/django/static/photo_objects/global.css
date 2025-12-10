@@ -381,12 +381,20 @@ div.preview div.photo-placeholder {
 div.preview div.surface .title-and-description {
   flex: 1;
   padding-left: 8px;
+  display: flex;
+  flex-direction: column;
 }
 
 div.preview div.surface .title-and-description p {
+  flex: 1;
   margin: 0;
 }
 
+div.preview div.surface .title-and-description span.host {
+  color: var(--fg-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.75em;
+}
 
 /* Forms */
 div.form {
