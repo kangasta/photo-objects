@@ -20,6 +20,10 @@ from .models import Album, Photo, PhotoChangeRequest
 KEY_POSTFIX_CHARS = 'bcdfghjklmnpqrstvwxz2456789'
 KEY_POSTFIX_LEN = 5
 
+ALBUM_TITLE_HELP = _(
+    'When creating a new album, album key is generated based on the title. '
+    'Modifying the title later does not change the album key.'
+)
 ALT_TEXT_HELP = _('Alternative text content for the photo.')
 
 
@@ -35,6 +39,44 @@ def description_help(resource):
         f'description is visible on the {resource} details page. Use Markdown '
         'syntax to format the description.'),
     }
+
+
+def visibility_help(visibility: str):
+    visibility = Album.Visibility(visibility)
+    if visibility == Album.Visibility.PUBLIC:
+        return _(
+            'The album is visible to anyone without authentication.')
+    if visibility == Album.Visibility.HIDDEN:
+        return _(
+            'The album is visible to anyone with the link. Only '
+            'authenticated users can see the album in albums list.')
+    if visibility == Album.Visibility.PRIVATE:
+        return _(
+            'The album is only visible to authenticated users.')
+    if visibility == Album.Visibility.ADMIN:
+        return _(
+            'The album is only visible to admin users.')
+    return None
+
+
+class VisibilityRadioSelect(RadioSelect):
+    def create_option(
+        self, name, value, label, selected, index, subindex=None, attrs=None
+    ):
+        option = super().create_option(
+            name,
+            value,
+            label,
+            selected,
+            index,
+            subindex=subindex,
+            attrs=attrs)
+        option['label'] = mark_safe(f'''
+<div>
+  <span class="label">{label}</span>
+  <p class="helptext">{visibility_help(option.get('value'))}</p>
+</div>''')
+        return option
 
 
 def _check_admin_visibility(form):
@@ -60,7 +102,10 @@ class CreateAlbumForm(ModelForm):
         fields = ['key', 'title', 'description', 'visibility']
         help_texts = {
             **description_help('album'),
+            'title': ALBUM_TITLE_HELP,
         }
+        widgets = {'visibility': VisibilityRadioSelect(
+            attrs={'class': 'visibility-select'}), }
 
     def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -136,9 +181,15 @@ class ModifyAlbumForm(ModelForm):
             'cover_photo': _(
                 'Select a cover photo for the album. The cover photo is '
                 'visible on the albums list page and in album preview image.'),
+            'title': ALBUM_TITLE_HELP,
         }
         widgets = {
-            'cover_photo': RadioSelect(attrs={'class': 'photo-select'}),
+            'cover_photo': RadioSelect(
+                attrs={
+                    'class': 'photo-select'}),
+            'visibility': VisibilityRadioSelect(
+                attrs={
+                    'class': 'visibility-select'}),
         }
 
     def __init__(self, *args, user=None, **kwargs):
