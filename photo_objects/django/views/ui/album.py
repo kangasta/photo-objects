@@ -56,6 +56,18 @@ def get_info(request: HttpRequest, album_key: str):
     return None
 
 
+def _timeline(album: Album):
+    if not album.first_timestamp or not album.last_timestamp:
+        return None
+
+    start = album.first_timestamp.strftime("%Y %B")
+    end = album.last_timestamp.strftime("%Y %B")
+
+    if start == end:
+        return start
+    return f"{start} – {end}"
+
+
 @json_problem_as_html
 def show_album(request: HttpRequest, album_key: str):
     album = api.check_album_access(request, album_key)
@@ -64,6 +76,7 @@ def show_album(request: HttpRequest, album_key: str):
     back = BackLink("Albums", reverse('photo_objects:list_albums'))
     details = {
         "Description": render_markdown(album.description),
+        "Timeline": _timeline(album),
         "Visibility": Album.Visibility(album.visibility).label,
     }
 
