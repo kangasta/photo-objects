@@ -1,5 +1,7 @@
 from datetime import datetime
 from django import template
+from django.utils.safestring import mark_safe
+from django.utils.html import escape
 
 from photo_objects.django.models import SiteSettings
 from photo_objects.django.views.utils import meta_description
@@ -59,3 +61,19 @@ def meta_og(context):
         }
     except Exception:
         return context
+
+
+@register.simple_tag(takes_context=True)
+def copyright_notice(context):
+    try:
+        request = context.get("request")
+        site = request.site
+
+        settings = SiteSettings.objects.get(site)
+
+        if settings.copyright_notice:
+            notice = escape(settings.copyright_notice)
+            return mark_safe(f"<div>{notice}</div>")
+        return ""
+    except Exception:
+        return ""

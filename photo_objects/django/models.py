@@ -211,10 +211,26 @@ class SiteSettings(models.Model):
     site = models.OneToOneField(
         Site, on_delete=models.CASCADE, related_name="settings")
 
-    description = models.TextField(blank=True)
+    description = models.TextField(
+        blank=True,
+        help_text=_(
+            "Description of the site, used in site level meta description "
+            "tags and social media previews."),
+    )
     preview_image = models.ForeignKey(
-        Photo, blank=True, null=True, on_delete=models.SET_NULL)
-
+        Photo,
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        help_text=_(
+            "Photo to use as the site level social media preview image."),
+    )
+    copyright_notice = models.CharField(
+        blank=True,
+        help_text=_(
+            "Copyright notice to display in the site footer. Content will be "
+            "HTML-escaped before rendering."),
+    )
     objects = SiteSettingsManager()
 
     def __str__(self):
