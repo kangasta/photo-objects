@@ -1,5 +1,5 @@
-django~=5.0
-dj-database-url~=2.3
+django~=6.0
+dj-database-url~=3.0
 gunicorn~=23.0
 markdown~=3.7
 minio>=7.2.0,<7.2.19
