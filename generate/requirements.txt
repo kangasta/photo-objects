@@ -1,4 +1,4 @@
 requests~=2.32
 transformers~=4.56
 torch~=2.8
-pillow~=10.4
+pillow~=12.0

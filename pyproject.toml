@@ -8,7 +8,7 @@ version = "0.10.3"
 dependencies = [
     "markdown~=3.7",
     "minio>=7.2.0,<7.2.19",
-    "pillow~=10.4"
+    "pillow~=12.0"
 ]
 description = "Application for storing photos in S3 compatible object-storage."
 readme = "README.md"
