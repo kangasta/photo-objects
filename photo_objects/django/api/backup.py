@@ -1,4 +1,5 @@
 from threading import Thread
+from time import sleep
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission
@@ -59,7 +60,20 @@ def _group_dict(group: Group):
 
 
 def _create_backup(backup_id: int):
-    backup = Backup.objects.get(id=backup_id)
+    # Backup might not be available immediately.
+    # Retry getting the backup a few times.
+    for _ in range(5):
+        try:
+            backup = Backup.objects.get(id=backup_id)
+            break
+        except Backup.DoesNotExist:
+            sleep(2)
+
+    if not backup:
+        return
+
+    backup.status = "processing"
+    backup.save()
 
     user_model = get_user_model()
 
