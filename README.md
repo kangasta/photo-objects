@@ -1,12 +1,34 @@
 # Photo Objects
 
 [![CI](https://github.com/kangasta/photo-objects/actions/workflows/ci.yml/badge.svg)](https://github.com/kangasta/photo-objects/actions/workflows/ci.yml)
+[![Release](https://github.com/kangasta/photo-objects/actions/workflows/release.yml/badge.svg)](https://github.com/kangasta/photo-objects/actions/workflows/release.yml)
 
-Application for storing photos in S3 compatible object-storage.
+Application for storing photos in S3 compatible object-storage. Key features:
+
+- Automatically scales photos according to different sizes defined in settings.
+- Provides simple grouping and access control for the photos with albums.
 
 ## Developing
 
-Make migrations:
+Build containers:
+
+```sh
+docker compose build
+```
+
+Start or update development environment:
+
+```sh
+docker compose up -d
+```
+
+Print initial admin password (username of the initial administrator account is `admin`):
+
+```sh
+docker compose exec api cat /var/photo_objects/initial_admin_password
+```
+
+Make database migrations (requires development environment to be running):
 
 ```sh
 python3 back/manage.py makemigrations --pythonpath="$(pwd)"
