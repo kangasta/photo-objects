@@ -256,6 +256,7 @@ class Backup(models.Model):
         return _str(
             f'Backup {self.id}',
             created_at=self.created_at,
+            status=self.status,
             comment=self.comment,
         )
 
