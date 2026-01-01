@@ -25,9 +25,9 @@ def _anonymous_readonly_policy(bucket: str):
         "Statement": [
             {
                 "Effect": "Allow",
-                "Principal": {"AWS": "*"},
-                "Action": "s3:GetObject",
-                "Resource": f"arn:aws:s3:::{bucket}/*",
+                "Principal": {"AWS": ["*"]},
+                "Action": ["s3:GetObject"],
+                "Resource": [f"arn:aws:s3:::{bucket}/*"],
             },
         ],
     }
