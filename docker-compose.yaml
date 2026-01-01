@@ -32,19 +32,19 @@ services:
     volumes:
       - 'photo_objects:/var/photo_objects'
   objsto:
-    image: minio/minio
-    command: server /data --console-address ":9001"
+    image: rustfs/rustfs
+    command: /data
     environment:
-      MINIO_ROOT_USER: access_key
-      MINIO_ROOT_PASSWORD: secret_key
-      MINIO_DEFAULT_BUCKETS: photos
+      RUSTFS_ACCESS_KEY: access_key
+      RUSTFS_SECRET_KEY: secret_key
+      RUSTFS_CONSOLE_ENABLED: 'true'
     ports:
       - 9000:9000
       - 9001:9001
     volumes:
-      - 'miniodata:/data'
+      - 'objstodata:/data'
 
 volumes:
   pgdata:
-  miniodata:
+  objstodata:
   photo_objects:
