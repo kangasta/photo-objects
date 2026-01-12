@@ -29,6 +29,7 @@ services:
       OBJSTO_PORT: 9000
       OBJSTO_SECURE: 'false'
       URL: http://localhost:8080
+      PHOTO_OBJECTS_HOME: /var/photo_objects
     volumes:
       - 'photo_objects:/var/photo_objects'
   objsto:
@@ -43,6 +44,15 @@ services:
       - 9001:9001
     volumes:
       - 'miniodata:/data'
+  demo:
+    build: demo/
+    environment:
+      BASE_URL: http://api:8000
+      PHOTO_OBJECTS_HOME: /var/photo_objects
+    depends_on:
+      - front
+    volumes:
+      - 'photo_objects:/var/photo_objects'
 
 volumes:
   pgdata:

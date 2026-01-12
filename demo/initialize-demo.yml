@@ -1,0 +1,43 @@
+name: Initialize demo content
+options:
+  session: yes
+variables:
+  base_url: "{{ lookup('env', 'BASE_URL') | default('http://localhost:8080', true) }}"
+  username: admin
+variable_files:
+- data.yml
+requests:
+- name: Get CSRF token
+  get:
+    url: "{{ base_url }}/users/login"
+  register: csrf
+- name: Login as {{ username }}
+  post:
+    url: "{{ base_url }}/users/login"
+    data:
+      csrfmiddlewaretoken: "{{ csrf.cookies.get('csrftoken') }}"
+      username: "{{ username }}"
+      password: "{{ lookup('env', 'PASSWORD') }}"
+    allow_redirects: no
+  assert:
+  - name: Response status code is 302
+    expression: response.status_code == 302
+- name: Get new CSRF token
+  get:
+    url: "{{ base_url }}/users/login"
+  register: csrf
+- name: "Create {{ item.visibility }} album: {{ item.title }}"
+  post:
+    url: "{{ base_url }}/api/albums"
+    headers:
+      X-CSRFToken: "{{ csrf.cookies.get('csrftoken') }}"
+    json: "{{ item }}"
+  loop: "{{ albums }}"
+- name: "Upload photo: {{ item.album }}/{{ item.photo }}"
+  post:
+    url: "{{ base_url }}/api/albums/{{ item.album }}/photos"
+    headers:
+      X-CSRFToken: "{{ csrf.cookies.get('csrftoken') }}"
+    files:
+      photo: "{{ open('photos/' + item.photo, 'rb') }}"
+  loop: "{{ photos }}"
