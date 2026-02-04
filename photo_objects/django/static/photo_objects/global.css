@@ -948,6 +948,11 @@ dl dd {
   margin: 0 0 1rem;
 }
 
+dl dd .secondary {
+  color: var(--fg-secondary);
+  font-size: 0.8em;
+}
+
 dd.list {
   display: flex;
   flex-wrap: wrap;
