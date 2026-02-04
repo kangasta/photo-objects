@@ -12,7 +12,12 @@
     {% endfor %}
   </dd>
   {% elif value|is_datetime %}
-  <dd>{{ value|date:"r" }}</dd>
+  <dd>
+    <time datetime="{{ value|date:'c' }}">
+      {{ value|date:"D, d M Y H:i" }}
+      <span class="secondary">{{ value|date:"T" }}</span>
+    </time>
+  </dd>
   {% else %}
   <dd>{{ value }}</dd>
   {% endif %}

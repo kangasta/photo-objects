@@ -78,6 +78,8 @@ def show_album(request: HttpRequest, album_key: str):
         "Description": render_markdown(album.description),
         "Timeline": _timeline(album),
         "Visibility": Album.Visibility(album.visibility).label,
+        "Created at": album.created_at,
+        "Updated at": album.updated_at,
     }
 
     return render(request, "photo_objects/album/show.html", {

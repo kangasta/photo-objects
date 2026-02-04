@@ -1,6 +1,7 @@
 from django.http import HttpRequest, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django.utils.safestring import mark_safe
 
 from photo_objects.django import api
 from photo_objects.django.api.utils import (
@@ -64,25 +65,34 @@ def _lens(photo: Photo):
     return None
 
 
+def _sec(text: str):
+    return f'<span class="secondary">{text}</span>'
+
+
 def _exposure_time_to_string(exposure_time: float | None):
     if exposure_time is None:
         return None
     if exposure_time < 1:
-        return f"1/{int(1 / exposure_time)}\u202Fs"
+        return mark_safe(
+            f"{_sec('1/')}{int(1 / exposure_time)}\u202F{_sec('s')}")
     else:
-        return f"{int(exposure_time)}\u202Fs"
+        return mark_safe(
+            f"{int(exposure_time)}\u202F{_sec('s')}")
 
 
 def _camera_settings(photo: Photo):
     r = []
     if photo.focal_length:
-        r.append(f"{round(photo.focal_length)}\u202Fmm")
+        r.append(mark_safe(
+            f"{round(photo.focal_length)}\u202F{_sec('mm')}"))
     if photo.f_number:
-        r.append(f"f/{photo.f_number}")
+        r.append(
+            mark_safe(f"{_sec('f/')}{photo.f_number}"))
     if photo.exposure_time:
         r.append(_exposure_time_to_string(photo.exposure_time))
     if photo.iso_speed:
-        r.append(f"ISO\u202F{photo.iso_speed}")
+        r.append(mark_safe(
+            f"{_sec('ISO')}\u202F{photo.iso_speed}"))
     return r
 
 
@@ -120,6 +130,8 @@ def show_photo(request: HttpRequest, album_key: str, photo_key: str):
         "Camera": _camera(photo),
         "Lens": _lens(photo),
         "Settings": _camera_settings(photo),
+        "Created at": photo.created_at,
+        "Updated at": photo.updated_at,
     }
 
     return render(request, "photo_objects/photo/show.html", {
