@@ -1,4 +1,7 @@
+from typing import Self
+
 from django.db import models
+from django.db.models.query import QuerySet
 from django.db.models.signals import pre_delete, pre_save
 from django.contrib.sites.models import Site
 from django.core.validators import RegexValidator
@@ -138,6 +141,16 @@ class Photo(BaseModel):
     @property
     def thumbnail_width(self):
         return round(self.width / self.height * self.thumbnail_height)
+
+    def previous(self, photo_set: QuerySet[Self]) -> Self:
+        qs = photo_set.order_by('timestamp')
+
+        return qs.filter(timestamp__lt=self.timestamp).last() or qs.last()
+
+    def next(self, photo_set: QuerySet[Self]) -> Self:
+        qs = photo_set.order_by('timestamp')
+
+        return qs.filter(timestamp__gt=self.timestamp).first() or qs.first()
 
     def to_json(self):
         album_key = self.album.key if self.album else None
