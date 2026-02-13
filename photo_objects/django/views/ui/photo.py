@@ -107,14 +107,8 @@ def show_photo(request: HttpRequest, album_key: str, photo_key: str):
     try:
         api.check_album_access(request, photo.album.key)
 
-        album_photos = list(
-            photo.album.photo_set.values_list(
-                "key", flat=True))
-        photo_index = list(album_photos).index(photo.key)
-        previous_filename = album_photos[(
-            photo_index - 1) % len(album_photos)].split("/")[-1]
-        next_filename = album_photos[(
-            photo_index + 1) % len(album_photos)].split("/")[-1]
+        previous_filename = photo.previous(photo.album.photo_set).filename
+        next_filename = photo.next(photo.album.photo_set).filename
 
         target = photo.album.title or photo.album.key
         back = BackLink(

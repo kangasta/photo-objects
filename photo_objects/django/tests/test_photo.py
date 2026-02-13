@@ -12,7 +12,39 @@ from photo_objects.django.models import Album
 from photo_objects.img import utcnow
 from photo_objects.django.objsto import get_photo
 
-from .utils import TestCase, add_permissions, open_test_photo, parse_timestamps
+from .utils import (
+    TestCase,
+    add_permissions,
+    create_dummy_photo,
+    open_test_photo,
+    parse_timestamps,
+)
+
+
+class PhotoModelTests(TestCase):
+    def setUp(self):
+        self.album = Album.objects.create(
+            key="photo-model-test",
+            visibility=Album.Visibility.PUBLIC)
+        self.photos = [
+            create_dummy_photo(
+                self.album,
+                f"{i:03d}.jpg",
+            ) for i in range(3)
+        ]
+
+    def test_previous_and_next(self):
+        for i in range(3):
+            with self.subTest(i=i):
+                photo = self.photos[i]
+                self.assertEqual(
+                    photo.previous(self.album.photo_set).key,
+                    self.photos[(i - 1) % 3].key,
+                )
+                self.assertEqual(
+                    photo.next(self.album.photo_set).key,
+                    self.photos[(i + 1) % 3].key,
+                )
 
 
 class PhotoViewTests(TestCase):
