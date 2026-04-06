@@ -1,10 +1,10 @@
 import json
 from time import sleep
 
+from ciou.time import utcnow
 from django.contrib.auth import get_user_model
 
 from photo_objects.django.models import Album
-from photo_objects.img import utcnow
 
 from .utils import (
     TestCase,
