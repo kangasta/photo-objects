@@ -4,12 +4,12 @@ from io import BytesIO
 from time import sleep
 from unittest import mock
 
+from ciou.time import utcnow
 from django.contrib.auth import get_user_model
 from PIL import Image
 from urllib3.exceptions import HTTPError
 
 from photo_objects.django.models import Album
-from photo_objects.img import utcnow
 from photo_objects.django.objsto import get_photo
 
 from .utils import (

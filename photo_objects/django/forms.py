@@ -1,5 +1,4 @@
-import random
-
+from ciou.string import postfix_generator
 from django import forms
 from django.forms import (
     CharField,
@@ -16,21 +15,11 @@ from photo_objects.utils import slugify
 from .models import Album, Photo, PhotoChangeRequest
 
 
-# From Kubernetes random postfix.
-KEY_POSTFIX_CHARS = 'bcdfghjklmnpqrstvwxz2456789'
-KEY_POSTFIX_LEN = 5
-
 ALBUM_TITLE_HELP = _(
     'When creating a new album, album key is generated based on the title. '
     'Modifying the title later does not change the album key.'
 )
 ALT_TEXT_HELP = _('Alternative text content for the photo.')
-
-
-def _postfix_generator():
-    for _ in range(13):
-        yield '-' + ''.join(
-            random.choices(KEY_POSTFIX_CHARS, k=KEY_POSTFIX_LEN))
 
 
 def description_help(resource):
@@ -140,7 +129,7 @@ class CreateAlbumForm(ModelForm):
 
         key = slugify(title, lower=True, replace_leading_underscores=True)
 
-        postfix_iter = _postfix_generator()
+        postfix_iter = postfix_generator()
         try:
             postfix = next(postfix_iter)
             while Album.objects.filter(key=key + postfix).exists():

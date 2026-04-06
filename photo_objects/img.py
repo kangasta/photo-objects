@@ -1,20 +1,11 @@
 from base64 import b64encode
-try:
-    from datetime import datetime, UTC
-except ImportError:
-    from datetime import datetime, timezone
-    UTC = timezone.utc
+from datetime import datetime
 from io import BytesIO
 
+from ciou.time import utcnow
 from PIL import Image, ExifTags
 
 from photo_objects.error import PhotoObjectsError
-
-
-def utcnow():
-    '''Return timezone aware datetime object with current UTC time.
-    '''
-    return datetime.now(UTC)
 
 
 class ExifReader:
