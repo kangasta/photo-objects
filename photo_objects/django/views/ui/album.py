@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from photo_objects.django import api
 from photo_objects.django.api.utils import FormValidationFailed
 from photo_objects.django.forms import CreateAlbumForm, ModifyAlbumForm
-from photo_objects.django.models import Album
+from photo_objects.django.models import Album, SiteSettings
 from photo_objects.django.views.utils import (
     BackLink,
     Preview,
@@ -17,11 +17,35 @@ from photo_objects.utils import render_markdown
 from .utils import json_problem_as_html, preview_helptext
 
 
+def _group_albums(
+    albums: list[Album],
+    group_by: str,
+) -> dict[str, list[Album]]:
+    if len(albums) == 0:
+        return {}
+
+    if group_by == "year":
+        result = {}
+        for album in albums:
+            key = str(
+                album.first_timestamp.year) if album.first_timestamp else ""
+            result.setdefault(key, []).append(album)
+        return result
+    else:
+        return {"": albums}
+
+
 @json_problem_as_html
 def list_albums(request: HttpRequest):
+    try:
+        settings = SiteSettings.objects.get(request.site)
+        group_by = settings.albums_group_by
+    except SiteSettings.DoesNotExist:
+        group_by = "none"
+
     albums = api.get_albums(request)
     return render(request, "photo_objects/album/list.html", {
-        "albums": albums,
+        "grouped_albums": _group_albums(albums, group_by),
         "title": "Albums",
     })
 

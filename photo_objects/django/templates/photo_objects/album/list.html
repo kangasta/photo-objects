@@ -6,9 +6,13 @@
 
 {% block content %}
 
-{% if albums %}
-<div class="albums">
-  <ul class="photo-list">
+{% if grouped_albums %}
+<div class="albums {% if grouped_albums|length > 1 %}grouped{% endif %}">
+  {% for group, albums in grouped_albums.items %}
+  {% if group and grouped_albums|length > 1 %}
+  <h2>{{ group }}</h2>
+  {% endif %}
+  <ul class="photo-list {% if not group or grouped_albums|length <= 1 %}ungrouped{% endif %}">
     {% for album in albums %}
     <li class="surface">
       <a href="{% url 'photo_objects:show_album' album.key %}">
@@ -31,6 +35,7 @@
     </li>
     {% endfor %}
   </ul>
+  {% endfor %}
 </div>
 {% else %}
 <p class="albums">No albums available.</p>
