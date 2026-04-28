@@ -221,6 +221,10 @@ class SiteSettings(models.Model):
     class Meta:
         verbose_name_plural = "site settings"
 
+    class GroupBy(models.TextChoices):
+        NONE = "none", _("None")
+        YEAR = "year", _("Year")
+
     site = models.OneToOneField(
         Site, on_delete=models.CASCADE, related_name="settings")
 
@@ -238,6 +242,16 @@ class SiteSettings(models.Model):
         help_text=_(
             "Photo to use as the site level social media preview image."),
     )
+    albums_group_by = models.CharField(
+        blank=True,
+        db_default=GroupBy.NONE,
+        default=GroupBy.NONE,
+        choices=GroupBy,
+        help_text=_(
+            "If and how albums are grouped in the list albums view."),
+        verbose_name=_("Albums / group by"),
+    )
+
     copyright_notice = models.CharField(
         blank=True,
         help_text=_(
