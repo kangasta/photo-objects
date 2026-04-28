@@ -21,6 +21,9 @@ def _group_albums(
     albums: list[Album],
     group_by: str,
 ) -> dict[str, list[Album]]:
+    if len(albums) == 0:
+        return {}
+
     if group_by == "year":
         result = {}
         for album in albums:

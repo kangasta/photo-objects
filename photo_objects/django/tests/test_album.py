@@ -398,6 +398,10 @@ class AlbumViewTests(TestCase):
             username='has_permission', password='test')
         self.assertTrue(login_success)
 
+        response = self.client.get("/albums")
+        self.assertStatus(response, 200)
+        self.assertContains(response, 'No albums available.', html=True)
+
         self._create_album("Paris", key="cdg")
         self._create_album("Copenhagen", key="cph")
 
