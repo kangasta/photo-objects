@@ -3,15 +3,17 @@ from time import sleep
 
 from ciou.time import utcnow
 from django.contrib.auth import get_user_model
+from django.contrib.sites.models import Site
 
-from photo_objects.django.models import Album
+from photo_objects.django.models import Album, SiteSettings
 
 from .utils import (
     TestCase,
     add_permissions,
     parse_timestamps,
     create_dummy_photo,
-    open_test_photo
+    open_test_photo,
+    temp_static_files
 )
 
 
@@ -297,6 +299,32 @@ class AlbumViewTests(TestCase):
         self.assertRegex(key_2, key_re)
         self.assertNotEqual(key_1, key_2)
 
+    def _create_album(
+            self,
+            title,
+            description="",
+            visibility="hidden",
+            key="_new"):
+        data = dict(
+            key=key,
+            visibility=visibility,
+            title=title,
+            description=description)
+        response = self.client.post(
+            "/api/albums",
+            content_type="application/json",
+            data=data)
+        self.assertStatus(response, 201)
+
+        return response
+
+    def _upload_photo(self, album_key, filename):
+        file = open_test_photo(filename)
+        response = self.client.post(
+            f"/api/albums/{album_key}/photos",
+            {filename: file})
+        self.assertStatus(response, 201)
+
     def test_crud_actions(self):
         login_success = self.client.login(
             username='has_permission', password='test')
@@ -310,11 +338,7 @@ class AlbumViewTests(TestCase):
             visibility="hidden",
             title="title",
             description="description")
-        response = self.client.post(
-            "/api/albums",
-            content_type="application/json",
-            data=data)
-        self.assertStatus(response, 201)
+        response = self._create_album(**data)
 
         created_data = response.json()
         for key, value in data.items():
@@ -356,12 +380,7 @@ class AlbumViewTests(TestCase):
         data = {**data, **req_data, **vars(t)}
         self.assertDictEqual(response.json(), data)
 
-        filename = "havfrue.jpg"
-        file = open_test_photo(filename)
-        response = self.client.post(
-            "/api/albums/copenhagen/photos",
-            {filename: file})
-        self.assertStatus(response, 201)
+        self._upload_photo("copenhagen", "havfrue.jpg")
 
         response = self.client.delete("/api/albums/copenhagen")
         self.assertStatus(response, 409)
@@ -372,3 +391,43 @@ class AlbumViewTests(TestCase):
 
         response = self.client.delete("/api/albums/copenhagen")
         self.assertStatus(response, 204)
+
+    @temp_static_files
+    def test_group_by(self):
+        login_success = self.client.login(
+            username='has_permission', password='test')
+        self.assertTrue(login_success)
+
+        self._create_album("Paris", key="cdg")
+        self._create_album("Copenhagen", key="cph")
+
+        self._upload_photo("cdg", "tower.jpg")
+        self._upload_photo("cdg", "bus-stop.jpg")
+
+        # havfrue.jpg does not have capture time in EXIF info, so upload
+        # time is used as the timestamp.
+        cph_year = utcnow().year
+
+        response = self.client.get("/albums")
+        self.assertStatus(response, 200)
+        self.assertContains(response, 'Paris', html=True)
+        self.assertContains(response, 'Copenhagen', html=True)
+        self.assertNotContains(response, '<h2>2024</h2>', html=True)
+        self.assertNotContains(response, f'<h2>{cph_year}</h2>', html=True)
+
+        site_settings = SiteSettings.objects.get(site=Site.objects.get(id=1))
+        site_settings.albums_group_by = SiteSettings.GroupBy.YEAR
+        site_settings.save()
+
+        response = self.client.get("/albums")
+        self.assertStatus(response, 200)
+        self.assertContains(response, 'Paris', html=True)
+        self.assertContains(response, 'Copenhagen', html=True)
+        self.assertContains(response, '<h2>2024</h2>', html=True)
+        self.assertNotContains(response, f'<h2>{cph_year}</h2>', html=True)
+
+        self._upload_photo("cph", "havfrue.jpg")
+
+        response = self.client.get("/albums")
+        self.assertStatus(response, 200)
+        self.assertContains(response, f'<h2>{cph_year}</h2>', html=True)
