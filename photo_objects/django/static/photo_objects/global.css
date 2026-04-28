@@ -45,6 +45,10 @@ body {
   min-height: 100vh;
 }
 
+::selection {
+  background: rgba(154, 159, 239, 0.4);
+}
+
 header,
 main,
 footer {
@@ -97,9 +101,9 @@ header .title-and-back-link {
 header h1 {
   font-size: 1.5em;
   font-weight: 600;
+  line-height: 1.3333;
   margin: 0;
   margin-right: 8px;
-  margin-top: -0.125em;
 
   overflow: hidden;
   text-overflow: ellipsis;
@@ -317,6 +321,7 @@ form button {
   transition:
     box-shadow 0.1s ease-in-out,
     transform 0.1s ease-in-out;
+  user-select: none;
 }
 
 a.action:hover,
