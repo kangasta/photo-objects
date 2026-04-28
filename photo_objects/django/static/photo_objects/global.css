@@ -784,27 +784,23 @@ label[for="id_photos"] div.photo-upload.failed div.status {
   flex: 1;
 }
 
-.albums.grouped {
-  margin-bottom: 16px;
-}
-
-.albums.grouped ul.photo-list.ungrouped {
-  margin: 16px 0;
-}
-
-.albums.grouped ul.photo-list {
-  margin: 8px 0 16px;
+.albums.grouped + .actions {
+  margin-top: 24px;
 }
 
 .albums h2 {
   color: var(--fg-secondary);
   font-size: 1.25em;
   font-weight: 500;
-  margin: 24px 0 8px;
+  margin: 32px 0 16px;
 }
 
 .albums h2:first-of-type {
   margin-top: 16px;
+}
+
+ul.photo-list.ungrouped + h2 {
+  margin-top: 32px;
 }
 
 /* Album */
