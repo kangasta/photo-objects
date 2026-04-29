@@ -10,7 +10,11 @@
 <div class="albums {% if grouped_albums|length > 1 %}grouped{% endif %}">
   {% for group, albums in grouped_albums.items %}
   {% if group and grouped_albums|length > 1 %}
-  <h2>{{ group }}</h2>
+  <div class="separator">
+    <h2>{{ group }}</h2>
+    <div class="line"></div>
+    <div>{{ albums|length }} album{{ albums|length|pluralize }}</div>
+  </div>
   {% endif %}
   <ul class="photo-list {% if not group or grouped_albums|length <= 1 %}ungrouped{% endif %}">
     {% for album in albums %}
