@@ -13,7 +13,13 @@ class AuthViewTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         user = get_user_model()
-        user.objects.create_user(username='test-auth', password='test')
+        user.objects.create_user(
+            username='test-auth-user',
+            password='test')
+        user.objects.create_user(
+            username='test-auth-admin',
+            password='test',
+            is_staff=True)
 
         public_album = Album.objects.create(
             key="test-auth-public", visibility=Album.Visibility.PUBLIC)
@@ -69,17 +75,41 @@ class AuthViewTests(TestCase):
             [self.private_path('sm'), 403],
             [self.private_path('lg'), 403],
             [self.private_path('og'), 403],
-            [self.admin_path('sm'), 204],
-            [self.admin_path('lg'), 204],
+            [self.admin_path('sm'), 403],
+            [self.admin_path('lg'), 403],
             [self.admin_path('og'), 403],
             [self.not_found_path('sm'), 403],
             [self.not_found_path('lg'), 403],
             [self.not_found_path('og'), 403],
         ])
 
-    def test_authenticated_user_can_access_all_photos(self):
+    def test_authenticated_user_access(self):
         login_success = self.client.login(
-            username='test-auth', password='test')
+            username='test-auth-user', password='test')
+        self.assertTrue(login_success)
+
+        self._test_access([
+            [self.public_path('asd'), 403],
+            [self.public_path('sm'), 204],
+            [self.public_path('lg'), 204],
+            [self.public_path('og'), 204],
+            [self.hidden_path('sm'), 204],
+            [self.hidden_path('lg'), 204],
+            [self.hidden_path('og'), 204],
+            [self.private_path('sm'), 204],
+            [self.private_path('lg'), 204],
+            [self.private_path('og'), 204],
+            [self.admin_path('sm'), 403],
+            [self.admin_path('lg'), 403],
+            [self.admin_path('og'), 403],
+            [self.not_found_path('sm'), 403],
+            [self.not_found_path('lg'), 403],
+            [self.not_found_path('og'), 403],
+        ])
+
+    def test_admin_user_access(self):
+        login_success = self.client.login(
+            username='test-auth-admin', password='test')
         self.assertTrue(login_success)
 
         self._test_access([

@@ -44,8 +44,13 @@ def update_album_on_photo_delete(sender, **kwargs):
         album.save()
         return
 
+    try:
+        cover_photo = album.cover_photo
+    except Photo.DoesNotExist:
+        cover_photo = None
+
     needs_save = False
-    if album.cover_photo is None:
+    if cover_photo is None:
         needs_save = True
         album.cover_photo = first_photo
 
