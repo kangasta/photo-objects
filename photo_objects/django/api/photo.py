@@ -11,6 +11,7 @@ from photo_objects.django.forms import (
     ModifyPhotoForm,
     slugify,
 )
+from photo_objects.django.models import Photo, Album
 from photo_objects.img import photo_details
 
 from .auth import check_album_access, check_photo_access
@@ -23,9 +24,24 @@ from .utils import (
 )
 
 
-def get_photos(request: HttpRequest, album_key: str):
-    album = check_album_access(request, album_key)
-    return album.photo_set.all()
+def get_photos(request: HttpRequest, album_key: str = None):
+    if album_key:
+        album = check_album_access(request, album_key)
+        return album.photo_set.all()
+
+    if not request.user.is_authenticated:
+        photos = Photo.objects.filter(
+            album__visibility=Album.Visibility.PUBLIC)
+    elif request.user.is_staff:
+        photos = Photo.objects.all()
+    else:
+        photos = Photo.objects.filter(album__visibility__in=[
+            Album.Visibility.PUBLIC,
+            Album.Visibility.HIDDEN,
+            Album.Visibility.PRIVATE,
+        ])
+
+    return photos.order_by("-timestamp")
 
 
 def _upload_photo(album_key: str, photo_file: UploadedFile):
@@ -90,7 +106,10 @@ def delete_photo(request: HttpRequest, album_key: str, photo_key: str):
     photo = check_photo_access(request, album_key, photo_key, 'xs')
 
     try:
+        # Delete the original photo
         objsto.delete_photo(album_key, photo_key)
+        # Delete the scaled photos
+        objsto.delete_photo("_uuid", photo.uuid)
     except (S3Error, HTTPError) as e:
         msg = objsto.with_error_code(
             "Could not delete photo from object storage", e)

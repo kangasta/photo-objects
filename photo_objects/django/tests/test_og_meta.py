@@ -14,7 +14,7 @@ class OgMetaTests(TestCase):
         album = Album.objects.create(
             key="paris", visibility=Album.Visibility.PUBLIC)
 
-        create_dummy_photo(album, "tower.jpeg")
+        cls.photo = create_dummy_photo(album, "tower.jpeg")
 
     @temp_static_files
     def test_albums_og_meta(self):
@@ -47,7 +47,7 @@ class OgMetaTests(TestCase):
         tags = [
             og_title,
             '<meta property="og:description" content="Description" />',
-            '<meta property="og:image" content="https://test.example.com/img/paris/tower.jpeg/md"/>',  # noqa: E501
+            f'<meta property="og:image" content="https://test.example.com/img/_uuid/{self.photo.uuid}/md"/>',  # noqa: E501
             '<meta property="og:url" content="https://test.example.com/albums" />',  # noqa: E501
         ]
 

@@ -151,7 +151,7 @@ def photo_label(photo: Photo):
         f'''
 <img
   alt="{photo.title}"
-  src="/img/{photo.key}/sm"
+  src="/img/_uuid/{photo.uuid}/sm"
   style="
     background: url(data:image/png;base64,{photo.tiny_base64});
     background-size: 100% 100%;

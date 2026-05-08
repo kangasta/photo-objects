@@ -33,6 +33,14 @@ class Command(BaseCommand):
                 )
             )
             to_delete = CONFIGURABLE_PHOTO_SIZES
+        elif current.version != previous.version:
+            self.stdout.write(
+                self.style.WARNING(
+                    "Photo sizes configuration version has changed. "
+                    "Removing all scaled photos:"
+                )
+            )
+            to_delete = CONFIGURABLE_PHOTO_SIZES
         else:
             to_delete = []
             for size in CONFIGURABLE_PHOTO_SIZES:

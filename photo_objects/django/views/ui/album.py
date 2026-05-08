@@ -14,7 +14,7 @@ from photo_objects.django.views.utils import (
 )
 from photo_objects.utils import render_markdown
 
-from .utils import json_problem_as_html, preview_helptext
+from .utils import json_problem_as_html, preview_helptext, year_month
 
 
 def _group_albums(
@@ -29,6 +29,15 @@ def _group_albums(
         for album in albums:
             key = str(
                 album.first_timestamp.year) if album.first_timestamp else ""
+            result.setdefault(key, []).append(album)
+        return result
+    if group_by == "month":
+        result = {}
+        for album in albums:
+            if album.first_timestamp is None:
+                key = ""
+            else:
+                key = year_month(album.first_timestamp)
             result.setdefault(key, []).append(album)
         return result
     else:

@@ -22,10 +22,10 @@ class PhotoViewTests(TestCase):
             key="test-photo-sizes",
             visibility=Album.Visibility.PUBLIC)
 
-    def _scale_image(self, album_key, photo_key):
+    def _scale_image(self, uuid):
         for size in CONFIGURABLE_PHOTO_SIZES:
             response = self.client.get(
-                f"/api/albums/{album_key}/photos/{photo_key}/img?size={size}")
+                f"/api/photos/{uuid}/img?size={size}")
             self.assertStatus(response, 200)
 
     def test_clean_scaled_photos(self):
@@ -39,10 +39,13 @@ class PhotoViewTests(TestCase):
             "/api/albums/test-photo-sizes/photos",
             {filename: file})
         self.assertStatus(response, 201)
+        uuid = response.json().get("uuid")
 
-        self._scale_image("test-photo-sizes", "tower.jpg")
+        self._scale_image(uuid)
         self.assertPhotoInObjsto(
-            "test-photo-sizes", "tower.jpg", ["sm", "md", "lg", "og"])
+            "test-photo-sizes", "tower.jpg", "og")
+        self.assertPhotoInObjsto(
+            "_uuid", uuid, ["sm", "md", "lg"])
 
         out = StringIO()
         call_command('clean-scaled-photos', stdout=out)
@@ -50,14 +53,15 @@ class PhotoViewTests(TestCase):
         self.assertIn("No previous photo sizes configuration found", output)
         self.assertIn("Total deleted photos: 3", output)
         self.assertPhotoNotInObjsto(
-            "test-photo-sizes",
-            "tower.jpg",
+            "_uuid",
+            uuid,
             CONFIGURABLE_PHOTO_SIZES)
         self.assertPhotoInObjsto("test-photo-sizes", "tower.jpg", "og")
 
-        self._scale_image("test-photo-sizes", "tower.jpg")
+        self._scale_image(uuid)
+        self.assertPhotoInObjsto("test-photo-sizes", "tower.jpg", "og")
         self.assertPhotoInObjsto(
-            "test-photo-sizes", "tower.jpg", ["sm", "md", "lg", "og"])
+            "_uuid", uuid, ["sm", "md", "lg"])
 
         with self.settings(PHOTO_OBJECTS_PHOTO_SIZES=dict(
             sm=dict(max_width=256, max_height=256),
@@ -69,12 +73,14 @@ class PhotoViewTests(TestCase):
                 "Found changes in photo sizes configuration for sm sizes.",
                 output)
             self.assertIn("Total deleted photos: 1", output)
-            self.assertPhotoNotInObjsto("test-photo-sizes", "tower.jpg", "sm")
+            self.assertPhotoNotInObjsto("_uuid", uuid, "sm")
+            self.assertPhotoInObjsto("test-photo-sizes", "tower.jpg", "og")
             self.assertPhotoInObjsto(
-                "test-photo-sizes", "tower.jpg", ["md", "lg", "og"])
+                "_uuid", uuid, ["md", "lg"])
 
         response = self.client.delete(
             "/api/albums/test-photo-sizes/photos/tower.jpg")
         self.assertStatus(response, 204)
+        self.assertPhotoNotInObjsto("test-photo-sizes", "tower.jpg", "og")
         self.assertPhotoNotInObjsto(
-            "test-photo-sizes", "tower.jpg", ["sm", "md", "lg", "og"])
+            "_uuid", uuid, ["sm", "md", "lg"])

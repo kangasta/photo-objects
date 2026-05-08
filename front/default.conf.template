@@ -58,7 +58,7 @@ server {
 
   location @scale_photo {
     rewrite_log on;
-    rewrite ^ /api/albums/$album/photos/$photo/img?size=$size break;
+    rewrite ^ /api/photos/$photo/img?size=$size break;
     proxy_pass http://api;
   }
 }

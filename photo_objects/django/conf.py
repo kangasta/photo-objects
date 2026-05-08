@@ -54,6 +54,7 @@ DEFAULT_LG = dict(
 
 @dataclass
 class PhotoSizes:
+    version: int = None
     sm: PhotoSizeDimensions = None
     md: PhotoSizeDimensions = None
     lg: PhotoSizeDimensions = None
@@ -64,10 +65,14 @@ def validate_photo_sizes(data: dict, prefix=None) -> list[str]:
     errors = []
 
     for key, value in data.items():
-        if key not in CONFIGURABLE_PHOTO_SIZES:
-            expected = pretty_list(CONFIGURABLE_PHOTO_SIZES, 'or')
+        allowed_keys = CONFIGURABLE_PHOTO_SIZES + ["version"]
+        if key not in allowed_keys:
+            expected = pretty_list(allowed_keys, 'or')
             errors.append(
                 f"{prefix} key '{key}' is invalid, expected one of {expected}")
+
+        if key == "version":
+            continue
 
         if not isinstance(value, dict):
             errors.append(f"{prefix} '{key}' must be a dict.")
@@ -95,6 +100,7 @@ def parse_photo_sizes(data: dict) -> PhotoSizes:
             f"Invalid photo sizes configuration: {' '.join(errors)}")
 
     return PhotoSizes(
+        version=data.get('version'),
         sm=PhotoSizeDimensions(**data.get('sm', DEFAULT_SM)),
         md=PhotoSizeDimensions(**data.get('md', DEFAULT_MD)),
         lg=PhotoSizeDimensions(**data.get('lg', DEFAULT_LG)),
@@ -107,4 +113,5 @@ def photo_sizes() -> PhotoSizes:
     except AttributeError:
         data = {}
 
+    data = {**data, "version": 1}
     return parse_photo_sizes(data)

@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from photo_objects.django.api.utils import JsonProblem
 
 
@@ -23,3 +25,7 @@ def preview_helptext(resource_type: str, empty: bool = False) -> str:
         f"This is an example on how the {resource_type} will currently appear "
         "when sharing on social media."
     )
+
+
+def year_month(dt: datetime):
+    return dt.strftime("%Y %B")

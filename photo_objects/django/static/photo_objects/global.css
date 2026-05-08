@@ -779,16 +779,17 @@ label[for="id_photos"] div.photo-upload.failed div.status {
 }
 
 
-/* Albums */
-.albums {
+/* Albums and Photos */
+.albums,
+.photos {
   flex: 1;
 }
 
-.albums.grouped+.actions {
+.grouped+.actions {
   margin-top: 24px;
 }
 
-.albums h2 {
+.grouped h2 {
   border-top: 2px dotted var(--bg-border);
   color: var(--fg-secondary);
   font-size: 1.25em;
@@ -798,7 +799,7 @@ label[for="id_photos"] div.photo-upload.failed div.status {
   padding-top: 8px;
 }
 
-.albums ul.photo-list+h2 {
+.grouped ul.photo-list+h2 {
   margin-top: 40px;
 }
 

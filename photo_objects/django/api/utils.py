@@ -1,4 +1,5 @@
 import json
+from uuid import UUID
 
 from django.forms import ModelForm
 from django.http import HttpRequest, JsonResponse
@@ -110,6 +111,14 @@ class PhotoNotFound(JsonProblem):
     def __init__(self, album_key: str, photo_key: str):
         super().__init__(
             f"Photo with {photo_key} key does not exist in {album_key} album.",
+            404,
+        )
+
+
+class PhotoNotFoundByUUID(JsonProblem):
+    def __init__(self, photo_uuid: UUID):
+        super().__init__(
+            f"Photo with UUID {photo_uuid} does not exist.",
             404,
         )
 

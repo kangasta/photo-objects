@@ -1,5 +1,6 @@
 from dataclasses import asdict
 import mimetypes
+from uuid import UUID
 
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from minio.error import S3Error
@@ -67,19 +68,26 @@ def delete_photo(request: HttpRequest, album_key: str, photo_key: str):
 
 
 @json_problem_as_json
-def get_img(request: HttpRequest, album_key: str, photo_key: str):
+def get_img(request: HttpRequest, photo_uuid: UUID):
     size = request.GET.get("size")
-    api.check_photo_access(request, album_key, photo_key, size)
+    photo = api.check_photo_access_by_uuid(request, photo_uuid, size)
 
-    content_type = mimetypes.guess_type(photo_key)[0]
+    content_type = mimetypes.guess_type(photo.filename)[0]
 
     try:
-        photo_response = objsto.get_photo(album_key, photo_key, size)
+        # Original photos are stored with the album key and filename, while
+        # scaled photos are stored with the uuid as the filename (and _uuid
+        # as the album key).
+        if size == "og":
+            photo_response = objsto.get_photo(
+                photo.album.key, photo.filename, size)
+        else:
+            photo_response = objsto.get_photo("_uuid", photo_uuid, size)
         return HttpResponse(photo_response.read(), content_type=content_type)
     except S3Error:
         try:
             original_photo = objsto.get_photo(
-                album_key, photo_key, PhotoSize.ORIGINAL.value)
+                photo.album.key, photo.filename, PhotoSize.ORIGINAL.value)
         except (S3Error, HTTPError) as e:
             msg = objsto.with_error_code(
                 "Could not fetch photo from object storage", e)
@@ -94,19 +102,21 @@ def get_img(request: HttpRequest, album_key: str, photo_key: str):
         size_params = getattr(photo_sizes(), size)
         # TODO: handle error
         scaled_photo = scale_photo(
-            original_photo, photo_key, **asdict(size_params))
+            original_photo, photo.filename, **asdict(size_params))
 
         # TODO: handle error
         scaled_photo.seek(0)
         objsto.put_photo(
-            album_key,
-            photo_key,
+            "_uuid",
+            str(photo_uuid),
             size,
             scaled_photo,
-            size_params.image_format)
+            size_params.image_format,
+            filename=photo.filename,
+        )
 
         content_type, headers = objsto.photo_content_headers(
-            photo_key, size_params.image_format)
+            photo.filename, size_params.image_format)
 
         scaled_photo.seek(0)
         return HttpResponse(
