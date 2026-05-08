@@ -12,28 +12,32 @@ from photo_objects.django.api.utils import (
 )
 
 
-def check_album_access(request: HttpRequest, album_key: str):
+def _check_album_access(request: HttpRequest, album: Album) -> Album:
+    if not request.user.is_authenticated:
+        if album.visibility == Album.Visibility.PRIVATE:
+            raise AlbumNotFound(album.key)
+
+    if not request.user.is_staff:
+        if album.visibility == Album.Visibility.ADMIN:
+            raise AlbumNotFound(album.key)
+
+    return album
+
+
+def check_album_access(request: HttpRequest, album_key: str) -> Album:
     try:
         album = Album.objects.get(key=album_key)
     except Album.DoesNotExist:
         raise AlbumNotFound(album_key) from None
 
-    if not request.user.is_authenticated:
-        if album.visibility == Album.Visibility.PRIVATE:
-            raise AlbumNotFound(album_key)
-
-    if not request.user.is_staff:
-        if album.visibility == Album.Visibility.ADMIN:
-            raise AlbumNotFound(album_key)
-
-    return album
+    return _check_album_access(request, album)
 
 
 def check_photo_access(
         request: HttpRequest,
         album_key: str,
         photo_key: str,
-        size_key: str):
+        size_key: str) -> Photo:
     try:
         size = PhotoSize(size_key)
     except ValueError:
@@ -44,9 +48,9 @@ def check_photo_access(
     except Photo.DoesNotExist:
         raise PhotoNotFound(album_key, photo_key) from None
 
+    _check_album_access(request, photo.album)
+
     if not request.user.is_authenticated:
-        if photo.album.visibility == Album.Visibility.PRIVATE:
-            raise AlbumNotFound(album_key)
         if size == PhotoSize.ORIGINAL:
             raise Unauthorized()
 
