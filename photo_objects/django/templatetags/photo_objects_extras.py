@@ -30,6 +30,11 @@ def display_name(user):
 
 
 @register.filter
+def first_key(d: dict):
+    return next(iter(d.keys()), None)
+
+
+@register.filter
 def is_datetime(value):
     return isinstance(value, datetime)
 

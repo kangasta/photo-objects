@@ -5,9 +5,6 @@ from photo_objects.django.models import Album, Photo, SiteSettings
 from .utils import TestCase, create_dummy_photo, temp_static_files
 
 
-PHOTOS_DIRECTORY = "photos"
-
-
 class OgMetaTests(TestCase):
     @classmethod
     def setUpTestData(cls):

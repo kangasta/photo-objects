@@ -6,11 +6,13 @@ from unittest import mock
 
 from ciou.time import utcnow
 from django.contrib.auth import get_user_model
+from django.contrib.sites.models import Site
 from PIL import Image
 from urllib3.exceptions import HTTPError
 
-from photo_objects.django.models import Album
+from photo_objects.django.models import Album, Photo, SiteSettings
 from photo_objects.django.objsto import get_photo
+from photo_objects.django.views.ui.utils import year_month
 
 from .utils import (
     TestCase,
@@ -18,6 +20,7 @@ from .utils import (
     create_dummy_photo,
     open_test_photo,
     parse_timestamps,
+    temp_static_files,
 )
 
 
@@ -418,3 +421,42 @@ class PhotoViewTests(TestCase):
                 'cover_photo': None,
             }
         )
+
+    @temp_static_files
+    def test_paging(self):
+        login_success = self.client.login(
+            username='has_permission', password='test')
+        self.assertTrue(login_success)
+
+        for i in ["bus-stop.jpg", "tower.jpg", "havfrue.jpg"]:
+            self._upload_photo("test-photo-a", i)
+
+        # havfrue.jpg does not have capture time in EXIF info, so upload
+        # time is used as the timestamp.
+        cph_group = year_month(utcnow())
+
+        response = self.client.get("/photos")
+        self.assertStatus(response, 200)
+        self.assertNotContains(response, 'Page 1 of 2', html=True)
+        self.assertNotContains(response, f'<h2>{cph_group}</h2>', html=True)
+
+        count = Photo.objects.count()
+
+        site_settings = SiteSettings.objects.get(site=Site.objects.get(id=1))
+        site_settings.photos_group_by = SiteSettings.GroupBy.MONTH
+        site_settings.photos_page_size = count - 2
+        site_settings.photos_orphans = 0
+        site_settings.save()
+
+        response = self.client.get("/photos")
+        self.assertStatus(response, 200)
+        self.assertContains(response, f'<h2>{cph_group}</h2>', html=True)
+        self.assertContains(response, 'Page 1 of 2', html=True)
+
+        site_settings.photos_orphans = 2
+        site_settings.save()
+
+        response = self.client.get("/photos")
+        self.assertStatus(response, 200)
+        self.assertContains(response, f'<h2>{cph_group}</h2>', html=True)
+        self.assertNotContains(response, 'Page 1 of 2', html=True)

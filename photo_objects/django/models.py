@@ -5,7 +5,7 @@ from django.db import models
 from django.db.models.query import QuerySet
 from django.db.models.signals import pre_delete, pre_save
 from django.contrib.sites.models import Site
-from django.core.validators import RegexValidator
+from django.core.validators import MinValueValidator, RegexValidator
 from django.utils.translation import gettext_lazy as _
 
 from photo_objects.utils import first_paragraph_textcontent, timestamp_str
@@ -263,6 +263,22 @@ class SiteSettings(models.Model):
         help_text=_(
             "If and how photos are grouped in the list photos view."),
         verbose_name=_("Photos / group by"),
+    )
+    photos_page_size = models.PositiveIntegerField(
+        blank=True,
+        default=96,
+        help_text=_(
+            "Number of photos to display per page in the list photos view."),
+        validators=[MinValueValidator(8)],
+        verbose_name=_("Photos / page size"),
+    )
+    photos_orphans = models.PositiveIntegerField(
+        blank=True,
+        default=24,
+        help_text=_(
+            "If the last page has fewer photos than this number, they will be "
+            "combined into the penultimate page."),
+        verbose_name=_("Photos / orphans"),
     )
     copyright_notice = models.CharField(
         blank=True,

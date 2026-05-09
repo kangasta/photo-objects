@@ -1,5 +1,6 @@
 from uuid import UUID
 
+from django.core.paginator import Paginator
 from django.http import HttpRequest, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
@@ -74,15 +75,24 @@ def list_photos(request: HttpRequest):
     try:
         settings = SiteSettings.objects.get(request.site)
         group_by = settings.photos_group_by
+        page_size = settings.photos_page_size
+        orphans = settings.photos_orphans
     except SiteSettings.DoesNotExist:
         group_by = "none"
+        page_size = 96
+        orphans = 24
 
     photos = api.get_photos(request)
 
+    page = request.GET.get("page", "1")
+    paginator = Paginator(photos, page_size, orphans=orphans)
+    page = paginator.get_page(page)
+
     return render(request, "photo_objects/photo/list.html", {
-        "grouped_photos": _group_photos(photos, group_by),
+        "grouped_photos": _group_photos(page, group_by),
         "title": "Photos",
         "description": meta_description(request, photos),
+        "page": page,
     })
 
 

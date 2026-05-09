@@ -12,12 +12,8 @@ from .utils import (
     add_permissions,
     parse_timestamps,
     create_dummy_photo,
-    open_test_photo,
     temp_static_files
 )
-
-
-PHOTOS_DIRECTORY = "photos"
 
 
 class ViewVisibilityTests(TestCase):
@@ -298,32 +294,6 @@ class AlbumViewTests(TestCase):
         key_2 = response.json().get("key")
         self.assertRegex(key_2, key_re)
         self.assertNotEqual(key_1, key_2)
-
-    def _create_album(
-            self,
-            title,
-            description="",
-            visibility="hidden",
-            key="_new"):
-        data = dict(
-            key=key,
-            visibility=visibility,
-            title=title,
-            description=description)
-        response = self.client.post(
-            "/api/albums",
-            content_type="application/json",
-            data=data)
-        self.assertStatus(response, 201)
-
-        return response
-
-    def _upload_photo(self, album_key, filename):
-        file = open_test_photo(filename)
-        response = self.client.post(
-            f"/api/albums/{album_key}/photos",
-            {filename: file})
-        self.assertStatus(response, 201)
 
     def test_crud_actions(self):
         login_success = self.client.login(
