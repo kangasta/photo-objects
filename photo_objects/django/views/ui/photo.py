@@ -219,8 +219,7 @@ def show_album_photo(request: HttpRequest, album_key: str, photo_key: str):
 def show_photo(request: HttpRequest, photo_uuid: UUID):
     photo = api.check_photo_access_by_uuid(request, photo_uuid, "lg")
 
-    previous_uuid = photo.key.split("/")[-1]
-    next_uuid = previous_uuid
+    next_uuid = previous_uuid = photo.uuid
     back = BackLink("Photos", reverse('photo_objects:list_photos'))
 
     photos = api.get_photos(request)
