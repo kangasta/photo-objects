@@ -9,9 +9,17 @@ class OgMetaTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         album = Album.objects.create(
-            key="paris", visibility=Album.Visibility.PUBLIC)
+            title="Paris", key="paris", visibility=Album.Visibility.PUBLIC)
 
         cls.photo = create_dummy_photo(album, "tower.jpeg")
+
+    def _configure_site(self):
+        site = Site.objects.get(id=1)
+        site.name = "Test"
+        site.domain = "test.example.com"
+        site.save()
+
+        return site
 
     @temp_static_files
     def test_albums_og_meta(self):
@@ -24,10 +32,7 @@ class OgMetaTests(TestCase):
             status_code=200,
             html=True)
 
-        site = Site.objects.get(id=1)
-        site.name = "Test"
-        site.domain = "test.example.com"
-        site.save()
+        site = self._configure_site()
 
         response = self.client.get("/albums")
         self.assertNotContains(
@@ -55,3 +60,39 @@ class OgMetaTests(TestCase):
                 tag,
                 status_code=200,
                 html=True)
+
+    @temp_static_files
+    def test_photo_default_og_meta(self):
+        self._configure_site()
+
+        month_year = self.photo.timestamp.strftime("%B %Y")
+        og_desc_album = (
+            '<meta property="og:description" content="Photo from '
+            f'{month_year} in Paris album." />')
+        og_desc_photo = (
+            '<meta property="og:description" content="Photo from '
+            f'{month_year}." />')
+
+        response = self.client.get("/albums/paris/photos/tower.jpeg")
+        self.assertContains(
+            response,
+            og_desc_album,
+            status_code=200,
+            html=True)
+        self.assertNotContains(
+            response,
+            og_desc_photo,
+            status_code=200,
+            html=True)
+
+        response = self.client.get(f"/photos/{self.photo.uuid}")
+        self.assertNotContains(
+            response,
+            og_desc_album,
+            status_code=200,
+            html=True)
+        self.assertContains(
+            response,
+            og_desc_photo,
+            status_code=200,
+            html=True)

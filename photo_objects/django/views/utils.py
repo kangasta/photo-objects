@@ -30,9 +30,12 @@ def _default_album_description(request: HttpRequest, album: Album) -> str:
     return f"Album with {count} photo{plural} in {request.site.name}."
 
 
-def _default_photo_description(photo: Photo) -> str:
+def _default_photo_description(request: HttpRequest, photo: Photo) -> str:
     date_str = format_date(photo.timestamp, "F Y")
-    return f"Photo from {date_str} in {photo.album.title} album."
+    album_str = "."
+    if request.path.startswith("/albums/"):
+        album_str = f" in {photo.album.title} album."
+    return f"Photo from {date_str}{album_str}"
 
 
 def meta_description(
@@ -47,7 +50,7 @@ def meta_description(
     if isinstance(resource, Photo):
         return (
             first_paragraph_textcontent(resource.description) or
-            _default_photo_description(resource))
+            _default_photo_description(request, resource))
 
     if isinstance(resource, str):
         return first_paragraph_textcontent(resource)
