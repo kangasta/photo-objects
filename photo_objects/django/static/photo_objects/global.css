@@ -346,6 +346,12 @@ div.actions {
   gap: .5rem;
 }
 
+.page-info {
+  color: var(--fg-secondary);
+  font-size: 0.8em;
+  padding: .5rem 1rem;
+}
+
 
 /* Default focus style*/
 button:focus-visible,

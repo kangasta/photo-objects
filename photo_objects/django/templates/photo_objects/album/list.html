@@ -1,4 +1,5 @@
 {% extends 'photo_objects/base.html' %}
+{% load photo_objects_extras %}
 
 {% block header %}
 {% include 'photo_objects/header.html' %}
@@ -7,9 +8,9 @@
 {% block content %}
 
 {% if grouped_albums %}
-<div class="albums {% if grouped_albums|length > 1 %}grouped{% endif %}">
+<div class="albums {% if grouped_albums|first_key or grouped_albums|length > 1 %} grouped{% endif %}">
   {% for group, albums in grouped_albums.items %}
-  {% if group and grouped_albums|length > 1 %}
+  {% if group %}
   <h2>{{ group }}</h2>
   {% endif %}
   <ul class="photo-list">
@@ -20,8 +21,7 @@
         <div class="visibility {{ album.visibility }}">{{ album.get_visibility_display }}</div>
         {% endif %}
         {% if album.cover_photo %}
-        <img src="/img/_uuid/{{ album.cover_photo.uuid }}/sm"
-          alt="{{ album.cover_photo.alt }}"
+        <img src="/img/_uuid/{{ album.cover_photo.uuid }}/sm" alt="{{ album.cover_photo.alt }}"
           style="background: url(data:image/png;base64,{{ album.cover_photo.tiny_base64 }}); background-size: 100% 100%; font-size: 0;"
           height="{{ album.cover_photo.thumbnail_height }}" width="{{ album.cover_photo.thumbnail_width }}" />
         {% else %}

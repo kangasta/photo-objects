@@ -63,6 +63,32 @@ class TestCase(DjangoTestCase):
 
         client.remove_bucket(bucket)
 
+    def _create_album(
+            self,
+            title,
+            description="",
+            visibility="hidden",
+            key="_new"):
+        data = dict(
+            key=key,
+            visibility=visibility,
+            title=title,
+            description=description)
+        response = self.client.post(
+            "/api/albums",
+            content_type="application/json",
+            data=data)
+        self.assertStatus(response, 201)
+
+        return response
+
+    def _upload_photo(self, album_key, filename):
+        file = open_test_photo(filename)
+        response = self.client.post(
+            f"/api/albums/{album_key}/photos",
+            {filename: file})
+        self.assertStatus(response, 201)
+
     def assertPhotoObjstoMetadata(self, object_key, key, value):
         client, bucket = objsto._photos_access()
         obj = client.stat_object(bucket, object_key)
