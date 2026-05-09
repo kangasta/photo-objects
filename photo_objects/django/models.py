@@ -1,4 +1,5 @@
 from typing import Self
+from uuid import uuid4
 
 from django.db import models
 from django.db.models.query import QuerySet
@@ -91,6 +92,7 @@ class Photo(BaseModel):
         ordering = ["timestamp"]
 
     key = models.CharField(primary_key=True, validators=[photo_key_validator])
+    uuid = models.UUIDField(default=uuid4, editable=False, unique=True)
     album = models.ForeignKey("Album", null=True, on_delete=models.PROTECT)
 
     timestamp = models.DateTimeField()
@@ -158,6 +160,7 @@ class Photo(BaseModel):
         return dict(
             **super().to_json(),
             key=self.key,
+            uuid=self.uuid,
             filename=self.filename,
             album=album_key,
             timestamp=self.timestamp.isoformat(),
@@ -224,6 +227,7 @@ class SiteSettings(models.Model):
     class GroupBy(models.TextChoices):
         NONE = "none", _("None")
         YEAR = "year", _("Year")
+        MONTH = "month", _("Month")
 
     site = models.OneToOneField(
         Site, on_delete=models.CASCADE, related_name="settings")
@@ -251,7 +255,15 @@ class SiteSettings(models.Model):
             "If and how albums are grouped in the list albums view."),
         verbose_name=_("Albums / group by"),
     )
-
+    photos_group_by = models.CharField(
+        blank=True,
+        db_default=GroupBy.NONE,
+        default=GroupBy.NONE,
+        choices=GroupBy,
+        help_text=_(
+            "If and how photos are grouped in the list photos view."),
+        verbose_name=_("Photos / group by"),
+    )
     copyright_notice = models.CharField(
         blank=True,
         help_text=_(

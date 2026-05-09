@@ -23,7 +23,7 @@ urlpatterns = [
         "api/photo-change-requests/expected",
         api.expected_photo_change_requests,
     ),
-    path("api/albums/<str:album_key>/photos/<str:photo_key>/img", api.get_img),
+    path("api/photos/<uuid:photo_uuid>/img", api.get_img),
     # TODO: ui views
     path('', lambda _: HttpResponseRedirect('albums')),
     path(
@@ -58,16 +58,36 @@ urlpatterns = [
     ),
     path(
         "albums/<str:album_key>/photos/<str:photo_key>",
+        ui.show_album_photo,
+        name="show_album_photo",
+    ),
+    path(
+        "albums/<str:album_key>/photos/<str:photo_key>/_edit",
+        ui.edit_album_photo,
+        name="edit_album_photo",
+    ),
+    path(
+        "albums/<str:album_key>/photos/<str:photo_key>/_delete",
+        ui.delete_album_photo,
+        name="delete_album_photo",
+    ),
+    path(
+        "photos",
+        ui.list_photos,
+        name="list_photos",
+    ),
+    path(
+        "photos/<uuid:photo_uuid>",
         ui.show_photo,
         name="show_photo",
     ),
     path(
-        "albums/<str:album_key>/photos/<str:photo_key>/_edit",
+        "photos/<uuid:photo_uuid>/_edit",
         ui.edit_photo,
         name="edit_photo",
     ),
     path(
-        "albums/<str:album_key>/photos/<str:photo_key>/_delete",
+        "photos/<uuid:photo_uuid>/_delete",
         ui.delete_photo,
         name="delete_photo",
     ),

@@ -232,17 +232,32 @@ class PhotoViewTests(TestCase):
             "/api/albums/test-photo-a/photos",
             {filename: file})
         self.assertStatus(response, 201)
+        uuid = response.json().get("uuid")
+
+        # Validate Content-Disposition header
+        self.assertPhotoObjstoMetadata(
+            "og/test-photo-a/tower.jpg",
+            "Content-Disposition",
+            "inline; filename=tower.jpg",
+        )
 
         # Scales image down from the original size
         small_response = self.client.get(
-            "/api/albums/test-photo-a/photos/tower.jpg/img?size=sm")
+            f"/api/photos/{uuid}/img?size=sm")
         self.assertStatus(small_response, 200)
         _, height = Image.open(BytesIO(small_response.content)).size
         self.assertEqual(height, 512)
 
+        # Validate Content-Disposition header
+        self.assertPhotoObjstoMetadata(
+            f"sm/_uuid/{uuid}",
+            "Content-Disposition",
+            "inline; filename=tower.webp",
+        )
+
         # Does not scale image up from the original size
         large_response = self.client.get(
-            "/api/albums/test-photo-a/photos/tower.jpg/img?size=lg")
+            f"/api/photos/{uuid}/img?size=lg")
         self.assertStatus(large_response, 200)
         _, height = Image.open(BytesIO(large_response.content)).size
         self.assertEqual(height, 512)
@@ -258,6 +273,7 @@ class PhotoViewTests(TestCase):
             "/api/albums/test-photo-a/photos",
             {filename: file})
         self.assertStatus(response, 201)
+        tower_uuid = response.json().get("uuid")
 
         # Can upload photo with the same name to a different album
         tic = utcnow()
@@ -317,6 +333,7 @@ class PhotoViewTests(TestCase):
             {filename: file})
         self.assertStatus(response, 201)
         last_timestamp = response.json().get("timestamp")
+        havfrue_uuid = response.json().get("uuid")
         self.assertGreater(last_timestamp,
                            (utcnow() - timedelta(minutes=1)).isoformat())
 
@@ -329,7 +346,7 @@ class PhotoViewTests(TestCase):
         first_timestamp = response.json().get("timestamp")
 
         response = self.client.get(
-            "/api/albums/test-photo-a/photos/tower.jpg/img?size=og")
+            f"/api/photos/{tower_uuid}/img?size=og")
         self.assertStatus(response, 200)
 
         response = self.client.get(
@@ -378,11 +395,11 @@ class PhotoViewTests(TestCase):
         )
 
         response = self.client.get(
-            "/api/albums/test-photo-a/photos/havfrue.jpg/img?size=og")
+            f"/api/photos/{havfrue_uuid}/img?size=og")
         self.assertStatus(response, 200)
 
         response = self.client.get(
-            "/api/albums/test-photo-a/photos/tower.jpg/img?size=og")
+            f"/api/photos/{tower_uuid}/img?size=og")
         self.assertStatus(response, 404)
 
         response = self.client.get("/api/albums/test-photo-a/photos/tower.jpg")

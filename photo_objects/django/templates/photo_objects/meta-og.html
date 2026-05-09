@@ -3,7 +3,7 @@
 {% if description %}
 <meta property="og:description" content="{{ description }}" />
 {% endif %}
-<meta property="og:image" content="https://{{ request.site.domain }}/img/{{ photo.album.key }}/{{ photo.filename }}/md" />
+<meta property="og:image" content="https://{{ request.site.domain }}/img/_uuid/{{ photo.uuid }}/md" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://{{ request.site.domain }}{{ request.path }}" />
 {% endif %}

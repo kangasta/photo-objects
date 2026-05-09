@@ -63,6 +63,15 @@ class TestCase(DjangoTestCase):
 
         client.remove_bucket(bucket)
 
+    def assertPhotoObjstoMetadata(self, object_key, key, value):
+        client, bucket = objsto._photos_access()
+        obj = client.stat_object(bucket, object_key)
+        self.assertIn(key, obj.metadata)
+        self.assertEqual(
+            obj.metadata[key],
+            value,
+        )
+
     def assertPhotoInObjsto(self, album_key, photo_key, sizes):
         if not isinstance(sizes, list):
             sizes = [sizes]

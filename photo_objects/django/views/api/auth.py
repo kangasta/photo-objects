@@ -20,7 +20,10 @@ def has_permission(request: HttpRequest):
         return HttpResponse(status=403)
 
     try:
-        api.check_photo_access(request, album_key, photo_key, raw_size)
+        if album_key == "_uuid":
+            api.check_photo_access_by_uuid(request, photo_key, raw_size)
+        else:
+            api.check_photo_access(request, album_key, photo_key, raw_size)
         return HttpResponse(status=204)
     except JsonProblem:
         return HttpResponse(status=403)

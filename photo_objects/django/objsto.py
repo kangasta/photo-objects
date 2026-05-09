@@ -195,10 +195,10 @@ def _photo_filename(photo_key: str, image_format: str = None) -> str:
 
 
 def photo_content_headers(
-    photo_key: str,
+    filename: str,
     image_format: str = None,
 ) -> tuple[str, dict[str, str]]:
-    filename = _photo_filename(photo_key, image_format)
+    filename = _photo_filename(filename, image_format)
 
     content_type = mimetypes.guess_type(filename, strict=False)[0]
     headers = {
@@ -208,8 +208,17 @@ def photo_content_headers(
     return content_type, headers
 
 
-def put_photo(album_key, photo_key, size_key, photo_file, image_format=None):
-    content_type, headers = photo_content_headers(photo_key, image_format)
+def put_photo(
+        album_key,
+        photo_key,
+        size_key,
+        photo_file,
+        image_format=None,
+        filename=None):
+    if not filename:
+        filename = photo_key
+
+    content_type, headers = photo_content_headers(filename, image_format)
 
     client, bucket = _photos_access()
     return client.put_object(
