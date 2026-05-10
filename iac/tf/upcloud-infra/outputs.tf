@@ -1,5 +1,6 @@
 output "cluster" {
-  value = data.upcloud_kubernetes_cluster.this
+  value     = ephemeral.upcloud_kubernetes_cluster.this
+  ephemeral = true
 }
 
 output "objsto" {

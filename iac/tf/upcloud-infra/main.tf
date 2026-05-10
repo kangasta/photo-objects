@@ -2,7 +2,7 @@ terraform {
   required_providers {
     upcloud = {
       source  = "UpCloudLtd/upcloud"
-      version = "~> 5.24"
+      version = "~> 5.34"
     }
   }
 }
@@ -43,7 +43,7 @@ resource "upcloud_kubernetes_cluster" "this" {
   private_node_groups     = true
 }
 
-data "upcloud_kubernetes_cluster" "this" {
+ephemeral "upcloud_kubernetes_cluster" "this" {
   id = upcloud_kubernetes_cluster.this.id
 }
 
