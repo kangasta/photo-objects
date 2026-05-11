@@ -28,23 +28,30 @@ class ViewVisibilityTests(TestCase):
 
         album = Album.objects.create(
             key="venice", visibility=Album.Visibility.PUBLIC)
-        Album.objects.create(
-            key="test-visibility-public",
-            visibility=Album.Visibility.PUBLIC)
-        Album.objects.create(
-            key="test-visibility-private",
-            visibility=Album.Visibility.PRIVATE)
-        Album.objects.create(
-            key="test-visibility-hidden",
-            visibility=Album.Visibility.HIDDEN)
-        Album.objects.create(
-            key="test-visibility-admin",
-            visibility=Album.Visibility.ADMIN)
+        for filename in [
+            "tower.jpeg",
+            "canal.jpeg",
+            "gondola.jpeg",
+            "church.jpeg",
+        ]:
+            create_dummy_photo(album, filename)
 
-        create_dummy_photo(album, "tower.jpeg")
-        create_dummy_photo(album, "canal.jpeg")
-        create_dummy_photo(album, "gondola.jpeg")
-        create_dummy_photo(album, "church.jpeg")
+        cls.albums = []
+        cls.albums.append(Album.objects.create(
+            key="test-visibility-public",
+            visibility=Album.Visibility.PUBLIC))
+        cls.albums.append(Album.objects.create(
+            key="test-visibility-private",
+            visibility=Album.Visibility.PRIVATE))
+        cls.albums.append(Album.objects.create(
+            key="test-visibility-hidden",
+            visibility=Album.Visibility.HIDDEN))
+        cls.albums.append(Album.objects.create(
+            key="test-visibility-admin",
+            visibility=Album.Visibility.ADMIN))
+
+        for album in cls.albums:
+            create_dummy_photo(album, "photo.jpeg")
 
     def test_anonymous_user_can_see_public_albums(self):
         response = self.client.get("/api/albums")
@@ -78,12 +85,55 @@ class ViewVisibilityTests(TestCase):
             ("GET", "/api/albums/test-visibility-admin", 404),
         ])
 
-    def test_get_photos_lists_all_photos(self):
+    def test_get_album_photos_lists_all_photos(self):
         photos = self.client.get("/api/albums/venice/photos").json()
         self.assertEqual(len(photos), 4)
 
         photo = next(i for i in photos if i.get('key') == 'venice/tower.jpeg')
         self.assertEqual(photo.get('album'), 'venice', photos)
+
+    def test_get_photos_visibility(self):
+        response = self.client.get("/api/photos")
+        self.assertStatus(response, 200)
+
+        photos = response.json()
+        public_count = len(photos)
+
+        albums = [i.get('album') for i in photos]
+        self.assertIn("test-visibility-public", albums)
+        self.assertNotIn("test-visibility-hidden", albums)
+        self.assertNotIn("test-visibility-private", albums)
+        self.assertNotIn("test-visibility-admin", albums)
+
+        login_success = self.client.login(
+            username='test-visibility', password='test')
+        self.assertTrue(login_success)
+
+        response = self.client.get("/api/photos")
+        self.assertStatus(response, 200)
+        self.assertEqual(len(response.json()), public_count + 2)
+
+        photos = response.json()
+        albums = [i.get('album') for i in photos]
+        self.assertIn("test-visibility-public", albums)
+        self.assertIn("test-visibility-hidden", albums)
+        self.assertIn("test-visibility-private", albums)
+        self.assertNotIn("test-visibility-admin", albums)
+
+        login_success = self.client.login(
+            username='test-staff-visibility', password='test')
+        self.assertTrue(login_success)
+
+        response = self.client.get("/api/photos")
+        self.assertStatus(response, 200)
+        self.assertEqual(len(response.json()), public_count + 3)
+
+        photos = response.json()
+        albums = [i.get('album') for i in photos]
+        self.assertIn("test-visibility-public", albums)
+        self.assertIn("test-visibility-hidden", albums)
+        self.assertIn("test-visibility-private", albums)
+        self.assertIn("test-visibility-admin", albums)
 
 
 class AlbumViewTests(TestCase):

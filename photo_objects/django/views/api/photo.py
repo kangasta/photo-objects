@@ -20,7 +20,7 @@ from .utils import json_problem_as_json
 
 
 @json_problem_as_json
-def photos(request: HttpRequest, album_key: str):
+def album_photos(request: HttpRequest, album_key: str):
     if request.method == "GET":
         return get_photos(request, album_key)
     if request.method == "POST":
@@ -29,7 +29,15 @@ def photos(request: HttpRequest, album_key: str):
         return MethodNotAllowed(["GET", "POST"], request.method).json_response
 
 
-def get_photos(request: HttpRequest, album_key: str):
+@json_problem_as_json
+def photos(request: HttpRequest):
+    if request.method == "GET":
+        return get_photos(request)
+    else:
+        return MethodNotAllowed(["GET"], request.method).json_response
+
+
+def get_photos(request: HttpRequest, album_key: str = None):
     photos = api.get_photos(request, album_key)
     return JsonResponse([i.to_json() for i in photos], safe=False)
 
@@ -40,7 +48,7 @@ def upload_photo(request: HttpRequest, album_key: str):
 
 
 @json_problem_as_json
-def photo(request: HttpRequest, album_key: str, photo_key: str):
+def album_photo(request: HttpRequest, album_key: str, photo_key: str):
     if request.method == "GET":
         return get_photo(request, album_key, photo_key)
     if request.method == "PATCH":
