@@ -2,7 +2,7 @@ terraform {
   required_providers {
     upcloud = {
       source  = "UpCloudLtd/upcloud"
-      version = "~> 5.34"
+      version = "~> 5.37"
     }
   }
 }
@@ -48,10 +48,14 @@ ephemeral "upcloud_kubernetes_cluster" "this" {
 }
 
 resource "upcloud_kubernetes_node_group" "default" {
-  cluster    = upcloud_kubernetes_cluster.this.id
-  node_count = 1
-  name       = "default"
-  plan       = "2xCPU-4GB"
+  cluster     = upcloud_kubernetes_cluster.this.id
+  node_count  = 1
+  name_prefix = "default"
+  plan        = "STARTER-2xCPU-4GB"
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "upcloud_managed_object_storage" "this" {
