@@ -1,7 +1,8 @@
 from .album import album, albums
 from .auth import has_permission
 from .photo import (
-    photo,
+    album_photo,
+    album_photos,
     photo_change_requests,
     photos,
     get_img,

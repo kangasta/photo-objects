@@ -10,7 +10,7 @@ from django.contrib.sites.models import Site
 from PIL import Image
 from urllib3.exceptions import HTTPError
 
-from photo_objects.django.models import Album, Photo, SiteSettings
+from photo_objects.django.models import Album, SiteSettings
 from photo_objects.django.objsto import get_photo
 from photo_objects.django.views.ui.utils import year_month
 
@@ -270,6 +270,10 @@ class PhotoViewTests(TestCase):
             username='has_permission', password='test')
         self.assertTrue(login_success)
 
+        response = self.client.get("/api/photos")
+        self.assertStatus(response, 200)
+        photos_count = len(response.json())
+
         filename = "tower.jpg"
         file = open_test_photo(filename)
         response = self.client.post(
@@ -369,6 +373,10 @@ class PhotoViewTests(TestCase):
             }
         )
 
+        response = self.client.get("/api/photos")
+        self.assertStatus(response, 200)
+        self.assertEqual(len(response.json()), photos_count + 4)
+
         response = self.client.delete(
             "/api/albums/test-photo-a/photos/tower.jpg")
         self.assertStatus(response, 204)
@@ -440,7 +448,9 @@ class PhotoViewTests(TestCase):
         self.assertNotContains(response, 'Page 1 of 2', html=True)
         self.assertNotContains(response, f'<h2>{cph_group}</h2>', html=True)
 
-        count = Photo.objects.count()
+        response = self.client.get("/api/photos")
+        self.assertStatus(response, 200)
+        count = len(response.json())
 
         site_settings = SiteSettings.objects.get(site=Site.objects.get(id=1))
         site_settings.photos_group_by = SiteSettings.GroupBy.MONTH
