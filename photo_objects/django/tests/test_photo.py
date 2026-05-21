@@ -70,7 +70,7 @@ class PhotoViewTests(TestCase):
             visibility=Album.Visibility.PUBLIC)
         Album.objects.create(
             key="test-photo-b",
-            visibility=Album.Visibility.PUBLIC)
+            visibility=Album.Visibility.HIDDEN)
 
     def test_post_photo_with_non_formdata_fails(self):
         login_success = self.client.login(
@@ -470,3 +470,28 @@ class PhotoViewTests(TestCase):
         self.assertStatus(response, 200)
         self.assertContains(response, f'<h2>{cph_group}</h2>', html=True)
         self.assertNotContains(response, 'Page 1 of 2', html=True)
+
+    @temp_static_files
+    def test_album_link(self):
+        login_success = self.client.login(
+            username='has_permission', password='test')
+        self.assertTrue(login_success)
+
+        response = self._upload_photo("test-photo-b", "tower.jpg")
+        photo_uuid = response.json().get("uuid")
+
+        album_title_label = '<div class="label-primary">test-photo-b</div>'
+
+        response = self.client.get(f"/photos/{photo_uuid}")
+        self.assertStatus(response, 200)
+        self.assertContains(response, album_title_label, html=True)
+
+        response = self.client.get("/albums/test-photo-b/photos/tower.jpg")
+        self.assertStatus(response, 200)
+        self.assertNotContains(response, album_title_label, html=True)
+
+        self.client.logout()
+
+        response = self.client.get(f"/photos/{photo_uuid}")
+        self.assertStatus(response, 200)
+        self.assertNotContains(response, album_title_label, html=True)
