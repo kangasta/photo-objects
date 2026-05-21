@@ -89,6 +89,8 @@ class TestCase(DjangoTestCase):
             {filename: file})
         self.assertStatus(response, 201)
 
+        return response
+
     def assertPhotoObjstoMetadata(self, object_key, key, value):
         client, bucket = objsto._photos_access()
         obj = client.stat_object(bucket, object_key)

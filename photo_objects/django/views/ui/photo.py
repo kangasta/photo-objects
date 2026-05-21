@@ -12,10 +12,11 @@ from photo_objects.django.api.utils import (
     FormValidationFailed,
 )
 from photo_objects.django.forms import ModifyPhotoForm
-from photo_objects.django.models import Photo, SiteSettings
+from photo_objects.django.models import Album, Photo, SiteSettings
 from photo_objects.django.views.utils import (
     BackLink,
     Preview,
+    PreviewLink,
     meta_description,
 )
 from photo_objects.utils import render_markdown
@@ -152,12 +153,26 @@ def _camera_settings(photo: Photo):
     return r
 
 
+def _user_knows_album(request: HttpRequest, album: Album) -> bool:
+    if not request.user.is_authenticated:
+        return album.visibility == Album.Visibility.PUBLIC
+    if request.user.is_staff:
+        return True
+
+    return album.visibility in [
+        Album.Visibility.PUBLIC,
+        Album.Visibility.HIDDEN,
+        Album.Visibility.PRIVATE,
+    ]
+
+
 def _show_photo(
         request: HttpRequest,
         photo: Photo,
         previous_path: str,
         next_path: str,
-        back: BackLink):
+        back: BackLink,
+        show_album_link: bool = False):
     details = {
         "Description": render_markdown(photo.description),
         "Timestamp": photo.timestamp,
@@ -167,6 +182,20 @@ def _show_photo(
         "Created at": photo.created_at,
         "Updated at": photo.updated_at,
     }
+
+    if show_album_link and _user_knows_album(request, photo.album):
+        details = {
+            "Album": PreviewLink(
+                photo.album.cover_photo,
+                reverse(
+                    'photo_objects:show_album',
+                    kwargs={
+                        "album_key": photo.album.key}),
+                photo.album.title or photo.album.key,
+                photo.album.first_timestamp.strftime("%Y %B"),
+            ),
+            **details,
+        }
 
     return render(request, "photo_objects/photo/show.html", {
         "photo": photo,
@@ -239,7 +268,13 @@ def show_photo(request: HttpRequest, photo_uuid: UUID):
         kwargs={
             "photo_uuid": next_uuid})
 
-    return _show_photo(request, photo, previous_path, next_path, back)
+    return _show_photo(
+        request,
+        photo,
+        previous_path,
+        next_path,
+        back,
+        show_album_link=True)
 
 
 @json_problem_as_html

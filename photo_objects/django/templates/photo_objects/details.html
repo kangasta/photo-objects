@@ -1,4 +1,5 @@
 {% load photo_objects_extras %}
+
 <dl>
   {% for key, value in details.items %}
   {% if value %}
@@ -17,6 +18,24 @@
       {{ value|date:"D, d M Y H:i" }}
       <span class="secondary">{{ value|date:"T" }}</span>
     </time>
+  </dd>
+  {% elif value|is_preview_link %}
+  <dd>
+    <a class="preview-link surface" href="{{ value.url }}" title="{{ value.title }}">
+      <img src="/img/_uuid/{{ value.photo.uuid }}/sm" alt="{{ value.photo.alt }}"
+        style="background: url(data:image/png;base64,{{ value.photo.tiny_base64 }}); background-size: 100% 100%; font-size: 0;"
+        height="{{ value.photo.thumbnail_height }}" width="{{ value.photo.thumbnail_width }}" />
+      <div class="labels">
+        <div class="label-primary">{{ value.title }}</div>
+        {% if value.description %}
+        <div class="label-secondary">{{ value.description }}</div>
+        {% endif %}
+      </div>
+      <svg width="16" height="16" viewBox="0 0 16 16">
+        <path d="M 5 3 L 11 8 L 5 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round"></path>
+      </svg>
+    </a>
   </dd>
   {% else %}
   <dd>{{ value }}</dd>

@@ -95,6 +95,7 @@ header {
 }
 
 header .title-and-back-link {
+  min-width: 0;
   max-width: calc(100vw - 64px);
 }
 
@@ -396,6 +397,7 @@ div.preview div.photo-placeholder {
 }
 
 div.preview div.surface .title-and-description {
+  border-left: 1px solid var(--bg-primary);
   flex: 1;
   padding-left: 8px;
   display: flex;
@@ -763,7 +765,6 @@ label[for="id_photos"] div.photo-upload.failed div.status {
   padding: 8px;
   box-sizing: border-box;
   color: var(--fg-primary);
-  border-top: 1px solid var(--bg-primary);
 }
 
 .labels .label-primary {
@@ -789,6 +790,10 @@ label[for="id_photos"] div.photo-upload.failed div.status {
 .albums,
 .photos {
   flex: 1;
+}
+
+.albums .surface .labels {
+  border-top: 1px solid var(--bg-primary);
 }
 
 .grouped+.actions {
@@ -991,6 +996,36 @@ dd.list {
 
 dd.list div.item {
   white-space: nowrap;
+}
+
+dd a.preview-link {
+  align-items: center;
+  display: flex;
+  margin-top: 6px;
+  overflow: hidden;
+  text-decoration: none;
+}
+
+dd a.preview-link img {
+  aspect-ratio: 1;
+  height: 56.5px;
+  object-fit: cover;
+  width: auto;
+}
+
+dd a.preview-link div.labels {
+  border-left: 1px solid var(--bg-primary);
+  min-width: 0;
+}
+
+dd a.preview-link svg {
+  margin: 8px;
+  transition: margin 0.1s ease-in-out;
+}
+
+dd a.preview-link:hover svg,
+dd a.preview-link:focus svg {
+  margin-right: 6px;
 }
 
 dd p:first-of-type {

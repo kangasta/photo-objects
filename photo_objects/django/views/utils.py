@@ -5,6 +5,19 @@ from photo_objects.django.models import Album, Photo, SiteSettings
 from photo_objects.utils import first_paragraph_textcontent
 
 
+class PreviewLink:
+    def __init__(
+            self,
+            photo: Photo,
+            url: str,
+            title: str,
+            description: str = None):
+        self.photo = photo
+        self.url = url
+        self.title = title
+        self.description = description
+
+
 class BackLink:
     def __init__(self, text: str, url: str):
         self.text = text
