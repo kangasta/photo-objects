@@ -85,16 +85,17 @@ footer.narrow {
 
 header {
   display: flex;
+  gap: 8px;
   justify-content: space-between;
   align-items: center;
 
   min-height: 56px;
   padding: 8px;
   padding-bottom: 0;
-  overflow: hidden;
 }
 
 header .title-and-back-link {
+  flex: 1;
   min-width: 0;
   max-width: calc(100vw - 64px);
 }
@@ -104,11 +105,19 @@ header h1 {
   font-weight: 600;
   line-height: 1.3333;
   margin: 0;
-  margin-right: 8px;
 
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+header .context {
+  padding: 2px 8px;
+  color: var(--fg-secondary);
+
+  max-width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 header .back-link {
@@ -1026,6 +1035,22 @@ dd a.preview-link svg {
 dd a.preview-link:hover svg,
 dd a.preview-link:focus svg {
   margin-right: 6px;
+}
+
+dd.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25em;
+}
+
+dd a.tag {
+  max-width: 75%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+dd a.tag:before {
+  content: "#";
 }
 
 dd p:first-of-type {

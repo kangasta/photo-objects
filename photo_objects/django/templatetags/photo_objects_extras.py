@@ -4,7 +4,11 @@ from django.utils.safestring import mark_safe
 from django.utils.html import escape
 
 from photo_objects.django.models import SiteSettings
-from photo_objects.django.views.utils import PreviewLink, meta_description
+from photo_objects.django.views.utils import (
+    PreviewLink,
+    TagLinks,
+    meta_description,
+)
 
 
 register = template.Library()
@@ -47,6 +51,11 @@ def is_list(value):
 @register.filter
 def is_preview_link(value):
     return isinstance(value, PreviewLink)
+
+
+@register.filter
+def is_tag_links(value):
+    return isinstance(value, TagLinks)
 
 
 @register.inclusion_tag("photo_objects/meta-og.html", takes_context=True)

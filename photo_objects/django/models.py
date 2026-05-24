@@ -15,6 +15,10 @@ album_key_validator = RegexValidator(
     r"^[a-zA-Z0-9._-]+$",
     "Album key must only contain alphanumeric characters, dots, underscores "
     "and hyphens.")
+tag_validator = RegexValidator(
+    r"^[a-zA-Z0-9._-]+$",
+    "Tag must only contain alphanumeric characters, dots, underscores "
+    "and hyphens.")
 photo_key_validator = RegexValidator(
     r"^[a-zA-Z0-9._-]+/[a-zA-Z0-9._-]+$",
     "Photo key must contain album key and filename. These must be separated "
@@ -87,6 +91,16 @@ class Album(BaseModel):
         )
 
 
+class Tag(models.Model):
+    class Meta:
+        ordering = ["value"]
+
+    value = models.CharField(
+        unique=True,
+        primary_key=True,
+        validators=[tag_validator])
+
+
 class Photo(BaseModel):
     class Meta:
         ordering = ["timestamp"]
@@ -94,6 +108,8 @@ class Photo(BaseModel):
     key = models.CharField(primary_key=True, validators=[photo_key_validator])
     uuid = models.UUIDField(default=uuid4, editable=False, unique=True)
     album = models.ForeignKey("Album", null=True, on_delete=models.PROTECT)
+
+    tags = models.ManyToManyField(Tag)
 
     timestamp = models.DateTimeField()
 
@@ -163,6 +179,7 @@ class Photo(BaseModel):
             uuid=self.uuid,
             filename=self.filename,
             album=album_key,
+            tags=[t.value for t in self.tags.all()],
             timestamp=self.timestamp.isoformat(),
             height=self.height,
             width=self.width,

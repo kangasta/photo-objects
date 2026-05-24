@@ -17,7 +17,7 @@
   <ul class="photo-list">
     {% for photo in photos %}
     <li class="surface">
-      <a href="{% url 'photo_objects:show_photo' photo.uuid %}">
+      <a href="{% url 'photo_objects:show_photo' photo.uuid %}{% querystring %}" title="{{ photo.title|default:photo.filename }}">
         <img src="/img/_uuid/{{ photo.uuid }}/sm" alt="{{ photo.alt }}"
           style="background: url(data:image/png;base64,{{ photo.tiny_base64 }}); background-size: 100% 100%; font-size: 0;"
           height="{{ photo.thumbnail_height }}" width="{{ photo.thumbnail_width }}" />
@@ -30,11 +30,11 @@
 {% if page.has_other_pages %}
 <div class="actions">
   {% if page.has_previous %}
-  <a class="action" href="?page={{ page.previous_page_number }}">←</a>
+  <a class="action" href="{% querystring page=page.previous_page_number %}">←</a>
   {% endif %}
   <span class="page-info surface">Page {{ page.number }} of {{ page.paginator.num_pages }}</span>
   {% if page.has_next %}
-  <a class="action" href="?page={{ page.next_page_number }}">→</a>
+  <a class="action" href="{% querystring page=page.next_page_number %}">→</a>
   {% endif %}
 </div>
 {% endif %}

@@ -18,10 +18,16 @@ class PreviewLink:
         self.description = description
 
 
+class TagLinks(list):
+    def __init__(self, tags):
+        super().__init__(tags)
+
+
 class BackLink:
-    def __init__(self, text: str, url: str):
+    def __init__(self, text: str, url: str, root: bool = False):
         self.text = text
         self.url = url
+        self.root = root
 
 
 # TODO: Use this also for meta-og tags

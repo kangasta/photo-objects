@@ -1,5 +1,8 @@
 from ciou.string import postfix_generator
+from ciou.types import ensure_list
+
 from django import forms
+from django.core.validators import RegexValidator
 from django.forms import (
     CharField,
     HiddenInput,
@@ -12,7 +15,7 @@ from django.utils.translation import gettext_lazy as _
 
 from photo_objects.utils import slugify
 
-from .models import Album, Photo, PhotoChangeRequest
+from .models import Album, Photo, PhotoChangeRequest, Tag
 
 
 ALBUM_TITLE_HELP = _(
@@ -227,7 +230,32 @@ class CreatePhotoForm(ModelForm):
         }
 
 
+tag_input_validator = RegexValidator(
+    r"^([a-zA-Z0-9._-]+(\s*,\s*)*)*$",
+    "Tags must only contain alphanumeric characters, dots, underscores "
+    "and hyphens.")
+
+
+def _tags_to_str(obj):
+    if not obj:
+        return obj
+
+    tags = obj.get("tags", [])
+    if not isinstance(tags, str):
+        obj["tags"] = ", ".join(ensure_list(tags))
+
+    return obj
+
+
 class ModifyPhotoForm(ModelForm):
+    tags = CharField(
+        label='Tags',
+        required=False,
+        help_text=_(
+            'Comma separated list of tags for the photo. Tags are used for '
+            'organizing and searching photos.'),
+        validators=[tag_input_validator])
+
     class Meta:
         model = Photo
         fields = ['title', 'description', 'alt_text']
@@ -239,6 +267,24 @@ class ModifyPhotoForm(ModelForm):
             ),
             'alt_text': ALT_TEXT_HELP,
         }
+
+    def __init__(self, data=None, initial=None, **kwargs):
+        super().__init__(
+            data=_tags_to_str(data),
+            initial=_tags_to_str(initial),
+            **kwargs,
+        )
+
+    def clean(self):
+        super().clean()
+
+        raw_tags = self.cleaned_data.get("tags", "")
+        tag_values = [t.strip() for t in raw_tags.split(",") if t.strip()]
+        tags = []
+        for value in tag_values:
+            tag, _ = Tag.objects.get_or_create(value=value)
+            tags.append(tag)
+        self.instance.tags.set(tags)
 
 
 class CreatePhotoChangeRequestForm(ModelForm):
