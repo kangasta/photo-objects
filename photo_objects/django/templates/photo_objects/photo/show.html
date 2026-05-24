@@ -15,8 +15,8 @@
 </div>
 
 <div class="actions">
-  <a id="previous" class="action" href="{{ previous_path }}">←</a>
-  <a id="next" class="action" href="{{ next_path }}">→</a>
+  <a id="previous" class="action" href="{{ previous_path }}{% querystring %}">←</a>
+  <a id="next" class="action" href="{{ next_path }}{% querystring %}">→</a>
   {% if perms.photo_objects.change_photo %}
   <a class="action" href="{{ request.path }}/_edit">Edit photo</a>
   {% endif %}

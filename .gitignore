@@ -1,5 +1,6 @@
 __pycache__/
 .coverage
+htmlcov/
 .vscode/
 
 build/

@@ -1,4 +1,4 @@
-import { expect, Page } from '@playwright/test';
+import { expect, Page, TestInfo } from '@playwright/test';
 import path from 'path';
 
 export const login = async (page: Page) => {
@@ -13,7 +13,7 @@ export const login = async (page: Page) => {
 }
 
 // From https://stackoverflow.com/a/1349426/3311449
-const withRandomSuffix = (prefix: string, length: number): string => {
+export const withRandomSuffix = (prefix: string, length: number): string => {
   let suffix = '';
   const chars = 'bcdfghjklmnpqrstvwxz2456789'; // From Kubernetes random suffix
   let counter = 0;
@@ -55,7 +55,12 @@ export const getCurrentAlbumKey = (page: Page): string => {
   return match![1];
 }
 
-export const deleteAlbum = async (page: Page, title: string) => {
+export const deleteAlbum = async (page: Page, testInfo: TestInfo) => {
+  const title = testInfo.attachments.find(a => a.name === 'albumTitle')?.body?.toString();
+  if (!title) {
+    throw new Error('Album title not found in test attachments');
+  }
+
   await openAlbum(page, title);
   const albumKey = getCurrentAlbumKey(page);
 
@@ -103,4 +108,14 @@ const deletePhoto = async (page: Page, albumTitle: string, title: string) => {
 
   await page.getByText('Delete photo').click();
   await page.getByText('Delete', { exact: true }).click();
+}
+
+export const createAlbumAndUploadPhotos = async (page: Page, testInfo: TestInfo, namePrefix: string, photos: string[]): Promise<string> => {
+  const albumTitle = await createAlbum(page, namePrefix);
+  testInfo.attach('albumTitle', { body: albumTitle });
+
+  await uploadPhotos(page, albumTitle, photos);
+  await expect(page.getByText('Ready', { exact: true })).toHaveCount(photos.length);
+  await page.getByText('Done', { exact: true }).click();
+  return albumTitle;
 }

@@ -1,18 +1,12 @@
 import { expect, test } from '@playwright/test';
-import { createAlbum, deleteAlbum, getCurrentAlbumKey, login, openAlbum, uploadPhotos } from './actions';
+import { createAlbumAndUploadPhotos, deleteAlbum, getCurrentAlbumKey, login, openAlbum } from './actions';
 
-let albumTitle: string;
-
-
-test('review photo change requests', async ({ context, page }) => {
+test('review photo change requests', async ({ context, page }, testInfo) => {
   await login(page);
-  albumTitle = await createAlbum(page, "photo change requests");
-  const albumKey = getCurrentAlbumKey(page);
-
   const photos = ['bus-stop.jpg', "tower.jpg", "havfrue.jpg"];
-  await uploadPhotos(page, albumTitle, photos);
-  await page.getByText('Done', { exact: true }).click();
+  const albumTitle = await createAlbumAndUploadPhotos(page, testInfo, "photo change requests", photos);
 
+  const albumKey = getCurrentAlbumKey(page);
   const cookies = await context.cookies();
   const csrftoken = cookies.find(c => c.name === 'csrftoken')?.value ?? '';
   await Promise.all(photos.map(async (photo) => {
@@ -45,6 +39,6 @@ test('review photo change requests', async ({ context, page }) => {
   expect(page.getByAltText('Test alt text', { })).toHaveCount(2);
 });
 
-test.afterEach(async ({ page }) => {
-  await deleteAlbum(page, albumTitle);
+test.afterEach(async ({ page }, testInfo) => {
+  await deleteAlbum(page, testInfo);
 });

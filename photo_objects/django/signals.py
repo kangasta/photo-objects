@@ -4,7 +4,7 @@ from django.dispatch import receiver
 from photo_objects.django.api import create_backup
 from photo_objects.django.api.backup import delete_backup
 
-from .models import Backup, Photo
+from .models import Backup, Photo, Tag
 
 
 @receiver(post_save, sender=Photo)
@@ -27,6 +27,11 @@ def update_album_on_photo_upload(sender, **kwargs):
 
     if needs_save:
         album.save()
+
+
+@receiver(post_save, sender=Photo)
+def remove_unused_tags(sender, **kwargs):
+    Tag.objects.filter(photo__isnull=True).delete()
 
 
 @receiver(post_delete, sender=Photo)

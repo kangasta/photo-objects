@@ -118,12 +118,7 @@ class PhotoViewTests(TestCase):
             username='has_permission', password='test')
         self.assertTrue(login_success)
 
-        filename = "The Eiffel Tower.JPG"
-        file = open_test_photo(filename)
-        response = self.client.post(
-            "/api/albums/test-photo-a/photos",
-            {"The Eiffel Tower!": file})
-        self.assertStatus(response, 201)
+        response = self._upload_photo("test-photo-a", "The Eiffel Tower.JPG")
         self.assertEqual(
             response.json().get("key"),
             "test-photo-a/The-Eiffel-Tower.JPG")
@@ -229,12 +224,7 @@ class PhotoViewTests(TestCase):
             username='has_permission', password='test')
         self.assertTrue(login_success)
 
-        filename = "tower.jpg"
-        file = open_test_photo(filename)
-        response = self.client.post(
-            "/api/albums/test-photo-a/photos",
-            {filename: file})
-        self.assertStatus(response, 201)
+        response = self._upload_photo("test-photo-a", "tower.jpg")
         uuid = response.json().get("uuid")
 
         # Validate Content-Disposition header
@@ -274,23 +264,14 @@ class PhotoViewTests(TestCase):
         self.assertStatus(response, 200)
         photos_count = len(response.json())
 
-        filename = "tower.jpg"
-        file = open_test_photo(filename)
-        response = self.client.post(
-            "/api/albums/test-photo-a/photos",
-            {filename: file})
-        self.assertStatus(response, 201)
+        response = self._upload_photo("test-photo-a", "tower.jpg")
         tower_uuid = response.json().get("uuid")
 
         # Can upload photo with the same name to a different album
         tic = utcnow()
         sleep(0.1)
 
-        file.seek(0)
-        response = self.client.post(
-            "/api/albums/test-photo-b/photos",
-            {filename: file})
-        self.assertStatus(response, 201)
+        response = self._upload_photo("test-photo-b", "tower.jpg")
 
         t = parse_timestamps(response.json())
         self.assertTimestampLess(tic, t.created_at)
@@ -319,7 +300,8 @@ class PhotoViewTests(TestCase):
 
         req_data = dict(
             title="The Eiffel Tower",
-            description="The Eiffel Tower in Paris, France")
+            description="The Eiffel Tower in Paris, France",
+            tags=["landmark", "Paris", "France", "tower"],)
         response = self.client.patch(
             "/api/albums/test-photo-a/photos/tower.jpg",
             content_type="application/json",
@@ -328,28 +310,27 @@ class PhotoViewTests(TestCase):
         t = parse_timestamps(response.json())
         self.assertTimestampLess(t.created_at, tic)
         self.assertTimestampLess(tic, t.updated_at)
-        data = {**data, **req_data, **vars(t)}
+        # Tags are returned in alphabetical order.
+        data = {
+            **data,
+            **req_data,
+            **vars(t),
+            "tags": [
+                "France",
+                "landmark",
+                "Paris",
+                "tower"]}
         self.assertDictEqual(response.json(), data)
 
         # Image file does not contain EXIF data so timestamp is the upload
         # time instead of the create time.
-        filename = "havfrue.jpg"
-        file = open_test_photo(filename)
-        response = self.client.post(
-            "/api/albums/test-photo-a/photos",
-            {filename: file})
-        self.assertStatus(response, 201)
+        response = self._upload_photo("test-photo-a", "havfrue.jpg")
         last_timestamp = response.json().get("timestamp")
         havfrue_uuid = response.json().get("uuid")
         self.assertGreater(last_timestamp,
                            (utcnow() - timedelta(minutes=1)).isoformat())
 
-        filename = "bus-stop.jpg"
-        file = open_test_photo(filename)
-        response = self.client.post(
-            "/api/albums/test-photo-a/photos",
-            {filename: file})
-        self.assertStatus(response, 201)
+        response = self._upload_photo("test-photo-a", "bus-stop.jpg")
         first_timestamp = response.json().get("timestamp")
 
         response = self.client.get(

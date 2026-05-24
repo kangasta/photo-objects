@@ -17,6 +17,7 @@ from photo_objects.django.views.utils import (
     BackLink,
     Preview,
     PreviewLink,
+    TagLinks,
     meta_description,
 )
 from photo_objects.utils import render_markdown
@@ -83,15 +84,23 @@ def list_photos(request: HttpRequest):
         page_size = 96
         orphans = 24
 
-    photos = api.get_photos(request)
+    tag_value = request.GET.get("tag")
+    photos = api.get_photos(request, tag_value=tag_value)
 
     page = request.GET.get("page", "1")
     paginator = Paginator(photos, page_size, orphans=orphans)
     page = paginator.get_page(page)
 
+    # TODO: Using back link to albums until adding proper navigation between
+    # photos and albums views.
+    back = BackLink(request.site.name, reverse(
+        'photo_objects:list_albums'), root=True)
+
     return render(request, "photo_objects/photo/list.html", {
         "grouped_photos": _group_photos(page, group_by),
         "title": "Photos",
+        "back": back,
+        "title_context": f"#{tag_value}" if tag_value else None,
         "description": meta_description(request, photos),
         "page": page,
     })
@@ -172,7 +181,8 @@ def _show_photo(
         previous_path: str,
         next_path: str,
         back: BackLink,
-        show_album_link: bool = False):
+        show_album_link: bool = False,
+        context: dict = None):
     details = {
         "Description": render_markdown(photo.description),
         "Timestamp": photo.timestamp,
@@ -181,6 +191,7 @@ def _show_photo(
         "Settings": _camera_settings(photo),
         "Created at": photo.created_at,
         "Updated at": photo.updated_at,
+        "Tags": TagLinks(photo.tags.values_list("value", flat=True)),
     }
 
     if show_album_link and _user_knows_album(request, photo.album):
@@ -198,6 +209,7 @@ def _show_photo(
         }
 
     return render(request, "photo_objects/photo/show.html", {
+        **(context or {}),
         "photo": photo,
         "previous_path": previous_path,
         "next_path": next_path,
@@ -251,7 +263,8 @@ def show_photo(request: HttpRequest, photo_uuid: UUID):
     next_uuid = previous_uuid = photo.uuid
     back = BackLink("Photos", reverse('photo_objects:list_photos'))
 
-    photos = api.get_photos(request)
+    tag_value = request.GET.get("tag")
+    photos = api.get_photos(request, tag_value=tag_value)
     if len(photos) > 0:
         # The next and previous functions use oldest first sorting. The photos
         # list is sorted in opposite order, so previous is next and next is
@@ -274,7 +287,10 @@ def show_photo(request: HttpRequest, photo_uuid: UUID):
         previous_path,
         next_path,
         back,
-        show_album_link=True)
+        show_album_link=True,
+        context={
+            "title_context": f"#{tag_value}" if tag_value else None,
+        })
 
 
 @json_problem_as_html

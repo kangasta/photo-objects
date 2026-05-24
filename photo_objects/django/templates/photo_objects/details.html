@@ -4,22 +4,7 @@
   {% for key, value in details.items %}
   {% if value %}
   <dt>{{ key }}</dt>
-  {% if value|is_list %}
-  <dd class="list">
-    {% for i in value %}
-    <div class="item">
-      {{ i }}
-    </div>
-    {% endfor %}
-  </dd>
-  {% elif value|is_datetime %}
-  <dd>
-    <time datetime="{{ value|date:'c' }}">
-      {{ value|date:"D, d M Y H:i" }}
-      <span class="secondary">{{ value|date:"T" }}</span>
-    </time>
-  </dd>
-  {% elif value|is_preview_link %}
+  {% if value|is_preview_link %}
   <dd>
     <a class="preview-link surface" href="{{ value.url }}" title="{{ value.title }}">
       <img src="/img/_uuid/{{ value.photo.uuid }}/sm" alt="{{ value.photo.alt }}"
@@ -36,6 +21,28 @@
           stroke-linejoin="round"></path>
       </svg>
     </a>
+  </dd>
+  {% elif value|is_tag_links %}
+  <dd class="tags">
+    {% for tag in value %}
+    <!-- TODO: add link to filtered list photos view -->
+    <a class="tag" href="{% url 'photo_objects:list_photos' %}?tag={{ tag }}">{{ tag }}</a>
+    {% endfor %}
+  </dd>
+  {% elif value|is_list %}
+  <dd class="list">
+    {% for i in value %}
+    <div class="item">
+      {{ i }}
+    </div>
+    {% endfor %}
+  </dd>
+  {% elif value|is_datetime %}
+  <dd>
+    <time datetime="{{ value|date:'c' }}">
+      {{ value|date:"D, d M Y H:i" }}
+      <span class="secondary">{{ value|date:"T" }}</span>
+    </time>
   </dd>
   {% else %}
   <dd>{{ value }}</dd>
