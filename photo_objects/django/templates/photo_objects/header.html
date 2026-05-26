@@ -13,7 +13,12 @@
   <h1>{{ title }}</h1>
 </div>
 {% if title_context %}
-<span class="context surface">{{ title_context }}</span>
+<div class="context surface">
+  <span>{{ title_context }}</span>
+  <a href="?" title="Remove filter" aria-label="Remove filter">
+    {% include 'photo_objects/icons/x.html' %}
+  </a>
+</div>
 {% endif %}
 {% if user.is_authenticated %}
 <button aria-label="Open user menu" class="user-profile" onclick="openUserModal()"
