@@ -36,6 +36,11 @@ test('modify photo and list photos by tag', async ({ page }, testInfo) => {
   expect(page.getByText('Photos')).toBeVisible();
   await expect(page.getByTitle('bus-stop.jpg')).toBeVisible();
   await expect(page.getByTitle('tower.jpg')).not.toBeVisible();
+
+  // Remove filter and check that both photos are visible again
+  await page.getByLabel('Remove filter').click();
+  await expect(page.getByTitle('bus-stop.jpg')).toBeVisible();
+  await expect(page.getByTitle('tower.jpg')).toBeVisible();
 });
 
 test.afterEach(async ({ page }, testInfo) => {

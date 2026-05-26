@@ -112,12 +112,29 @@ header h1 {
 }
 
 header .context {
-  padding: 2px 8px;
-  color: var(--fg-secondary);
+  display: flex;
+  align-items: center;
 
-  max-width: 250px;
+  color: var(--fg-secondary);
+}
+
+header .context span {
+  max-width: 200px;
   overflow: hidden;
   text-overflow: ellipsis;
+
+  padding: 0 8px;
+  line-height: 32px;
+  border-right: 1px solid var(--bg-primary);
+}
+
+header .context a {
+  color: currentColor;
+}
+
+header .context svg {
+  display: block;
+  padding: 8px;
 }
 
 header .back-link {
