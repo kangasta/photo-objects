@@ -2,7 +2,6 @@ from ciou.string import postfix_generator
 from ciou.types import ensure_list
 
 from django import forms
-from django.core.validators import RegexValidator
 from django.forms import (
     CharField,
     HiddenInput,
@@ -15,7 +14,7 @@ from django.utils.translation import gettext_lazy as _
 
 from photo_objects.utils import slugify
 
-from .models import Album, Photo, PhotoChangeRequest, Tag
+from .models import Album, Photo, PhotoChangeRequest, Tag, tag_input_validator
 
 
 ALBUM_TITLE_HELP = _(
@@ -23,6 +22,10 @@ ALBUM_TITLE_HELP = _(
     'Modifying the title later does not change the album key.'
 )
 ALT_TEXT_HELP = _('Alternative text content for the photo.')
+TAGS_HELP = _(
+    'Comma separated list of tags for the photo. Tags are used for '
+    'organizing and searching photos.'
+)
 
 
 def description_help(resource):
@@ -230,12 +233,6 @@ class CreatePhotoForm(ModelForm):
         }
 
 
-tag_input_validator = RegexValidator(
-    r"^([a-zA-Z0-9._-]+(\s*,\s*)*)*$",
-    "Tags must only contain alphanumeric characters, dots, underscores "
-    "and hyphens.")
-
-
 def _tags_to_str(obj):
     if not obj:
         return obj
@@ -247,13 +244,29 @@ def _tags_to_str(obj):
     return obj
 
 
-class ModifyPhotoForm(ModelForm):
+def set_photo_tags(photo: Photo, raw_tags: str):
+    tag_values = [t.strip() for t in raw_tags.split(",") if t.strip()]
+    tags = []
+    for value in tag_values:
+        tag, _ = Tag.objects.get_or_create(value=value)
+        tags.append(tag)
+    photo.tags.set(tags)
+
+
+class ModelFormWithTags(ModelForm):
+    def __init__(self, data=None, initial=None, **kwargs):
+        super().__init__(
+            data=_tags_to_str(data),
+            initial=_tags_to_str(initial),
+            **kwargs,
+        )
+
+
+class ModifyPhotoForm(ModelFormWithTags):
     tags = CharField(
         label='Tags',
         required=False,
-        help_text=_(
-            'Comma separated list of tags for the photo. Tags are used for '
-            'organizing and searching photos.'),
+        help_text=TAGS_HELP,
         validators=[tag_input_validator])
 
     class Meta:
@@ -268,38 +281,27 @@ class ModifyPhotoForm(ModelForm):
             'alt_text': ALT_TEXT_HELP,
         }
 
-    def __init__(self, data=None, initial=None, **kwargs):
-        super().__init__(
-            data=_tags_to_str(data),
-            initial=_tags_to_str(initial),
-            **kwargs,
-        )
-
     def clean(self):
         super().clean()
 
         raw_tags = self.cleaned_data.get("tags", "")
-        tag_values = [t.strip() for t in raw_tags.split(",") if t.strip()]
-        tags = []
-        for value in tag_values:
-            tag, _ = Tag.objects.get_or_create(value=value)
-            tags.append(tag)
-        self.instance.tags.set(tags)
+        set_photo_tags(self.instance, raw_tags)
 
 
-class CreatePhotoChangeRequestForm(ModelForm):
+class CreatePhotoChangeRequestForm(ModelFormWithTags):
     class Meta:
         model = PhotoChangeRequest
-        fields = ['photo', 'alt_text']
+        fields = ['photo', 'alt_text', 'tags']
 
 
-class ReviewPhotoChangeRequestForm(ModelForm):
+class ReviewPhotoChangeRequestForm(ModelFormWithTags):
     action = forms.ChoiceField(
         choices=[('approve', 'Approve'), ('reject', 'Reject')], widget=None)
 
     class Meta:
         model = PhotoChangeRequest
-        fields = ['alt_text']
+        fields = ['alt_text', 'tags']
         help_texts = {
             'alt_text': ALT_TEXT_HELP,
+            'tags': TAGS_HELP,
         }

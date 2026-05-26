@@ -15,6 +15,10 @@ album_key_validator = RegexValidator(
     r"^[a-zA-Z0-9._-]+$",
     "Album key must only contain alphanumeric characters, dots, underscores "
     "and hyphens.")
+tag_input_validator = RegexValidator(
+    r"^([a-zA-Z0-9._-]+(\s*,\s*)*)*$",
+    "Tags must only contain alphanumeric characters, dots, underscores "
+    "and hyphens.")
 tag_validator = RegexValidator(
     r"^[a-zA-Z0-9._-]+$",
     "Tag must only contain alphanumeric characters, dots, underscores "
@@ -207,7 +211,8 @@ class PhotoChangeRequest(models.Model):
         on_delete=models.CASCADE,
         related_name="change_requests")
 
-    alt_text = models.TextField()
+    alt_text = models.TextField(blank=True)
+    tags = models.TextField(blank=True, validators=[tag_input_validator])
 
     def __str__(self):
         return _str(
@@ -216,11 +221,14 @@ class PhotoChangeRequest(models.Model):
         )
 
     def to_json(self):
+        tags = self.tags.split(",") if self.tags else []
+
         return dict(
             id=self.id,
             photo=self.photo.key,
             created_at=timestamp_str(self.created_at),
             alt_text=self.alt_text,
+            tags=[t.strip() for t in tags if t.strip()],
         )
 
 

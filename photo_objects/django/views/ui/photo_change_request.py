@@ -50,7 +50,16 @@ def review_photo_change_request(request: HttpRequest, cr_id: str):
     back = BackLink("Albums", reverse('photo_objects:list_albums'))
 
     helptext = render_markdown(
-        f'The current alt text for `{photo.key}` is: _"{photo.alt_text}"_.')
+        f'The current alt text for `{photo.key}` is: _"{photo.alt_text}"_. ')
+
+    tags = photo.tags.values_list("value", flat=True)
+    if tags:
+        helptext += render_markdown(
+            f' The current tags are: {
+                ", ".join(
+                    f"_#{tag}_" for tag in tags)}.')
+    else:
+        helptext += " The photo does not currently have any tags."
 
     return render(request, 'photo_objects/form.html', {
         "form": form,
