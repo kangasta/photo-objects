@@ -45,6 +45,15 @@ export const openAlbum = async (page: Page, title: string) => {
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(title);
 }
 
+export const listPhotos = async (page: Page, tag?: string) => {
+  await page.goto(tag ? `/photos?tag=${tag}` : '/photos');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText("Photos");
+
+  if (tag) {
+    await expect(page.getByText(`#${tag}`)).toBeVisible();
+  }
+}
+
 export const getCurrentAlbumKey = (page: Page): string => {
   const keyRegex = /\/albums\/([^/]+)/;
   const url = page.url();

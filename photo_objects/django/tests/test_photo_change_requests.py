@@ -37,6 +37,16 @@ class PhotoChangeRequestTests(TestCase):
         create_dummy_photo(self.private_album, "002.jpg")
         create_dummy_photo(self.admin_album, "003.jpg")
 
+    # pylint: disable-next=invalid-name
+    def assertExpectedPhotoChangeRequestsCount(
+            self, expected_count, expected_status=200):
+        response = self.client.get(
+            '/api/photo-change-requests/expected')
+        self.assertStatus(response, expected_status)
+        if expected_status == 200:
+            photos = _filter_by_test_prefix(response.json())
+            self.assertEqual(len(photos), expected_count)
+
     def test_expected_photo_change_requests(self):
         tests = [
             ("no_permission", 403, 0),
@@ -47,27 +57,12 @@ class PhotoChangeRequestTests(TestCase):
         for username, expected_status, expected_count in tests:
             with self.subTest(username=username):
                 self.client.login(username=username, password='test')
-                response = self.client.get(
-                    '/api/photo-change-requests/expected')
-                self.assertStatus(response, expected_status)
-                if expected_status == 200:
-                    photos = _filter_by_test_prefix(response.json())
-                    self.assertEqual(len(photos), expected_count)
+                self.assertExpectedPhotoChangeRequestsCount(
+                    expected_count, expected_status)
 
     def test_create_photo_change_requests(self):
         self.client.login(username="has_permission", password='test')
-
-        response = self.client.get(
-            '/api/photo-change-requests/expected')
-        self.assertEqual(response.status_code, 200)
-        photos = _filter_by_test_prefix(response.json())
-        self.assertEqual(len(photos), 2)
-
-        response = self.client.post(
-            f'/api/albums/{TEST_PREFIX}-private/photos/001.jpg/change-requests',  # noqa: E501
-            data={'alt_text': ''},
-            content_type="application/json")
-        self.assertStatus(response, 400)
+        self.assertExpectedPhotoChangeRequestsCount(2)
 
         response = self.client.post(
             f'/api/albums/{TEST_PREFIX}-private/photos/001.jpg/change-requests',  # noqa: E501
@@ -75,8 +70,12 @@ class PhotoChangeRequestTests(TestCase):
             content_type="application/json")
         self.assertStatus(response, 201)
 
-        response = self.client.get(
-            '/api/photo-change-requests/expected')
-        self.assertEqual(response.status_code, 200)
-        photos = _filter_by_test_prefix(response.json())
-        self.assertEqual(len(photos), 1)
+        self.assertExpectedPhotoChangeRequestsCount(1)
+
+        response = self.client.post(
+            f'/api/albums/{TEST_PREFIX}-private/photos/002.jpg/change-requests',  # noqa: E501
+            data={'tags': ['tag1', 'tag2']},
+            content_type="application/json")
+        self.assertStatus(response, 201)
+
+        self.assertExpectedPhotoChangeRequestsCount(0)

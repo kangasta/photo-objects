@@ -4,6 +4,7 @@ from django.http import HttpRequest
 from photo_objects.django.forms import (
     CreatePhotoChangeRequestForm,
     ReviewPhotoChangeRequestForm,
+    set_photo_tags,
 )
 from photo_objects.django.models import Album, Photo, PhotoChangeRequest
 
@@ -106,6 +107,7 @@ def review_photo_change_request(
 
     if f.cleaned_data['action'] == "approve":
         photo.alt_text = f.cleaned_data['alt_text']
+        set_photo_tags(photo, f.cleaned_data['tags'])
         photo.save()
 
     f.instance.delete()
