@@ -1,5 +1,10 @@
 {% load photo_objects_extras %}
 {% url 'photo_objects:login' as login_url %}
+<div class="menu">
+  <button aria-label="Open navigation menu" class="icon-button" onclick="openNavModal()">
+    {% include 'photo_objects/icons/menu.html' %}
+  </button>
+</div>
 <div class="title-and-back-link">
   <div class="back-link">
     {% if back %}
@@ -29,13 +34,39 @@
 <a href="{% url 'photo_objects:login' %}?next={{ request.path }}">Login</a>
 {% endif %}
 
-{% if user.is_authenticated %}
-<dialog class="user-modal" onclick="handleClick(event)" onclose="handleClose()">
+<dialog class="modal nav-modal" onclick="handleClick(event)" onclose="handleClose()">
   <!-- Catch click events to easily detect if target is dialog or its backdrop. -->
-  <div class="user-modal-content">
+  <div class="modal-content">
     <!-- Manual focus trap: move focus to last element in dialog. -->
-    <div id="user-modal-pre" tabindex="0" onfocus="focusElement('#user-modal-logout')"></div>
-    <div class="user-modal-header">
+    <div id="modal-pre" tabindex="0" onfocus="focusElement('#nav-modal-photos')"></div>
+    <div class="modal-header">
+      <div class="preview-and-title">
+          {% site_preview_img %}
+          <div class="title">{{ request.site.name }}</div>
+      </div>
+      <div class="close">
+        <button id="nav-modal-close" aria-label="Close" class="icon-button" onclick="closeNavModal()">
+          {% include 'photo_objects/icons/x.html' %}
+        </button>
+      </div>
+    </div>
+    <div class="modal-action">
+      <a href="{% url 'photo_objects:list_albums' %}">Albums</a>
+    </div>
+    <div class="modal-action no-bb">
+      <a id="nav-modal-photos" href="{% url 'photo_objects:list_photos' %}">Photos</a>
+    </div>
+    <!-- Manual focus trap: move focus to first element in dialog. -->
+    <div id="modal-post" tabindex="0" onfocus="focusElement('#nav-modal-close')"></div>
+  </div>
+</dialog>
+{% if user.is_authenticated %}
+<dialog class="modal user-modal" onclick="handleClick(event)" onclose="handleClose()">
+  <!-- Catch click events to easily detect if target is dialog or its backdrop. -->
+  <div class="modal-content">
+    <!-- Manual focus trap: move focus to last element in dialog. -->
+    <div id="modal-pre" tabindex="0" onfocus="focusElement('#user-modal-logout')"></div>
+    <div class="modal-header">
       <div class="user-details">
         <div class="user-profile">
           {% include 'photo_objects/user-profile-content.html' %}
@@ -45,53 +76,62 @@
           <div class="label-secondary">{{ user.username }}</div>
         </div>
       </div>
-      <button id="user-modal-close" class="link" onclick="closeUserModal()">Close</button>
+      <div class="close">
+        <button id="user-modal-close" aria-label="Close" class="icon-button" onclick="closeUserModal()">
+          {% include 'photo_objects/icons/x.html' %}
+        </button>
+      </div>
     </div>
     {% if user.is_staff %}
-    <div class="user-modal-action">
+    <div class="modal-action">
       <a href="{% url 'admin:index' %}">Open admin interface</a>
     </div>
-    <div class="user-modal-action">
+    <div class="modal-action">
       <a href="{% url 'photo_objects:configuration' %}">Show configuration status</a>
     </div>
-    <!-- TODO: remove these links once proper navigation is implemented -->
-    {% if request.path == "/albums" %}
-    <div class="user-modal-action">
-      <a href="{% url 'photo_objects:list_photos' %}">List photos</a>
-    </div>
-    {% endif %}
-    {% if request.path == "/photos" %}
-    <div class="user-modal-action">
-      <a href="{% url 'photo_objects:list_albums' %}">List albums</a>
-    </div>
-    {% endif %}
     {% endif %}
     {% if perms.photo_objects.change_photo and perms.photo_objects.delete_photochangerequest %}
-    <div class="user-modal-action">
+    <div class="modal-action">
       <a href="{% url 'photo_objects:next_photo_change_request' %}">Review photo change requests</a>
     </div>
     {% endif %}
-    <form class="user-modal-action" method="POST" action="/users/logout?next={{ request.path }}">
+    <form class="modal-action no-bb" method="POST" action="/users/logout?next={{ request.path }}">
       {% csrf_token %}
       <button id="user-modal-logout" class="link" type="submit">Logout</button>
     </form>
     <!-- Manual focus trap: move focus to first element in dialog. -->
-    <div id="user-modal-post" tabindex="0" onfocus="focusElement('#user-modal-close')"></div>
+    <div id="modal-post" tabindex="0" onfocus="focusElement('#user-modal-close')"></div>
   </div>
 </dialog>
 {% endif %}
 <script>
   let previousFocus = null;
 
-  function openUserModal() {
-    document.querySelector('dialog.user-modal').showModal();
+  function openModal(modalSelector, closeSelector) {
+    document.querySelector(modalSelector).showModal();
 
     previousFocus = document.activeElement;
-    document.querySelector('#user-modal-close').focus();
+    document.querySelector(closeSelector).focus();
+  }
+
+  function closeModal(modalSelector) {
+    document.querySelector(modalSelector).close();
+  }
+
+  function openNavModal() {
+    openModal('dialog.nav-modal', '#nav-modal-close');
+  }
+
+  function closeNavModal() {
+    closeModal('dialog.nav-modal');
+  }
+
+  function openUserModal() {
+    openModal('dialog.user-modal', '#user-modal-close');
   }
 
   function closeUserModal() {
-    document.querySelector('dialog.user-modal').close();
+    closeModal('dialog.user-modal');
   }
 
   function handleClose() {

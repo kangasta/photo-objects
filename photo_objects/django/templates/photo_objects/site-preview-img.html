@@ -1,0 +1,5 @@
+{% if photo %}
+<img src="/img/_uuid/{{ photo.uuid }}/sm" alt="{{ photo.alt }}"
+    style="background: url(data:image/png;base64,{{ photo.tiny_base64 }}); background-size: 100% 100%; font-size: 0;"
+    height="{{ photo.thumbnail_height }}" width="{{ photo.thumbnail_width }}" />
+{% endif %}

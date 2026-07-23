@@ -33,7 +33,7 @@ test('modify photo and list photos by tag', async ({ page }, testInfo) => {
 
   // List photos by tag and check that the photo is visible there
   await page.getByText(testTag).click();
-  expect(page.getByText('Photos')).toBeVisible();
+  expect(page.getByRole('heading', { name: 'Photos' })).toBeVisible();
   await expect(page.getByTitle('bus-stop.jpg')).toBeVisible();
   await expect(page.getByTitle('tower.jpg')).not.toBeVisible();
 

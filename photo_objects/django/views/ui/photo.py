@@ -91,15 +91,9 @@ def list_photos(request: HttpRequest):
     paginator = Paginator(photos, page_size, orphans=orphans)
     page = paginator.get_page(page)
 
-    # TODO: Using back link to albums until adding proper navigation between
-    # photos and albums views.
-    back = BackLink(request.site.name, reverse(
-        'photo_objects:list_albums'), root=True)
-
     return render(request, "photo_objects/photo/list.html", {
         "grouped_photos": _group_photos(page, group_by),
         "title": "Photos",
-        "back": back,
         "title_context": f"#{tag_value}" if tag_value else None,
         "description": meta_description(request, photos),
         "page": page,
