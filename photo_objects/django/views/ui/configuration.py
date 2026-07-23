@@ -2,11 +2,10 @@ from dataclasses import dataclass
 
 from django.http import HttpRequest
 from django.shortcuts import render
-from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from photo_objects.django.api.utils import JsonProblem
-from photo_objects.django.views.utils import BackLink, Preview
+from photo_objects.django.views.utils import Preview
 from photo_objects.utils import render_markdown
 
 from .utils import json_problem_as_html
@@ -167,15 +166,12 @@ def configuration(request: HttpRequest):
         site_description_configured(request),
     ]
 
-    back = BackLink("Albums", reverse('photo_objects:list_albums'))
-
     return render(
         request,
         "photo_objects/configuration.html",
         {
             "title": "Configuration",
             "validations": validations,
-            "back": back,
             "width": "narrow",
             "preview": Preview(
                 request,
