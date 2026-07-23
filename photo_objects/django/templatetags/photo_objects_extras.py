@@ -82,6 +82,25 @@ def meta_og(context):
         return context
 
 
+@register.inclusion_tag(
+    "photo_objects/site-preview-img.html",
+    takes_context=True)
+def site_preview_img(context):
+    try:
+        request = context.get("request")
+        site = request.site
+
+        settings = SiteSettings.objects.get(site)
+
+        return {
+            'request': request,
+            "title": site.name,
+            "photo": settings.preview_image,
+        }
+    except Exception:
+        return context
+
+
 @register.simple_tag(takes_context=True)
 def copyright_notice(context):
     try:
