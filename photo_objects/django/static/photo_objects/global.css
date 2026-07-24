@@ -247,20 +247,37 @@ div.modal-post {
   position: absolute;
 }
 
-dialog.nav-modal div.modal-header img {
+dialog.nav-modal div.modal-header div.preview-and-title {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+dialog.nav-modal div.modal-header img ,
+dialog.nav-modal div.modal-header div.photo-placeholder {
   display: block;
-  width: 128px;
-  height: auto;
-  object-fit: cover;
+
   aspect-ratio: 1;
+  width: 40px;
+  height: auto;
+
   border-radius: 4px;
+  border: 1px solid var(--bg-border);
+  box-sizing: border-box;
+}
+
+dialog.nav-modal div.modal-header img {
+  object-fit: cover;
+}
+
+dialog.nav-modal div.modal-header div.photo-placeholder {
+  background: var(--placeholder-gradient);
 }
 
 dialog.nav-modal div.modal-header div.title {
   color: var(--fg-secondary);
   font-family: var(--font-mono);
   font-size: 0.75em;
-  margin-top: 8px;
 }
 
 dialog.user-modal div.user-details .user-profile {
