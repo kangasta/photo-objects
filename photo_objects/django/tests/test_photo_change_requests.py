@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 
-from photo_objects.django.models import Album
+from photo_objects.django.models import Album, Visibility
 
 
 from .utils import TestCase, add_permissions, create_dummy_photo
@@ -29,9 +29,9 @@ class PhotoChangeRequestTests(TestCase):
         add_permissions(has_permission, 'add_photochangerequest')
 
         self.private_album = Album.objects.create(
-            key=f"{TEST_PREFIX}-private", visibility=Album.Visibility.PRIVATE)
+            key=f"{TEST_PREFIX}-private", visibility=Visibility.PRIVATE)
         self.admin_album = Album.objects.create(
-            key=f"{TEST_PREFIX}-admin", visibility=Album.Visibility.ADMIN)
+            key=f"{TEST_PREFIX}-admin", visibility=Visibility.ADMIN)
 
         create_dummy_photo(self.private_album, "001.jpg")
         create_dummy_photo(self.private_album, "002.jpg")

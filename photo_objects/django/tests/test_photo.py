@@ -10,7 +10,7 @@ from django.contrib.sites.models import Site
 from PIL import Image
 from urllib3.exceptions import HTTPError
 
-from photo_objects.django.models import Album, SiteSettings
+from photo_objects.django.models import Album, SiteSettings, Visibility
 from photo_objects.django.objsto import get_photo
 from photo_objects.django.views.ui.utils import year_month
 
@@ -28,7 +28,7 @@ class PhotoModelTests(TestCase):
     def setUp(self):
         self.album = Album.objects.create(
             key="photo-model-test",
-            visibility=Album.Visibility.PUBLIC)
+            visibility=Visibility.PUBLIC)
         self.photos = [
             create_dummy_photo(
                 self.album,
@@ -67,10 +67,10 @@ class PhotoViewTests(TestCase):
 
         Album.objects.create(
             key="test-photo-a",
-            visibility=Album.Visibility.PUBLIC)
+            visibility=Visibility.PUBLIC)
         Album.objects.create(
             key="test-photo-b",
-            visibility=Album.Visibility.HIDDEN)
+            visibility=Visibility.HIDDEN)
 
     def test_post_photo_with_non_formdata_fails(self):
         login_success = self.client.login(

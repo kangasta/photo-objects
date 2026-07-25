@@ -25,6 +25,16 @@ urlpatterns = [
     ),
     path("api/photos", api.photos),
     path("api/photos/<uuid:photo_uuid>/img", api.get_img),
+    path("api/stories", api.stories),
+    path("api/stories/<str:story_key>", api.story),
+    path(
+        "api/stories/<str:story_key>/photo-references",
+        api.story_photo_references,
+    ),
+    path(
+        "api/stories/<str:story_key>/photo-references/<uuid:photo_uuid>",
+        api.story_photo_reference,
+    ),
     # TODO: ui views
     path('', lambda _: HttpResponseRedirect('albums')),
     path(

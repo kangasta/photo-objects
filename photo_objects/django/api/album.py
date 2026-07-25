@@ -2,7 +2,7 @@ from django.db.models.deletion import ProtectedError
 from django.http import HttpRequest
 
 from photo_objects.django.forms import CreateAlbumForm, ModifyAlbumForm
-from photo_objects.django.models import Album
+from photo_objects.django.models import Album, Visibility
 
 from .auth import check_album_access
 from .utils import (
@@ -15,14 +15,14 @@ from .utils import (
 
 def get_albums(request: HttpRequest):
     if not request.user.is_authenticated:
-        return Album.objects.filter(visibility=Album.Visibility.PUBLIC)
+        return Album.objects.filter(visibility=Visibility.PUBLIC)
     if request.user.is_staff:
         return Album.objects.all()
 
     return Album.objects.filter(visibility__in=[
-        Album.Visibility.PUBLIC,
-        Album.Visibility.HIDDEN,
-        Album.Visibility.PRIVATE,
+        Visibility.PUBLIC,
+        Visibility.HIDDEN,
+        Visibility.PRIVATE,
     ])
 
 

@@ -11,7 +11,7 @@ from photo_objects.django.forms import (
     ModifyPhotoForm,
     slugify,
 )
-from photo_objects.django.models import Photo, Album, Tag
+from photo_objects.django.models import Photo, Tag, Visibility
 from photo_objects.img import photo_details
 
 from .auth import check_album_access, check_photo_access
@@ -48,14 +48,14 @@ def get_photos(
 
     if not request.user.is_authenticated:
         photos = photos.filter(
-            album__visibility=Album.Visibility.PUBLIC)
+            album__visibility=Visibility.PUBLIC)
     elif request.user.is_staff:
         photos = photos.all()
     else:
         photos = photos.filter(album__visibility__in=[
-            Album.Visibility.PUBLIC,
-            Album.Visibility.HIDDEN,
-            Album.Visibility.PRIVATE,
+            Visibility.PUBLIC,
+            Visibility.HIDDEN,
+            Visibility.PRIVATE,
         ])
 
     return photos.order_by("-timestamp")

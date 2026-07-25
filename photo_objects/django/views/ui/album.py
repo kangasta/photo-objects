@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from photo_objects.django import api
 from photo_objects.django.api.utils import FormValidationFailed
 from photo_objects.django.forms import CreateAlbumForm, ModifyAlbumForm
-from photo_objects.django.models import Album, SiteSettings
+from photo_objects.django.models import Album, SiteSettings, Visibility
 from photo_objects.django.views.utils import (
     BackLink,
     Preview,
@@ -110,7 +110,7 @@ def show_album(request: HttpRequest, album_key: str):
     details = {
         "Description": render_markdown(album.description),
         "Timeline": _timeline(album),
-        "Visibility": Album.Visibility(album.visibility).label,
+        "Visibility": Visibility(album.visibility).label,
         "Created at": album.created_at,
         "Updated at": album.updated_at,
     }

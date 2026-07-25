@@ -5,7 +5,7 @@ from ciou.time import utcnow
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 
-from photo_objects.django.models import Album, SiteSettings
+from photo_objects.django.models import Album, SiteSettings, Visibility
 
 from .utils import (
     TestCase,
@@ -27,7 +27,7 @@ class ViewVisibilityTests(TestCase):
             is_staff=True)
 
         album = Album.objects.create(
-            key="venice", visibility=Album.Visibility.PUBLIC)
+            key="venice", visibility=Visibility.PUBLIC)
         for filename in [
             "tower.jpeg",
             "canal.jpeg",
@@ -39,16 +39,16 @@ class ViewVisibilityTests(TestCase):
         cls.albums = []
         cls.albums.append(Album.objects.create(
             key="test-visibility-public",
-            visibility=Album.Visibility.PUBLIC))
+            visibility=Visibility.PUBLIC))
         cls.albums.append(Album.objects.create(
             key="test-visibility-private",
-            visibility=Album.Visibility.PRIVATE))
+            visibility=Visibility.PRIVATE))
         cls.albums.append(Album.objects.create(
             key="test-visibility-hidden",
-            visibility=Album.Visibility.HIDDEN))
+            visibility=Visibility.HIDDEN))
         cls.albums.append(Album.objects.create(
             key="test-visibility-admin",
-            visibility=Album.Visibility.ADMIN))
+            visibility=Visibility.ADMIN))
 
         for album in cls.albums:
             create_dummy_photo(album, "photo.jpeg")
@@ -216,7 +216,7 @@ class AlbumViewTests(TestCase):
         album = self.client.get("/api/albums/oslo").json()
         self.assertEqual(
             album.get("visibility"),
-            Album.Visibility.PRIVATE.value)
+            Visibility.PRIVATE.value)
 
     def test_cannot_use_admin_visibility_as_normal_user(self):
         login_success = self.client.login(
@@ -285,7 +285,7 @@ class AlbumViewTests(TestCase):
         album = self.client.get("/api/albums/oslo").json()
         self.assertEqual(
             album.get("visibility"),
-            Album.Visibility.HIDDEN.value)
+            Visibility.HIDDEN.value)
         self.assertEqual(album.get("title"), "title")
         self.assertEqual(album.get("description"), "description")
 

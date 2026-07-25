@@ -6,7 +6,7 @@ from photo_objects.django.forms import (
     ReviewPhotoChangeRequestForm,
     set_photo_tags,
 )
-from photo_objects.django.models import Album, Photo, PhotoChangeRequest
+from photo_objects.django.models import Photo, PhotoChangeRequest, Visibility
 
 from .auth import check_photo_access
 from .utils import (
@@ -69,7 +69,7 @@ def get_expected_photo_change_requests(request: HttpRequest):
     )
 
     if not request.user.is_staff:
-        photos = photos.exclude(album__visibility=Album.Visibility.ADMIN)
+        photos = photos.exclude(album__visibility=Visibility.ADMIN)
 
     return [photo.key for photo in photos]
 

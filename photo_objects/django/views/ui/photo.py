@@ -12,7 +12,7 @@ from photo_objects.django.api.utils import (
     FormValidationFailed,
 )
 from photo_objects.django.forms import ModifyPhotoForm
-from photo_objects.django.models import Album, Photo, SiteSettings
+from photo_objects.django.models import Album, Photo, SiteSettings, Visibility
 from photo_objects.django.views.utils import (
     BackLink,
     Preview,
@@ -158,14 +158,14 @@ def _camera_settings(photo: Photo):
 
 def _user_knows_album(request: HttpRequest, album: Album) -> bool:
     if not request.user.is_authenticated:
-        return album.visibility == Album.Visibility.PUBLIC
+        return album.visibility == Visibility.PUBLIC
     if request.user.is_staff:
         return True
 
     return album.visibility in [
-        Album.Visibility.PUBLIC,
-        Album.Visibility.HIDDEN,
-        Album.Visibility.PRIVATE,
+        Visibility.PUBLIC,
+        Visibility.HIDDEN,
+        Visibility.PRIVATE,
     ]
 
 

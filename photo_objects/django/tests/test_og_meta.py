@@ -1,6 +1,6 @@
 from django.contrib.sites.models import Site
 
-from photo_objects.django.models import Album, Photo, SiteSettings
+from photo_objects.django.models import Album, Photo, SiteSettings, Visibility
 
 from .utils import TestCase, create_dummy_photo, temp_static_files
 
@@ -9,7 +9,7 @@ class OgMetaTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         album = Album.objects.create(
-            title="Paris", key="paris", visibility=Album.Visibility.PUBLIC)
+            title="Paris", key="paris", visibility=Visibility.PUBLIC)
 
         cls.photo = create_dummy_photo(album, "tower.jpeg")
 
