@@ -16,8 +16,12 @@ test('create story and add photo references', async ({ page }, testInfo) => {
     await expect(page.getByTitle('tower.jpg')).not.toBeVisible();
     await expect(page.getByTitle('havfrue.jpg')).toBeVisible();
 
-    // Add title to one of the photo references
-    await page.getByTitle('havfrue.jpg').click();
+    // Check that photo view has a link to the album
+    page.getByTitle('havfrue.jpg').click();
+    await expect(page.getByText(albumBTitle)).toBeVisible();
+    await expect(page.getByText(albumATitle)).not.toBeVisible();
+
+    // Add title to the currently open photo reference
     await page.getByText('Edit reference').click();
     await page.getByLabel('Title').fill('The Little Mermaid');
     await page.getByText('Save').click();
