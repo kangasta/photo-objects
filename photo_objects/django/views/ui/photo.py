@@ -302,7 +302,14 @@ def show_story_photo(request: HttpRequest, story_key: str, photo_uuid: UUID):
             "story_key": story_key,
             "photo_uuid": next_uuid})
 
-    return _show_photo(request, ref, previous_path, next_path, back)
+    return _show_photo(
+        request,
+        ref,
+        previous_path,
+        next_path,
+        back,
+        show_album_link=True,
+    )
 
 
 @json_problem_as_html
