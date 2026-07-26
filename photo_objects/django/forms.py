@@ -32,12 +32,10 @@ TAGS_HELP = _(
     'organizing and searching photos.'
 )
 PHOTO_REF_TITLE_HELP = _(
-    'Title for the photo in the selected story. If not defined, the title is '
-    'inherited from the photo.'
+    'Title for the photo in the selected story.'
 )
 PHOTO_REF_DESCRIPTION_HELP = _(
-    'Description for the photo in the selected story. If not defined, the '
-    'description is inherited from the photo.'
+    'Description for the photo in the selected story.'
 )
 
 
@@ -264,9 +262,10 @@ class ModifyStoryForm(ModelForm):
         fields = [
             'title',
             'description',
+            'priority',
             'cover_photo',
             'visibility',
-            'priority']
+        ]
         help_texts = {
             **description_help('story'),
             **collection_cover_photo_help('story'),

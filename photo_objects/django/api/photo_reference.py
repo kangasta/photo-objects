@@ -7,7 +7,11 @@ from photo_objects.django.forms import (
     ModifyPhotoReferenceForm,)
 from photo_objects.django.models import Visibility
 
-from .auth import check_photo_reference_access, check_story_access
+from .auth import (
+    check_photo_access_by_uuid,
+    check_photo_reference_access,
+    check_story_access,
+)
 from .utils import (
     FormValidationFailed,
     check_permissions,
@@ -38,12 +42,22 @@ def get_photo_references(
     return refs.order_by("-photo__timestamp")
 
 
-def create_photo_reference(request: HttpRequest, story_key: str):
+def create_photo_reference(
+        request: HttpRequest,
+        story_key: str = None,
+        photo_uuid: UUID = None):
     check_permissions(request, 'photo_objects.add_photoreference')
     data = parse_input_data(request)
-    story = check_story_access(request, story_key)
 
-    f = CreatePhotoReferenceForm({**data, 'story': story.key})
+    if story_key:
+        story = check_story_access(request, story_key)
+        data = {**data, 'story': story.key}
+
+    if photo_uuid:
+        photo = check_photo_access_by_uuid(request, photo_uuid, 'xs')
+        data = {**data, 'photo': photo}
+
+    f = CreatePhotoReferenceForm(data)
 
     if not f.is_valid():
         raise FormValidationFailed(f)

@@ -83,6 +83,51 @@ urlpatterns = [
         name="delete_album_photo",
     ),
     path(
+        "albums/<str:album_key>/photos/<str:photo_key>/_add_to_story",
+        ui.add_album_photo_to_story,
+        name="add_album_photo_to_story",
+    ),
+    path(
+        "stories",
+        ui.list_stories,
+        name="list_stories",
+    ),
+    path(
+        "stories/_new",
+        ui.new_story,
+        name="new_story",
+    ),
+    path(
+        "stories/<str:story_key>",
+        ui.show_story,
+        name="show_story",
+    ),
+    path(
+        "stories/<str:story_key>/_edit",
+        ui.edit_story,
+        name="edit_story",
+    ),
+    path(
+        "stories/<str:story_key>/_delete",
+        ui.delete_story,
+        name="delete_story",
+    ),
+    path(
+        "stories/<str:story_key>/photo-references/<uuid:photo_uuid>",
+        ui.show_story_photo,
+        name="show_story_photo",
+    ),
+    path(
+        "stories/<str:story_key>/photo-references/<uuid:photo_uuid>/_edit",
+        ui.edit_story_photo_reference,
+        name="edit_story_photo_reference",
+    ),
+    path(
+        "stories/<str:story_key>/photo-references/<uuid:photo_uuid>/_delete",
+        ui.delete_story_photo_reference,
+        name="delete_story_photo_reference",
+    ),
+    path(
         "photos",
         ui.list_photos,
         name="list_photos",
@@ -101,6 +146,11 @@ urlpatterns = [
         "photos/<uuid:photo_uuid>/_delete",
         ui.delete_photo,
         name="delete_photo",
+    ),
+    path(
+        "photos/<uuid:photo_uuid>/_add_to_story",
+        ui.add_photo_to_story,
+        name="add_photo_to_story",
     ),
     path(
         "photo-change-requests/_next",

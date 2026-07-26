@@ -115,7 +115,7 @@ class Story(BaseModel):
             "shown first."))
 
     cover_photo = models.ForeignKey(
-        "Photo",
+        "PhotoReference",
         blank=True,
         null=True,
         on_delete=models.SET_NULL,
@@ -131,7 +131,7 @@ class Story(BaseModel):
             visibility=self.visibility,
             priority=self.priority,
             cover_photo=(
-                self.cover_photo.filename if self.cover_photo else None),
+                self.cover_photo.photo.uuid if self.cover_photo else None),
         )
 
 
@@ -261,6 +261,18 @@ class PhotoReference(BaseModel):
             f"{self.story.key}/{self.photo.filename}",
             title=self.title,
         )
+
+    def previous(self, photo_set: QuerySet[Self]) -> Self:
+        qs = photo_set.order_by('photo__timestamp')
+
+        return qs.filter(
+            photo__timestamp__lt=self.photo.timestamp).last() or qs.last()
+
+    def next(self, photo_set: QuerySet[Self]) -> Self:
+        qs = photo_set.order_by('photo__timestamp')
+
+        return qs.filter(
+            photo__timestamp__gt=self.photo.timestamp).first() or qs.first()
 
     def to_json(self):
         return dict(
