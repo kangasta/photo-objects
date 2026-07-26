@@ -261,7 +261,12 @@ class ModifyAlbumForm(ModelForm):
 class ModifyStoryForm(ModelForm):
     class Meta:
         model = Story
-        fields = ['title', 'description', 'cover_photo', 'visibility']
+        fields = [
+            'title',
+            'description',
+            'cover_photo',
+            'visibility',
+            'priority']
         help_texts = {
             **description_help('story'),
             **collection_cover_photo_help('story'),

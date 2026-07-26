@@ -15,7 +15,7 @@ def _ref_path(story_key, photo_uuid=None):
     return path
 
 
-class PhotoViewTests(TestCase):
+class PhotoReferenceTests(TestCase):
     # pylint: disable=invalid-name
     def setUp(self):
         user = get_user_model()
