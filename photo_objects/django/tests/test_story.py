@@ -1,9 +1,69 @@
 from django.contrib.auth import get_user_model
 
+from photo_objects.django.models import (
+    Album,
+    PhotoReference,
+    Story,
+    Visibility,
+)
+
 from .utils import (
     TestCase,
     add_permissions,
+    create_dummy_photo,
 )
+
+
+class StoryVisibilityTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        user = get_user_model()
+        user.objects.create_user(
+            username='test-story-visibility',
+            password='test')
+        user.objects.create_user(
+            username='test-story-staff-visibility',
+            password='test',
+            is_staff=True)
+
+        story = Story.objects.create(
+            key="test-story-visibility", visibility=Visibility.PUBLIC)
+
+        cls.albums = []
+        cls.albums.append(Album.objects.create(
+            key="test-story-visibility-public-album",
+            visibility=Visibility.PUBLIC))
+        cls.albums.append(Album.objects.create(
+            key="test-story-visibility-private-album",
+            visibility=Visibility.PRIVATE))
+        cls.albums.append(Album.objects.create(
+            key="test-story-visibility-hidden-album",
+            visibility=Visibility.HIDDEN))
+        cls.albums.append(Album.objects.create(
+            key="test-story-visibility-admin-album",
+            visibility=Visibility.ADMIN))
+
+        for album in cls.albums:
+            photo = create_dummy_photo(album, "photo.jpeg")
+            PhotoReference.objects.create(story=story, photo=photo)
+
+    def test_photo_visibility(self):
+        tests = [
+            (None, 2),
+            ("test-story-visibility", 3),
+            ("test-story-staff-visibility", 4),
+        ]
+
+        for username, count in tests:
+            with self.subTest(username=username):
+                if username is not None:
+                    login_success = self.client.login(
+                        username=username, password='test')
+                    self.assertTrue(login_success)
+
+                response = self.client.get(
+                    "/api/stories/test-story-visibility/photo-references")
+                self.assertEqual(len(response.json()), count)
 
 
 class StoryTests(TestCase):
