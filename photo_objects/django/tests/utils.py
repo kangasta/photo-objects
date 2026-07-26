@@ -13,8 +13,16 @@ from django.utils.dateparse import parse_datetime
 from minio import S3Error
 
 from photo_objects.django import objsto
-from photo_objects.django.models import Album, Photo
+from photo_objects.django.models import Album, Photo, Visibility
 from photo_objects.django.objsto import _photos_access
+
+
+VISIBILITIES = {
+    "public": Visibility.PUBLIC,
+    "private": Visibility.PRIVATE,
+    "hidden": Visibility.HIDDEN,
+    "admin": Visibility.ADMIN,
+}
 
 
 def add_permissions(user, *permissions):

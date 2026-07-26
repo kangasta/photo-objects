@@ -8,6 +8,7 @@ from django.contrib.sites.models import Site
 from photo_objects.django.models import Album, SiteSettings, Visibility
 
 from .utils import (
+    VISIBILITIES,
     TestCase,
     add_permissions,
     parse_timestamps,
@@ -37,18 +38,10 @@ class ViewVisibilityTests(TestCase):
             create_dummy_photo(album, filename)
 
         cls.albums = []
-        cls.albums.append(Album.objects.create(
-            key="test-visibility-public",
-            visibility=Visibility.PUBLIC))
-        cls.albums.append(Album.objects.create(
-            key="test-visibility-private",
-            visibility=Visibility.PRIVATE))
-        cls.albums.append(Album.objects.create(
-            key="test-visibility-hidden",
-            visibility=Visibility.HIDDEN))
-        cls.albums.append(Album.objects.create(
-            key="test-visibility-admin",
-            visibility=Visibility.ADMIN))
+        for label, visibility in VISIBILITIES.items():
+            cls.albums.append(Album.objects.create(
+                key=f"test-visibility-{label}",
+                visibility=visibility))
 
         for album in cls.albums:
             create_dummy_photo(album, "photo.jpeg")

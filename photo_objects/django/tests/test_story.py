@@ -4,10 +4,10 @@ from photo_objects.django.models import (
     Album,
     PhotoReference,
     Story,
-    Visibility,
 )
 
 from .utils import (
+    VISIBILITIES,
     TestCase,
     add_permissions,
     create_dummy_photo,
@@ -26,26 +26,37 @@ class StoryVisibilityTests(TestCase):
             password='test',
             is_staff=True)
 
-        story = Story.objects.create(
-            key="test-story-visibility", visibility=Visibility.PUBLIC)
-
         cls.albums = []
-        cls.albums.append(Album.objects.create(
-            key="test-story-visibility-public-album",
-            visibility=Visibility.PUBLIC))
-        cls.albums.append(Album.objects.create(
-            key="test-story-visibility-private-album",
-            visibility=Visibility.PRIVATE))
-        cls.albums.append(Album.objects.create(
-            key="test-story-visibility-hidden-album",
-            visibility=Visibility.HIDDEN))
-        cls.albums.append(Album.objects.create(
-            key="test-story-visibility-admin-album",
-            visibility=Visibility.ADMIN))
 
+        for label, visibility in VISIBILITIES.items():
+            cls.albums.append(Album.objects.create(
+                key=f"test-story-visibility-{label}-album",
+                visibility=visibility))
+            story = Story.objects.create(
+                key=f"test-story-visibility-{label}",
+                visibility=visibility)
+
+        story = Story.objects.get(key="test-story-visibility-public")
         for album in cls.albums:
             photo = create_dummy_photo(album, "photo.jpeg")
             PhotoReference.objects.create(story=story, photo=photo)
+
+    def test_story_visibility(self):
+        tests = [
+            (None, 1),
+            ("test-story-visibility", 3),
+            ("test-story-staff-visibility", 4),
+        ]
+
+        for username, count in tests:
+            with self.subTest(username=username):
+                if username is not None:
+                    login_success = self.client.login(
+                        username=username, password='test')
+                    self.assertTrue(login_success)
+
+                response = self.client.get("/api/stories")
+                self.assertEqual(len(response.json()), count)
 
     def test_photo_visibility(self):
         tests = [
@@ -61,8 +72,9 @@ class StoryVisibilityTests(TestCase):
                         username=username, password='test')
                     self.assertTrue(login_success)
 
+                key = "test-story-visibility-public"
                 response = self.client.get(
-                    "/api/stories/test-story-visibility/photo-references")
+                    f"/api/stories/{key}/photo-references")
                 self.assertEqual(len(response.json()), count)
 
 
