@@ -1,7 +1,13 @@
 from django.http import HttpRequest
 from django.utils.dateformat import format as format_date
 
-from photo_objects.django.models import Album, Photo, SiteSettings
+from photo_objects.django.models import (
+    Album,
+    Photo,
+    PhotoReference,
+    SiteSettings,
+    Story,
+)
 from photo_objects.utils import first_paragraph_textcontent
 
 
@@ -49,6 +55,12 @@ def _default_album_description(request: HttpRequest, album: Album) -> str:
     return f"Album with {count} photo{plural} in {request.site.name}."
 
 
+def _default_story_description(request: HttpRequest, story: Story) -> str:
+    count = story.photo_references.count()
+    plural = 's' if count != 1 else ''
+    return f"Story with {count} photo{plural} in {request.site.name}."
+
+
 def _default_photo_description(request: HttpRequest, photo: Photo) -> str:
     date_str = format_date(photo.timestamp, "F Y")
     album_str = "."
@@ -59,17 +71,27 @@ def _default_photo_description(request: HttpRequest, photo: Photo) -> str:
 
 def meta_description(
         request: HttpRequest,
-        resource: Album | Photo | str = None) -> str:
+        resource: Album | Photo | Story | str = None) -> str:
     text = None
     if isinstance(resource, Album):
         return (
             first_paragraph_textcontent(resource.description) or
             _default_album_description(request, resource))
 
+    if isinstance(resource, Story):
+        return (
+            first_paragraph_textcontent(resource.description) or
+            _default_story_description(request, resource))
+
     if isinstance(resource, Photo):
         return (
             first_paragraph_textcontent(resource.description) or
             _default_photo_description(request, resource))
+
+    if isinstance(resource, PhotoReference):
+        return (
+            first_paragraph_textcontent(resource.description) or
+            _default_photo_description(request, resource.photo))
 
     if isinstance(resource, str):
         return first_paragraph_textcontent(resource)
@@ -85,8 +107,14 @@ def meta_photo(
     if isinstance(resource, Photo):
         return resource
 
+    if isinstance(resource, PhotoReference):
+        return resource.photo
+
     if isinstance(resource, Album):
         return resource.cover_photo
+
+    if isinstance(resource, Story):
+        return resource.cover_photo.photo if resource.cover_photo else None
 
     settings = SiteSettings.objects.get(request.site)
     return settings.preview_image
@@ -99,8 +127,14 @@ def meta_title(
     if isinstance(resource, Album):
         text = resource.title
 
+    if isinstance(resource, Story):
+        text = resource.title
+
     if isinstance(resource, Photo):
         text = resource.title or resource.filename
+
+    if isinstance(resource, PhotoReference):
+        text = resource.title or resource.photo.filename
 
     if isinstance(resource, str):
         text = resource

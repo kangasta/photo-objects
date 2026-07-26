@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { createAlbumAndUploadPhotos, deleteAlbum, getCurrentAlbumKey, listPhotos, login, openAlbum, withRandomSuffix } from './actions';
+import { createAlbumAndUploadPhotos, deleteAlbums, getCurrentResourceKey, listPhotos, login, openAlbum, withRandomSuffix } from './actions';
 
 test('review photo change requests', async ({ context, page }, testInfo) => {
   await login(page);
@@ -9,7 +9,7 @@ test('review photo change requests', async ({ context, page }, testInfo) => {
   const photos = ['bus-stop.jpg', "tower.jpg", "havfrue.jpg"];
   const albumTitle = await createAlbumAndUploadPhotos(page, testInfo, "photo change requests", photos);
 
-  const albumKey = getCurrentAlbumKey(page);
+  const albumKey = getCurrentResourceKey(page, "albums");
   const cookies = await context.cookies();
   const csrftoken = cookies.find(c => c.name === 'csrftoken')?.value ?? '';
   await Promise.all(photos.map(async (photo) => {
@@ -55,5 +55,5 @@ test('review photo change requests', async ({ context, page }, testInfo) => {
 });
 
 test.afterEach(async ({ page }, testInfo) => {
-  await deleteAlbum(page, testInfo);
+  await deleteAlbums(page, testInfo);
 });

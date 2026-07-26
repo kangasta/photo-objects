@@ -1,4 +1,5 @@
 {% extends 'photo_objects/base.html' %}
+{% load photo_objects_extras %}
 
 {% block header %}
 {% include 'photo_objects/header.html' %}
@@ -7,9 +8,7 @@
 {% block content %}
 <div class="photo-and-details">
   <div class="photo surface">
-    <img src="/img/_uuid/{{ photo.uuid }}/lg" alt="{{ photo.alt }}"
-      style="background: url(data:image/png;base64,{{ photo.tiny_base64 }}); background-size: 100% 100%; font-size: 0;"
-      height="{{ photo.height }}" width="{{ photo.width }}" />
+    {% photo_img photo "lg" %}
   </div>
   {% include 'photo_objects/details.html' %}
 </div>
@@ -17,11 +16,23 @@
 <div class="actions">
   <a id="previous" class="action" href="{{ previous_path }}{% querystring %}">←</a>
   <a id="next" class="action" href="{{ next_path }}{% querystring %}">→</a>
+  {% if photo|is_reference %}
+  {% if perms.photo_objects.change_photoreference %}
+  <a class="action" href="{{ request.path }}/_edit">Edit reference</a>
+  {% endif %}
+  {% if perms.photo_objects.delete_photoreference %}
+  <a class="action delete" href="{{ request.path }}/_delete">Remove from story</a>
+  {% endif %}
+  {% else %}
+  {% if perms.photo_objects.add_photoreference %}
+  <a class="action" href="{{ request.path }}/_add_to_story">Add to story</a>
+  {% endif %}
   {% if perms.photo_objects.change_photo %}
   <a class="action" href="{{ request.path }}/_edit">Edit photo</a>
   {% endif %}
   {% if perms.photo_objects.delete_photo %}
   <a class="action delete" href="{{ request.path }}/_delete">Delete photo</a>
+  {% endif %}
   {% endif %}
 </div>
 <script>

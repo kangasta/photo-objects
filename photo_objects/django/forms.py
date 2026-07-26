@@ -14,18 +14,44 @@ from django.utils.translation import gettext_lazy as _
 
 from photo_objects.utils import slugify
 
-from .models import Album, Photo, PhotoChangeRequest, Tag, tag_input_validator
-
-
-ALBUM_TITLE_HELP = _(
-    'When creating a new album, album key is generated based on the title. '
-    'Modifying the title later does not change the album key.'
+from .models import (
+    Album,
+    Photo,
+    PhotoChangeRequest,
+    PhotoReference,
+    Story,
+    Tag,
+    Visibility,
+    tag_input_validator,
 )
+
+
 ALT_TEXT_HELP = _('Alternative text content for the photo.')
 TAGS_HELP = _(
     'Comma separated list of tags for the photo. Tags are used for '
     'organizing and searching photos.'
 )
+PHOTO_REF_TITLE_HELP = _(
+    'Title for the photo in the selected story.'
+)
+PHOTO_REF_DESCRIPTION_HELP = _(
+    'Description for the photo in the selected story.'
+)
+
+
+def collection_title_help(resource):
+    return {'title': _(
+        f'When creating a new {resource}, {resource} key is generated based '
+        'on the title. Modifying the title later does not change the '
+        f'{resource} key.'
+    )}
+
+
+def collection_cover_photo_help(resource):
+    return {'cover_photo': _(
+        f'Select a cover photo for the {resource}. The cover photo is '
+        'visible on the list page and in the social media previews.'),
+    }
 
 
 def description_help(resource):
@@ -36,25 +62,29 @@ def description_help(resource):
     }
 
 
-def visibility_help(visibility: str):
-    visibility = Album.Visibility(visibility)
-    if visibility == Album.Visibility.PUBLIC:
+def visibility_help(visibility: str, resource: str):
+    visibility = Visibility(visibility)
+    if visibility == Visibility.PUBLIC:
         return _(
-            'The album is visible to anyone without authentication.')
-    if visibility == Album.Visibility.HIDDEN:
+            f'The {resource} is visible to anyone without authentication.')
+    if visibility == Visibility.HIDDEN:
         return _(
-            'The album is visible to anyone with the link. Only '
-            'authenticated users can see the album in albums list.')
-    if visibility == Album.Visibility.PRIVATE:
+            f'The {resource} is visible to anyone with the link. Only '
+            f'authenticated users can list the {resource}.')
+    if visibility == Visibility.PRIVATE:
         return _(
-            'The album is only visible to authenticated users.')
-    if visibility == Album.Visibility.ADMIN:
+            f'The {resource} is only visible to authenticated users.')
+    if visibility == Visibility.ADMIN:
         return _(
-            'The album is only visible to admin users.')
+            f'The {resource} is only visible to admin users.')
     return None
 
 
 class VisibilityRadioSelect(RadioSelect):
+    def __init__(self, resource, *args, **kwargs):
+        self._resource = resource
+        super().__init__(*args, **kwargs)
+
     def create_option(
         self, name, value, label, selected, index, subindex=None, attrs=None
     ):
@@ -69,7 +99,9 @@ class VisibilityRadioSelect(RadioSelect):
         option['label'] = mark_safe(f'''
 <div>
   <span class="label">{label}</span>
-  <p class="helptext">{visibility_help(option.get('value'))}</p>
+  <p class="helptext">
+    {visibility_help(option.get('value'), self._resource)}
+  </p>
 </div>''')
         return option
 
@@ -78,7 +110,7 @@ def _check_admin_visibility(form):
     if form.user and form.user.is_staff:
         return
 
-    if form.data.get("visibility") == Album.Visibility.ADMIN:
+    if form.data.get("visibility") == Visibility.ADMIN:
         form.add_error(
             'visibility',
             ValidationError(
@@ -89,19 +121,7 @@ def _check_admin_visibility(form):
         return
 
 
-class CreateAlbumForm(ModelForm):
-    key = CharField(min_length=1, widget=HiddenInput)
-
-    class Meta:
-        model = Album
-        fields = ['key', 'title', 'description', 'visibility']
-        help_texts = {
-            **description_help('album'),
-            'title': ALBUM_TITLE_HELP,
-        }
-        widgets = {'visibility': VisibilityRadioSelect(
-            attrs={'class': 'visibility-select'}), }
-
+class CreateCollectionForm(ModelForm):
     def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.user = user
@@ -121,7 +141,7 @@ class CreateAlbumForm(ModelForm):
                     'key',
                     ValidationError(
                         _('Keys starting with underscore are reserved for '
-                          'system albums.'),
+                          'system resources.'),
                         code='invalid'))
             return
 
@@ -138,25 +158,62 @@ class CreateAlbumForm(ModelForm):
         postfix_iter = postfix_generator()
         try:
             postfix = next(postfix_iter)
-            while Album.objects.filter(key=key + postfix).exists():
+            # pylint: disable-next=no-member
+            while self.Meta.model.objects.filter(key=key + postfix).exists():
                 postfix = next(postfix_iter)
         except StopIteration:
             self.add_error(
                 "title",
                 ValidationError(
                     _('Could not generate unique key from the given title. '
-                      'Try to use a different title for the album.'),
+                      'Try to use a different title for the resource.'),
                     code='unique'))
             return
 
         self.cleaned_data['key'] = key + postfix
 
 
-def photo_label(photo: Photo):
+class CreateAlbumForm(CreateCollectionForm):
+    key = CharField(min_length=1, widget=HiddenInput)
+
+    class Meta:
+        model = Album
+        fields = ['key', 'title', 'description', 'visibility']
+        help_texts = {
+            **description_help('album'),
+            **collection_title_help('album'),
+        }
+        widgets = {'visibility': VisibilityRadioSelect(
+            'album',
+            attrs={'class': 'visibility-select'},
+        )}
+
+
+class CreateStoryForm(CreateCollectionForm):
+    key = CharField(min_length=1, widget=HiddenInput)
+
+    class Meta:
+        model = Story
+        fields = ['key', 'title', 'description', 'priority', 'visibility']
+        help_texts = {
+            **description_help('story'),
+            **collection_title_help('story'),
+        }
+        widgets = {'visibility': VisibilityRadioSelect(
+            'story',
+            attrs={'class': 'visibility-select'},
+        )}
+
+
+def photo_label(photo: Photo | PhotoReference):
+    title = photo.title
+    if isinstance(photo, PhotoReference):
+        photo = photo.photo
+
     return mark_safe(
         f'''
 <img
-  alt="{photo.title}"
+  alt="{title}"
   src="/img/_uuid/{photo.uuid}/sm"
   style="
     background: url(data:image/png;base64,{photo.tiny_base64});
@@ -173,26 +230,62 @@ class ModifyAlbumForm(ModelForm):
         fields = ['title', 'description', 'cover_photo', 'visibility']
         help_texts = {
             **description_help('album'),
-            'cover_photo': _(
-                'Select a cover photo for the album. The cover photo is '
-                'visible on the albums list page and in album preview image.'),
-            'title': ALBUM_TITLE_HELP,
+            **collection_cover_photo_help('album'),
+            **collection_title_help('album'),
         }
         widgets = {
             'cover_photo': RadioSelect(
-                attrs={
-                    'class': 'photo-select'}),
+                attrs={'class': 'photo-select'},
+            ),
             'visibility': VisibilityRadioSelect(
-                attrs={
-                    'class': 'visibility-select'}),
+                'album',
+                attrs={'class': 'visibility-select'},
+            ),
         }
 
     def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.user = user
 
-        self.fields['cover_photo'].queryset = Photo.objects.filter(
-            album=self.instance)
+        self.fields['cover_photo'].queryset = self.instance.photo_set
+        self.fields['cover_photo'].empty_label = None
+        self.fields['cover_photo'].label_from_instance = photo_label
+
+    def clean(self):
+        super().clean()
+        _check_admin_visibility(self)
+
+
+class ModifyStoryForm(ModelForm):
+    class Meta:
+        model = Story
+        fields = [
+            'title',
+            'description',
+            'priority',
+            'cover_photo',
+            'visibility',
+        ]
+        help_texts = {
+            **description_help('story'),
+            **collection_cover_photo_help('story'),
+            **collection_title_help('story'),
+        }
+        widgets = {
+            'cover_photo': RadioSelect(
+                attrs={'class': 'photo-select'},
+            ),
+            'visibility': VisibilityRadioSelect(
+                'story',
+                attrs={'class': 'visibility-select'},
+            ),
+        }
+
+    def __init__(self, *args, user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = user
+
+        self.fields['cover_photo'].queryset = self.instance.photo_references
         self.fields['cover_photo'].empty_label = None
         self.fields['cover_photo'].label_from_instance = photo_label
 
@@ -286,6 +379,46 @@ class ModifyPhotoForm(ModelFormWithTags):
 
         raw_tags = self.cleaned_data.get("tags", "")
         set_photo_tags(self.instance, raw_tags)
+
+
+class CreatePhotoReferenceForm(ModelForm):
+    class Meta:
+        model = PhotoReference
+        fields = ['photo', 'story', 'title', 'description']
+        help_texts = {
+            'title': PHOTO_REF_TITLE_HELP,
+            'description': PHOTO_REF_DESCRIPTION_HELP,
+        }
+        widgets = {'photo': HiddenInput()}
+
+    def clean(self):
+        super().clean()
+
+        photo = self.cleaned_data.get('photo', '')
+        story = self.cleaned_data.get('story', '')
+
+        try:
+            story.photo_references.get(photo=photo)
+            self.add_error(
+                'story',
+                ValidationError(
+                    _(
+                        'The selected story already has reference to the '
+                        'selected photo.',
+                    ),
+                    code='unique'))
+        except PhotoReference.DoesNotExist:
+            pass
+
+
+class ModifyPhotoReferenceForm(ModelForm):
+    class Meta:
+        model = PhotoReference
+        fields = ['title', 'description']
+        help_texts = {
+            'title': PHOTO_REF_TITLE_HELP,
+            'description': PHOTO_REF_DESCRIPTION_HELP,
+        }
 
 
 class CreatePhotoChangeRequestForm(ModelFormWithTags):

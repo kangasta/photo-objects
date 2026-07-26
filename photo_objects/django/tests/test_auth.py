@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 
-from photo_objects.django.models import Album
+from photo_objects.django.models import Album, Visibility
 
 from .utils import TestCase, create_dummy_photo
 
@@ -22,22 +22,22 @@ class AuthViewTests(TestCase):
             is_staff=True)
 
         public_album = Album.objects.create(
-            key="test-auth-public", visibility=Album.Visibility.PUBLIC)
+            key="test-auth-public", visibility=Visibility.PUBLIC)
         public_photo = create_dummy_photo(public_album, "waterbus.jpeg")
         cls.public_path = _path_fn(public_album.key, public_photo.filename)
 
         hidden_album = Album.objects.create(
-            key="test-auth-hidden", visibility=Album.Visibility.HIDDEN)
+            key="test-auth-hidden", visibility=Visibility.HIDDEN)
         hidden_photo = create_dummy_photo(hidden_album, "bridge.jpeg")
         cls.hidden_path = _path_fn(hidden_album.key, hidden_photo.filename)
 
         private_album = Album.objects.create(
-            key="test-auth-private", visibility=Album.Visibility.PRIVATE)
+            key="test-auth-private", visibility=Visibility.PRIVATE)
         private_photo = create_dummy_photo(private_album, "tower.jpeg")
         cls.private_path = _path_fn(private_album.key, private_photo.filename)
 
         admin_album = Album.objects.create(
-            key="test-auth-admin", visibility=Album.Visibility.ADMIN)
+            key="test-auth-admin", visibility=Visibility.ADMIN)
         admin_photo = create_dummy_photo(admin_album, "church.jpeg")
         cls.admin_path = _path_fn(admin_album.key, admin_photo.filename)
 

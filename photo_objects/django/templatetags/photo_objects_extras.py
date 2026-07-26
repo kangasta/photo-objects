@@ -1,9 +1,17 @@
 from datetime import datetime
+
 from django import template
+from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.html import escape
 
-from photo_objects.django.models import SiteSettings
+from photo_objects.django.models import (
+    Album,
+    Photo,
+    PhotoReference,
+    SiteSettings,
+    Story,
+)
 from photo_objects.django.views.utils import (
     PreviewLink,
     TagLinks,
@@ -54,17 +62,29 @@ def is_preview_link(value):
 
 
 @register.filter
+def is_reference(value):
+    return isinstance(value, PhotoReference)
+
+
+@register.filter
 def is_tag_links(value):
     return isinstance(value, TagLinks)
 
 
-@register.inclusion_tag("photo_objects/meta-og.html", takes_context=True)
+@register.inclusion_tag("photo_objects/inclusion_tag/meta-og.html",
+                        takes_context=True)
 def meta_og(context):
     photo = context.get("photo")
     title = context.get("title")
 
+    if isinstance(photo, PhotoReference):
+        photo = photo.photo
+
     if photo and title:
-        return context
+        return {
+            **context.flatten(),
+            "photo": photo,
+        }
 
     try:
         request = context.get("request")
@@ -73,7 +93,7 @@ def meta_og(context):
         settings = SiteSettings.objects.get(site)
 
         return {
-            'request': request,
+            "request": request,
             "title": site.name,
             "description": meta_description(request, settings.description),
             "photo": settings.preview_image,
@@ -83,7 +103,7 @@ def meta_og(context):
 
 
 @register.inclusion_tag(
-    "photo_objects/site-preview-img.html",
+    "photo_objects/inclusion_tag/site-preview-img.html",
     takes_context=True)
 def site_preview_img(context):
     try:
@@ -99,6 +119,60 @@ def site_preview_img(context):
         }
     except Exception:
         return context
+
+
+@register.inclusion_tag(
+    "photo_objects/inclusion_tag/photo-img.html")
+def photo_img(
+        photo: Photo | PhotoReference,
+        size: str,
+        thumbnail: bool = False):
+    if isinstance(photo, PhotoReference):
+        photo = photo.photo
+
+    return {
+        "photo": photo,
+        "size": size,
+        "height": photo.thumbnail_height if thumbnail else photo.height,
+        "width": photo.thumbnail_width if thumbnail else photo.width,
+    }
+
+
+@register.inclusion_tag(
+    "photo_objects/inclusion_tag/photo-link.html")
+def photo_link(
+        photo: Photo | PhotoReference,
+        collection: Album | Story = None,
+        **kwargs):
+    title = photo.title
+    if isinstance(photo, PhotoReference):
+        photo = photo.photo
+    if not title:
+        title = photo.filename
+
+    if isinstance(collection, Album):
+        href = reverse(
+            'photo_objects:show_album_photo',
+            kwargs={
+                "album_key": collection.key,
+                "photo_key": photo.filename})
+    elif isinstance(collection, Story):
+        href = reverse(
+            'photo_objects:show_story_photo',
+            kwargs={
+                "story_key": collection.key,
+                "photo_uuid": photo.uuid})
+    else:
+        href = reverse(
+            'photo_objects:show_photo',
+            kwargs={"photo_uuid": photo.uuid})
+
+    return {
+        "photo": photo,
+        "title": title,
+        "href": href,
+        "class": kwargs.get("class", ""),
+    }
 
 
 @register.simple_tag(takes_context=True)

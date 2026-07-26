@@ -1,0 +1,5 @@
+<div class="actions">
+  {% for action in actions %}
+  <a class="action {{ action.class|default:'' }}" href="{{ action.target }}">{{ action.label }}</a>
+  {% endfor %}
+</div>

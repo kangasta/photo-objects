@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.core.management import call_command
 
 from photo_objects.django.conf import CONFIGURABLE_PHOTO_SIZES
-from photo_objects.django.models import Album
+from photo_objects.django.models import Album, Visibility
 
 from .utils import TestCase, open_test_photo
 
@@ -20,7 +20,7 @@ class PhotoViewTests(TestCase):
 
         Album.objects.create(
             key="test-photo-sizes",
-            visibility=Album.Visibility.PUBLIC)
+            visibility=Visibility.PUBLIC)
 
     def _scale_image(self, uuid):
         for size in CONFIGURABLE_PHOTO_SIZES:

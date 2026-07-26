@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { checkTitlesExist, createAlbumAndUploadPhotos, deleteAlbum, login, uploadPhotos, withRandomSuffix } from './actions';
+import { checkTitlesExist, createAlbumAndUploadPhotos, deleteAlbums, login, uploadPhotos, withRandomSuffix } from './actions';
 
 test('create album and upload photo', async ({ page }, testInfo) => {
   await login(page);
@@ -44,5 +44,5 @@ test('modify photo and list photos by tag', async ({ page }, testInfo) => {
 });
 
 test.afterEach(async ({ page }, testInfo) => {
-  await deleteAlbum(page, testInfo);
+  await deleteAlbums(page, testInfo);
 });

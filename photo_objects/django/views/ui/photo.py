@@ -7,12 +7,23 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 
 from photo_objects.django import api
+from photo_objects.django.api.auth import check_photo_reference_access
 from photo_objects.django.api.utils import (
     AlbumNotFound,
     FormValidationFailed,
+    StoryNotFound,
 )
-from photo_objects.django.forms import ModifyPhotoForm
-from photo_objects.django.models import Album, Photo, SiteSettings
+from photo_objects.django.forms import (
+    CreatePhotoReferenceForm,
+    ModifyPhotoForm,
+)
+from photo_objects.django.models import (
+    Album,
+    Photo,
+    PhotoReference,
+    SiteSettings,
+    Visibility,
+)
 from photo_objects.django.views.utils import (
     BackLink,
     Preview,
@@ -158,27 +169,35 @@ def _camera_settings(photo: Photo):
 
 def _user_knows_album(request: HttpRequest, album: Album) -> bool:
     if not request.user.is_authenticated:
-        return album.visibility == Album.Visibility.PUBLIC
+        return album.visibility == Visibility.PUBLIC
     if request.user.is_staff:
         return True
 
     return album.visibility in [
-        Album.Visibility.PUBLIC,
-        Album.Visibility.HIDDEN,
-        Album.Visibility.PRIVATE,
+        Visibility.PUBLIC,
+        Visibility.HIDDEN,
+        Visibility.PRIVATE,
     ]
 
 
 def _show_photo(
         request: HttpRequest,
-        photo: Photo,
+        photo_or_ref: Photo | PhotoReference,
         previous_path: str,
         next_path: str,
         back: BackLink,
         show_album_link: bool = False,
         context: dict = None):
+    title = photo_or_ref.title
+    description = photo_or_ref.description
+    meta_desc = meta_description(request, photo_or_ref)
+
+    photo = photo_or_ref
+    if isinstance(photo_or_ref, PhotoReference):
+        photo = photo_or_ref.photo
+
     details = {
-        "Description": render_markdown(photo.description),
+        "Description": render_markdown(description),
         "Timestamp": photo.timestamp,
         "Camera": _camera(photo),
         "Lens": _lens(photo),
@@ -204,11 +223,11 @@ def _show_photo(
 
     return render(request, "photo_objects/photo/show.html", {
         **(context or {}),
-        "photo": photo,
+        "photo": photo_or_ref,
         "previous_path": previous_path,
         "next_path": next_path,
-        "title": photo.title or photo.filename,
-        "description": meta_description(request, photo),
+        "title": title or photo.filename,
+        "description": meta_desc,
         "back": back,
         "details": details,
     })
@@ -248,6 +267,42 @@ def show_album_photo(request: HttpRequest, album_key: str, photo_key: str):
             "photo_key": next_filename})
 
     return _show_photo(request, photo, previous_path, next_path, back)
+
+
+@json_problem_as_html
+def show_story_photo(request: HttpRequest, story_key: str, photo_uuid: UUID):
+    ref = check_photo_reference_access(request, story_key, photo_uuid)
+    story = ref.story
+
+    next_uuid = previous_uuid = ref.photo.uuid
+    back = BackLink("Stories", reverse('photo_objects:list_stories'))
+
+    try:
+        api.check_story_access(request, story_key)
+
+        previous_uuid = ref.previous(story.photo_references).photo.uuid
+        next_uuid = ref.next(story.photo_references).photo.uuid
+
+        target = story.title or story.key
+        back = BackLink(
+            target, reverse(
+                'photo_objects:show_story', kwargs={
+                    "story_key": story_key}))
+    except StoryNotFound:
+        pass
+
+    previous_path = reverse(
+        'photo_objects:show_story_photo',
+        kwargs={
+            "story_key": story_key,
+            "photo_uuid": previous_uuid})
+    next_path = reverse(
+        'photo_objects:show_story_photo',
+        kwargs={
+            "story_key": story_key,
+            "photo_uuid": next_uuid})
+
+    return _show_photo(request, ref, previous_path, next_path, back)
 
 
 @json_problem_as_html
@@ -336,8 +391,7 @@ def edit_album_photo(
 def edit_photo(request: HttpRequest, photo_uuid: UUID):
     back_path = next_path = reverse(
         'photo_objects:show_photo',
-        kwargs={
-            "photo_uuid": photo_uuid})
+        kwargs={"photo_uuid": photo_uuid})
 
     photo = api.check_photo_access_by_uuid(request, photo_uuid, "xs")
     return edit_album_photo(
@@ -392,6 +446,59 @@ def delete_photo(request: HttpRequest, photo_uuid: UUID):
 
     photo = api.check_photo_access_by_uuid(request, photo_uuid, "xs")
     return delete_album_photo(
+        request,
+        photo.album.key,
+        photo.filename,
+        back_path,
+        next_path)
+
+
+def add_album_photo_to_story(
+        request: HttpRequest,
+        album_key: str,
+        photo_key: str,
+        back_path: str = None,
+        next_path: str = None):
+    photo = api.check_photo_access(request, album_key, photo_key, "xs")
+    if request.method == "POST":
+        api.create_photo_reference(request, photo_uuid=photo.uuid)
+        if not next_path:
+            next_path = reverse(
+                'photo_objects:show_album_photo',
+                kwargs={
+                    "album_key": album_key,
+                    "photo_key": photo_key})
+        return HttpResponseRedirect(next_path)
+    else:
+        form = CreatePhotoReferenceForm(initial={"photo": photo})
+
+    target = photo.title or photo.filename
+    if not back_path:
+        back_path = reverse(
+            'photo_objects:show_album_photo',
+            kwargs={
+                "album_key": album_key,
+                "photo_key": photo_key})
+    back = BackLink(target, back_path)
+
+    return render(request, 'photo_objects/form.html', {
+        "form": form,
+        "title": "Add photo to story",
+        "back": back,
+        "width": "narrow",
+        "preview": Preview(request, photo, preview_helptext("photo")),
+    })
+
+
+def add_photo_to_story(
+        request: HttpRequest,
+        photo_uuid: UUID):
+    back_path = next_path = reverse(
+        'photo_objects:show_photo',
+        kwargs={"photo_uuid": photo_uuid})
+
+    photo = api.check_photo_access_by_uuid(request, photo_uuid, "xs")
+    return add_album_photo_to_story(
         request,
         photo.album.key,
         photo.filename,

@@ -54,15 +54,16 @@ class BaseModel(models.Model):
         )
 
 
+class Visibility(models.TextChoices):
+    PUBLIC = "public", _("Public")
+    HIDDEN = "hidden", _("Hidden")
+    PRIVATE = "private", _("Private")
+    ADMIN = "", _("Admin")
+
+
 class Album(BaseModel):
     class Meta:
         ordering = ["-first_timestamp", "-last_timestamp", "key"]
-
-    class Visibility(models.TextChoices):
-        PUBLIC = "public", _("Public")
-        HIDDEN = "hidden", _("Hidden")
-        PRIVATE = "private", _("Private")
-        ADMIN = "", _("Admin")
 
     key = models.CharField(primary_key=True, validators=[album_key_validator])
     visibility = models.CharField(
@@ -92,6 +93,45 @@ class Album(BaseModel):
                 self.cover_photo.filename if self.cover_photo else None),
             first_timestamp=timestamp_str(self.first_timestamp),
             last_timestamp=timestamp_str(self.last_timestamp),
+        )
+
+
+class Story(BaseModel):
+    class Meta:
+        ordering = ["-priority", "-created_at"]
+
+    key = models.CharField(primary_key=True, validators=[album_key_validator])
+    visibility = models.CharField(
+        blank=True,
+        db_default=Visibility.PRIVATE,
+        default=Visibility.PRIVATE,
+        choices=Visibility)
+
+    priority = models.PositiveIntegerField(
+        blank=True,
+        default=0,
+        help_text=_(
+            "Stories are ordered by priority. Higher priority stories are "
+            "shown first."))
+
+    cover_photo = models.ForeignKey(
+        "PhotoReference",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="+")
+
+    def __str__(self):
+        return _str(self.key, title=self.title, visibility=self.visibility)
+
+    def to_json(self):
+        return dict(
+            **super().to_json(),
+            key=self.key,
+            visibility=self.visibility,
+            priority=self.priority,
+            cover_photo=(
+                self.cover_photo.photo.uuid if self.cover_photo else None),
         )
 
 
@@ -174,8 +214,10 @@ class Photo(BaseModel):
 
         return qs.filter(timestamp__gt=self.timestamp).first() or qs.first()
 
-    def to_json(self):
-        album_key = self.album.key if self.album else None
+    def to_json(self, omit_album: bool = False):
+        album_key = None
+        if self.album and not omit_album:
+            album_key = self.album.key
 
         return dict(
             **super().to_json(),
@@ -197,6 +239,46 @@ class Photo(BaseModel):
             exposure_time=self.exposure_time,
             iso_speed=self.iso_speed,
             alt_text=self.alt_text,
+        )
+
+
+class PhotoReference(BaseModel):
+    class Meta:
+        ordering = ["photo__timestamp"]
+
+    photo = models.ForeignKey(
+        "Photo",
+        on_delete=models.CASCADE,
+        related_name="references")
+
+    story = models.ForeignKey(
+        "Story",
+        on_delete=models.CASCADE,
+        related_name="photo_references")
+
+    def __str__(self):
+        return _str(
+            f"{self.story.key}/{self.photo.filename}",
+            title=self.title,
+        )
+
+    def previous(self, photo_set: QuerySet[Self]) -> Self:
+        qs = photo_set.order_by('photo__timestamp')
+
+        return qs.filter(
+            photo__timestamp__lt=self.photo.timestamp).last() or qs.last()
+
+    def next(self, photo_set: QuerySet[Self]) -> Self:
+        qs = photo_set.order_by('photo__timestamp')
+
+        return qs.filter(
+            photo__timestamp__gt=self.photo.timestamp).first() or qs.first()
+
+    def to_json(self):
+        return dict(
+            **super().to_json(),
+            photo=self.photo.to_json(omit_album=True),
+            story=self.story.key,
         )
 
 

@@ -8,3 +8,8 @@ from .photo import (
     get_img,
     expected_photo_change_requests,
 )
+from .photo_references import (
+    story_photo_references,
+    story_photo_reference,
+)
+from .story import story, stories

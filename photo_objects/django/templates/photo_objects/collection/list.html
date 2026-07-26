@@ -1,0 +1,45 @@
+{% extends 'photo_objects/base.html' %}
+{% load photo_objects_extras %}
+
+{% block header %}
+{% include 'photo_objects/header.html' %}
+{% endblock %}
+
+{% block content %}
+
+{% if grouped_collections %}
+<div class="collections {{ type }} {% if grouped_collections|first_key or grouped_collections|length > 1 %} grouped{% endif %}">
+  {% for group, collections in grouped_collections.items %}
+  {% if group %}
+  <h2>{{ group }}</h2>
+  {% endif %}
+  <ul class="photo-list">
+    {% for collection in collections %}
+    <li class="surface">
+      <a href="{% url show_name collection.key %}">
+        {% if user.is_authenticated %}
+        <div class="visibility {{ collection.visibility }}">{{ collection.get_visibility_display }}</div>
+        {% endif %}
+        {% if collection.cover_photo %}
+        {% photo_img collection.cover_photo "sm" thumbnail=True %}
+        {% else %}
+        <div class="photo-placeholder"></div>
+        {% endif %}
+        <div class="labels">
+          <div class="label-primary">{{ collection.title|default:collection.key }}</div>
+          {% if type == 'albums' %}
+          <div class="label-secondary">{{ collection.first_timestamp|date:"Y F"|default:"No photos" }}</div>
+          {% endif %}
+        </div>
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
+  {% endfor %}
+</div>
+{% else %}
+<p class="collections {{ type }}">No {{ type }} available.</p>
+{% endif %}
+{% include 'photo_objects/actions.html' %}
+
+{% endblock %}

@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 
-from photo_objects.django.models import Album, Tag
+from photo_objects.django.models import Album, Tag, Visibility
 
 from .utils import (
     TestCase,
@@ -23,7 +23,7 @@ class TagTests(TestCase):
 
         Album.objects.create(
             key="test-tag",
-            visibility=Album.Visibility.PUBLIC)
+            visibility=Visibility.PUBLIC)
 
     def test_unused_tags_are_deleted(self):
         login_success = self.client.login(

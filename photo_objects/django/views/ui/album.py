@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from photo_objects.django import api
 from photo_objects.django.api.utils import FormValidationFailed
 from photo_objects.django.forms import CreateAlbumForm, ModifyAlbumForm
-from photo_objects.django.models import Album, SiteSettings
+from photo_objects.django.models import Album, SiteSettings, Visibility
 from photo_objects.django.views.utils import (
     BackLink,
     Preview,
@@ -52,10 +52,20 @@ def list_albums(request: HttpRequest):
     except SiteSettings.DoesNotExist:
         group_by = "none"
 
+    actions = []
+    if request.user.has_perm("photo_objects.add_album"):
+        actions.append({
+            "label": "New album",
+            "target": reverse('photo_objects:new_album'),
+        })
+
     albums = api.get_albums(request)
-    return render(request, "photo_objects/album/list.html", {
-        "grouped_albums": _group_albums(albums, group_by),
+    return render(request, "photo_objects/collection/list.html", {
+        "grouped_collections": _group_albums(albums, group_by),
         "title": "Albums",
+        "type": "albums",
+        "show_name": "photo_objects:show_album",
+        "actions": actions,
     })
 
 
@@ -110,20 +120,51 @@ def show_album(request: HttpRequest, album_key: str):
     details = {
         "Description": render_markdown(album.description),
         "Timeline": _timeline(album),
-        "Visibility": Album.Visibility(album.visibility).label,
+        "Visibility": Visibility(album.visibility).label,
         "Created at": album.created_at,
         "Updated at": album.updated_at,
     }
 
-    return render(request, "photo_objects/album/show.html", {
-        "album": album,
+    actions = []
+    if request.user.has_perm("photo_objects.change_album"):
+        if request.user.has_perm("photo_objects.add_photo"):
+            actions.append({
+                "label": "Upload photos",
+                "target": reverse(
+                    'photo_objects:upload_photos',
+                    kwargs={"album_key": album.key},
+                ),
+            })
+
+        actions.append({
+            "label": "Edit album",
+            "target": reverse(
+                'photo_objects:edit_album',
+                kwargs={"album_key": album.key},
+            ),
+        })
+
+    if request.user.has_perm("photo_objects.delete_album"):
+        actions.append({
+            "label": "Delete album",
+            "target": reverse(
+                'photo_objects:delete_album',
+                kwargs={"album_key": album.key},
+            ),
+            "class": "delete"
+        })
+
+    return render(request, "photo_objects/collection/show.html", {
+        "collection": album,
         "photos": photos,
         "title": album.title or album.key,
+        "type": "album",
         "description": meta_description(request, album),
         "back": back,
         "details": details,
         "photo": album.cover_photo,
         "info": get_info(request, album_key),
+        "actions": actions,
     })
 
 
@@ -205,7 +246,6 @@ def delete_album(request: HttpRequest, album_key: str):
     return render(request, 'photo_objects/delete.html', {
         "title": "Delete album",
         "back": back,
-        "photo": album.cover_photo,
         "resource": target,
         "width": "narrow",
         "preview": Preview(request, album, preview_helptext("album", empty)),

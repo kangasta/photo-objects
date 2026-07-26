@@ -102,6 +102,14 @@ class AlbumNotFound(JsonProblem):
         )
 
 
+class StoryNotFound(JsonProblem):
+    def __init__(self, story_key: str):
+        super().__init__(
+            f"Story with {story_key} key does not exist.",
+            404,
+        )
+
+
 class PhotoNotFound(JsonProblem):
     def __init__(self, album_key: str, photo_key: str):
         super().__init__(
@@ -114,6 +122,15 @@ class PhotoNotFoundByUUID(JsonProblem):
     def __init__(self, photo_uuid: UUID):
         super().__init__(
             f"Photo with UUID {photo_uuid} does not exist.",
+            404,
+        )
+
+
+class PhotoReferenceNotFound(JsonProblem):
+    def __init__(self, story_key: str, photo_uuid: UUID):
+        super().__init__(
+            f"Photo reference for photo with UUID {photo_uuid} and story with "
+            f"{story_key} key does not exist.",
             404,
         )
 
