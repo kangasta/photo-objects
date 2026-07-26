@@ -471,6 +471,7 @@ div.actions {
 button:focus-visible,
 a.action:focus-visible,
 form button:focus-visible,
+form input[type="number"]:focus-visible,
 form input[type="text"]:focus-visible,
 form input[type="password"]:focus-visible,
 form textarea:focus-visible,
@@ -556,6 +557,7 @@ div.configuration {
   margin: 1rem 0;
 }
 
+form input[type="number"],
 form input[type="text"],
 form input[type="password"],
 form textarea,
@@ -567,6 +569,10 @@ form select {
   border-radius: 4px;
   font-size: 0.875rem;
   padding: .5rem;
+}
+
+form input[type="number"] {
+  appearance: textfield;
 }
 
 form textarea {
@@ -900,12 +906,12 @@ label[for="id_photos"] div.photo-upload.failed div.status {
 
 
 /* Albums and Photos */
-.albums,
+.collections,
 .photos {
   flex: 1;
 }
 
-.albums .surface .labels {
+.collections .surface .labels {
   border-top: 1px solid var(--bg-primary);
 }
 
@@ -928,7 +934,7 @@ label[for="id_photos"] div.photo-upload.failed div.status {
 }
 
 /* Album */
-div.album {
+div.collection {
   margin: 16px 0;
   display: flex;
   gap: 16px;
@@ -938,21 +944,21 @@ div.album {
   flex: 1;
 }
 
-div.album .surface {
+div.collection .surface {
   flex: 3;
   min-width: min(600px, 100%);
   margin: 0;
 }
 
-div.album ul.photo-list {
+div.collection ul.photo-list {
   margin: 0;
 }
 
-div.album div.empty {
+div.collection div.empty {
   min-height: 128px;
 }
 
-div.album ul.photo-list li {
+div.collection ul.photo-list li {
   aspect-ratio: 1;
 }
 
@@ -1079,7 +1085,7 @@ div.photo.surface.next:before {
 }
 
 /* Details */
-div.album dl,
+div.collection dl,
 div.photo-and-details dl {
   margin: 0;
   flex: 1;

@@ -114,7 +114,7 @@ def meta_photo(
         return resource.cover_photo
 
     if isinstance(resource, Story):
-        return resource.cover_photo.photo
+        return resource.cover_photo.photo if resource.cover_photo else None
 
     settings = SiteSettings.objects.get(request.site)
     return settings.preview_image

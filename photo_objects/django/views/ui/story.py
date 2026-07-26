@@ -140,7 +140,6 @@ def edit_story(request: HttpRequest, story_key: str):
         reverse(
             'photo_objects:show_story',
             kwargs={"story_key": story_key}))
-    empty = story.cover_photo is None
 
     return render(
         request,
@@ -153,7 +152,7 @@ def edit_story(request: HttpRequest, story_key: str):
             "preview": Preview(
                 request,
                 story,
-                preview_helptext("story", empty)),
+                preview_helptext("story")),
         })
 
 
@@ -173,22 +172,15 @@ def delete_story(request: HttpRequest, story_key: str):
                     "story_key": story_key}))
 
         error = {}
-        if story.photo_references.count() > 0:
-            error = {'error': _(
-                'Story can not be deleted because it contains photos. Delete '
-                'all photos from the story to be able to delete the story.')}
         if story.key.startswith('_'):
             error = {'error': _(
                 'This story is managed by the system and can not be deleted.')}
 
-    empty = story.cover_photo is None
-
     return render(request, 'photo_objects/delete.html', {
         "title": "Delete story",
         "back": back,
-        "photo": story.cover_photo,
         "resource": target,
         "width": "narrow",
-        "preview": Preview(request, story, preview_helptext("story", empty)),
+        "preview": Preview(request, story, preview_helptext("story")),
         **error,
     })

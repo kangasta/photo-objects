@@ -54,8 +54,8 @@ export const listPhotos = async (page: Page, tag?: string) => {
   }
 }
 
-export const getCurrentAlbumKey = (page: Page): string => {
-  const keyRegex = /\/albums\/([^/]+)/;
+export const getCurrentResourceKey = (page: Page, resource: string = "albums"): string => {
+  const keyRegex = new RegExp(`/${resource}/([^/]+)`);
   const url = page.url();
 
   const match = keyRegex.exec(url);
@@ -64,14 +64,16 @@ export const getCurrentAlbumKey = (page: Page): string => {
   return match![1];
 }
 
-export const deleteAlbum = async (page: Page, testInfo: TestInfo) => {
-  const title = testInfo.attachments.find(a => a.name === 'albumTitle')?.body?.toString();
-  if (!title) {
-    throw new Error('Album title not found in test attachments');
+export const deleteAlbums = async (page: Page, testInfo: TestInfo) => {
+  const titles = testInfo.attachments.filter(a => a.name === 'albumTitle').map((a => a.body?.toString() ?? '')).filter(i => i)
+  for (const title of titles) {
+    await deleteAlbum(page, title);
   }
+}
 
+const deleteAlbum = async (page: Page, title: string) => {
   await openAlbum(page, title);
-  const albumKey = getCurrentAlbumKey(page);
+  const albumKey = getCurrentResourceKey(page, "albums");
 
   const response = await page.request.get(`/api/albums/${albumKey}/photos`);
   if (!response.ok()) {
@@ -127,4 +129,55 @@ export const createAlbumAndUploadPhotos = async (page: Page, testInfo: TestInfo,
   await expect(page.getByText('Ready', { exact: true })).toHaveCount(photos.length);
   await page.getByText('Done', { exact: true }).click();
   return albumTitle;
+}
+
+export const createStory = async (page: Page, testInfo: TestInfo, namePrefix: string): Promise<string> => {
+  // Open the new story form
+  await page.getByLabel('Open navigation menu').click();
+  await page.getByRole('dialog').getByRole('link', { name: 'Stories' }).click();
+  await page.getByText('New story').click();
+
+  const storyTitle = withRandomSuffix(`${albumPrefix} ${namePrefix} `, 5);
+
+  await page.getByLabel('Title').fill(storyTitle);
+  await page.getByText('Save').click();
+
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(storyTitle);
+
+  testInfo.attach('storyTitle', { body: storyTitle });
+  return storyTitle;
+}
+
+export const openStory = async (page: Page, storyTitle: string) => {
+  await page.getByLabel('Open navigation menu').click();
+  await page.getByRole('dialog').getByRole('link', { name: 'Stories' }).click();
+  await page.getByText(storyTitle).click();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(storyTitle);
+};
+
+export const addPhotoToStory = async (page: Page, storyTitle: string, albumTitle: string, photoTitle: string) => {
+  await openStory(page, storyTitle);
+  const storyKey = getCurrentResourceKey(page, "stories");  
+
+  await openPhoto(page, albumTitle, photoTitle);
+  await page.getByText('Add to story').click();
+
+  await page.getByLabel('Story').selectOption(storyKey);
+  await page.getByText('Save').click();
+}
+
+const deleteStory = async (page: Page, storyTitle: string) => {
+  await page.getByLabel('Open navigation menu').click();
+  await page.getByRole('dialog').getByRole('link', { name: 'Stories' }).click();
+  await page.getByText(storyTitle).click();
+
+  await page.getByText('Delete story').click();
+  await page.getByText('Delete', { exact: true }).click();
+}
+
+export const deleteStories = async (page: Page, testInfo: TestInfo) => {
+  const promises = testInfo.attachments.filter(a => a.name === 'storyTitle').map((a => a.body?.toString() ?? '')).filter(i => i).map(async (title) => {
+    await deleteStory(page, title);
+  });
+  await Promise.all(promises);
 }

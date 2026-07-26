@@ -246,7 +246,6 @@ def delete_album(request: HttpRequest, album_key: str):
     return render(request, 'photo_objects/delete.html', {
         "title": "Delete album",
         "back": back,
-        "photo": album.cover_photo,
         "resource": target,
         "width": "narrow",
         "preview": Preview(request, album, preview_helptext("album", empty)),
