@@ -5,7 +5,7 @@ from django.http import HttpRequest
 from photo_objects.django.forms import (
     CreatePhotoReferenceForm,
     ModifyPhotoReferenceForm,)
-from photo_objects.django.models import Visibility
+from photo_objects.django.models import Story, Visibility
 
 from .auth import (
     check_photo_access_by_uuid,
@@ -21,8 +21,12 @@ from .utils import (
 
 def get_photo_references(
         request: HttpRequest,
-        story_key: str):
-    story = check_story_access(request, story_key)
+        story_or_key: Story | str):
+    if isinstance(story_or_key, str):
+        story = check_story_access(request, story_or_key)
+    else:
+        story = story_or_key
+
     refs = story.photo_references
 
     if not request.user.is_authenticated:
