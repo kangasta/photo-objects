@@ -26,13 +26,16 @@ export const withRandomSuffix = (prefix: string, length: number): string => {
 
 export const albumPrefix = 'E2E Tests: ';
 
-export const createAlbum = async (page: Page, name: string): Promise<string> => {
+export const createAlbum = async (page: Page, name: string, visibility?: string): Promise<string> => {
   await page.goto('/');
 
   await page.getByText('New album').click();
   const title = withRandomSuffix(`${albumPrefix} ${name} `, 5);
   await page.getByLabel('Title').fill(title);
   await page.getByLabel('Description').fill('Album created by E2E tests.');
+  if (visibility) {
+    await page.getByLabel(visibility).click();
+  }
   await page.getByText('Save').click();
 
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(title);
@@ -121,8 +124,8 @@ const deletePhoto = async (page: Page, albumTitle: string, title: string) => {
   await page.getByText('Delete', { exact: true }).click();
 }
 
-export const createAlbumAndUploadPhotos = async (page: Page, testInfo: TestInfo, namePrefix: string, photos: string[]): Promise<string> => {
-  const albumTitle = await createAlbum(page, namePrefix);
+export const createAlbumAndUploadPhotos = async (page: Page, testInfo: TestInfo, namePrefix: string, photos: string[], visibility?: string): Promise<string> => {
+  const albumTitle = await createAlbum(page, namePrefix, visibility);
   testInfo.attach('albumTitle', { body: albumTitle });
 
   await uploadPhotos(page, albumTitle, photos);
@@ -131,7 +134,7 @@ export const createAlbumAndUploadPhotos = async (page: Page, testInfo: TestInfo,
   return albumTitle;
 }
 
-export const createStory = async (page: Page, testInfo: TestInfo, namePrefix: string): Promise<string> => {
+export const createStory = async (page: Page, testInfo: TestInfo, namePrefix: string, visibility?: string): Promise<string> => {
   // Open the new story form
   await page.getByLabel('Open navigation menu').click();
   await page.getByRole('dialog').getByRole('link', { name: 'Stories' }).click();
@@ -140,6 +143,9 @@ export const createStory = async (page: Page, testInfo: TestInfo, namePrefix: st
   const storyTitle = withRandomSuffix(`${albumPrefix} ${namePrefix} `, 5);
 
   await page.getByLabel('Title').fill(storyTitle);
+  if (visibility) {
+    await page.getByLabel(visibility).click();
+  }
   await page.getByText('Save').click();
 
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(storyTitle);

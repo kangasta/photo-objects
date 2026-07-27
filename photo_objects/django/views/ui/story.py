@@ -69,7 +69,7 @@ def new_story(request: HttpRequest):
 @json_problem_as_html
 def show_story(request: HttpRequest, story_key: str):
     story = api.check_story_access(request, story_key)
-    photos = story.photo_references.all()
+    photos = api.get_photo_references(request, story)
 
     back = BackLink("Stories", reverse('photo_objects:list_stories'))
     details = {

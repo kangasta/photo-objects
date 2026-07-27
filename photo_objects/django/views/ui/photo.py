@@ -279,9 +279,10 @@ def show_story_photo(request: HttpRequest, story_key: str, photo_uuid: UUID):
 
     try:
         api.check_story_access(request, story_key)
+        refs = api.get_photo_references(request, story)
 
-        previous_uuid = ref.previous(story.photo_references).photo.uuid
-        next_uuid = ref.next(story.photo_references).photo.uuid
+        previous_uuid = ref.previous(refs).photo.uuid
+        next_uuid = ref.next(refs).photo.uuid
 
         target = story.title or story.key
         back = BackLink(

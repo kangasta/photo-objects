@@ -1,6 +1,7 @@
 from django.http import HttpRequest
 from django.utils.dateformat import format as format_date
 
+from photo_objects.django import api
 from photo_objects.django.models import (
     Album,
     Photo,
@@ -56,7 +57,7 @@ def _default_album_description(request: HttpRequest, album: Album) -> str:
 
 
 def _default_story_description(request: HttpRequest, story: Story) -> str:
-    count = story.photo_references.count()
+    count = api.get_photo_references(request, story).count()
     plural = 's' if count != 1 else ''
     return f"Story with {count} photo{plural} in {request.site.name}."
 
