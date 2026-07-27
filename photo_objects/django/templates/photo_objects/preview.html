@@ -1,13 +1,9 @@
+{% load photo_objects_extras %}
+
 <div class="preview">
   <div class="surface">
     <div class="image">
-      {% if preview.photo %}
-      <img src="/img/_uuid/{{ preview.photo.uuid }}/sm" alt="{{ preview.photo.alt }}"
-        style="background: url(data:image/png;base64,{{ preview.photo.tiny_base64 }}); background-size: 100% 100%; font-size: 0;"
-        height="{{ preview.photo.thumbnail_height }}" width="{{ preview.photo.thumbnail_width }}" />
-      {% else %}
-      <div class="photo-placeholder"></div>
-      {% endif %}
+      {% photo_img preview.photo "sm" thumbnail=True %}
     </div>
     <div class="title-and-description labels">
       <span class="label-primary">{{ preview.title }}</span>
