@@ -25,6 +25,11 @@ class PreviewLink:
         self.description = description
 
 
+class PreviewLinks(list):
+    def __init__(self, links):
+        super().__init__(links)
+
+
 class TagLinks(list):
     def __init__(self, tags):
         super().__init__(tags)

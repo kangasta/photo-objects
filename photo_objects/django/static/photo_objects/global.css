@@ -1125,11 +1125,16 @@ dd a.preview-link {
   text-decoration: none;
 }
 
-dd a.preview-link img {
+dd a.preview-link img,
+dd a.preview-link div.photo-placeholder {
   aspect-ratio: 1;
   height: 56.5px;
   object-fit: cover;
   width: auto;
+}
+
+dd a.preview-link div.photo-placeholder {
+  background: var(--placeholder-gradient);
 }
 
 dd a.preview-link div.labels {

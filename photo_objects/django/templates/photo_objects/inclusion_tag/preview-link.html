@@ -1,0 +1,12 @@
+{% load photo_objects_extras %}
+
+<a class="preview-link surface" href="{{ link.url }}" title="{{ link.title }}">
+  {% photo_img link.photo "sm" thumbnail=True %}
+  <div class="labels">
+    <div class="label-primary">{{ link.title }}</div>
+    {% if link.description %}
+    <div class="label-secondary">{{ link.description }}</div>
+    {% endif %}
+  </div>
+  {% include 'photo_objects/icons/gt.html' %}
+</a>

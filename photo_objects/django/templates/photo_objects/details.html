@@ -6,23 +6,17 @@
   <dt>{{ key }}</dt>
   {% if value|is_preview_link %}
   <dd>
-    <a class="preview-link surface" href="{{ value.url }}" title="{{ value.title }}">
-      <img src="/img/_uuid/{{ value.photo.uuid }}/sm" alt="{{ value.photo.alt }}"
-        style="background: url(data:image/png;base64,{{ value.photo.tiny_base64 }}); background-size: 100% 100%; font-size: 0;"
-        height="{{ value.photo.thumbnail_height }}" width="{{ value.photo.thumbnail_width }}" />
-      <div class="labels">
-        <div class="label-primary">{{ value.title }}</div>
-        {% if value.description %}
-        <div class="label-secondary">{{ value.description }}</div>
-        {% endif %}
-      </div>
-      {% include 'photo_objects/icons/gt.html' %}
-    </a>
+    {% preview_link value %}
+  </dd>
+  {% elif value|is_preview_links %}
+  <dd>
+    {% for link in value %}
+    {% preview_link link %}
+    {% endfor %}
   </dd>
   {% elif value|is_tag_links %}
   <dd class="tags">
     {% for tag in value %}
-    <!-- TODO: add link to filtered list photos view -->
     <a class="tag" href="{% url 'photo_objects:list_photos' %}?tag={{ tag }}">{{ tag }}</a>
     {% endfor %}
   </dd>
