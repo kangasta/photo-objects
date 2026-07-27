@@ -28,6 +28,7 @@ from photo_objects.django.views.utils import (
     BackLink,
     Preview,
     PreviewLink,
+    PreviewLinks,
     TagLinks,
     meta_description,
 )
@@ -180,6 +181,32 @@ def _user_knows_album(request: HttpRequest, album: Album) -> bool:
     ]
 
 
+def _visible_references(
+        request: HttpRequest,
+        photo_or_ref: Photo | PhotoReference):
+    if isinstance(photo_or_ref, PhotoReference):
+        photo = photo_or_ref.photo
+        story_key = photo_or_ref.story.key
+    else:
+        photo = photo_or_ref
+        story_key = None
+
+    references = photo.references
+    if story_key:
+        references = references.exclude(story__key=story_key)
+
+    if not request.user.is_authenticated:
+        return references.filter(story__visibility=Visibility.PUBLIC)
+    if request.user.is_staff:
+        return references.all()
+
+    return references.filter(story__visibility__in=[
+        Visibility.PUBLIC,
+        Visibility.HIDDEN,
+        Visibility.PRIVATE,
+    ])
+
+
 def _show_photo(
         request: HttpRequest,
         photo_or_ref: Photo | PhotoReference,
@@ -196,6 +223,15 @@ def _show_photo(
     if isinstance(photo_or_ref, PhotoReference):
         photo = photo_or_ref.photo
 
+    stories = PreviewLinks(
+        PreviewLink(
+            i.story.cover_photo,
+            reverse(
+                'photo_objects:show_story',
+                kwargs={"story_key": i.story.key}),
+            i.story.title or i.story.key,
+        ) for i in _visible_references(request, photo_or_ref))
+
     details = {
         "Description": render_markdown(description),
         "Timestamp": photo.timestamp,
@@ -205,6 +241,7 @@ def _show_photo(
         "Created at": photo.created_at,
         "Updated at": photo.updated_at,
         "Tags": TagLinks(photo.tags.values_list("value", flat=True)),
+        "Stories": stories
     }
 
     if show_album_link and _user_knows_album(request, photo.album):
@@ -278,8 +315,7 @@ def show_story_photo(request: HttpRequest, story_key: str, photo_uuid: UUID):
     back = BackLink("Stories", reverse('photo_objects:list_stories'))
 
     try:
-        api.check_story_access(request, story_key)
-        refs = api.get_photo_references(request, story)
+        refs = api.get_photo_references(request, story_key)
 
         previous_uuid = ref.previous(refs).photo.uuid
         next_uuid = ref.next(refs).photo.uuid

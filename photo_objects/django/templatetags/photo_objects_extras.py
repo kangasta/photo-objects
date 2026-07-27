@@ -14,6 +14,7 @@ from photo_objects.django.models import (
 )
 from photo_objects.django.views.utils import (
     PreviewLink,
+    PreviewLinks,
     TagLinks,
     meta_description,
 )
@@ -62,6 +63,11 @@ def is_preview_link(value):
 
 
 @register.filter
+def is_preview_links(value):
+    return isinstance(value, PreviewLinks)
+
+
+@register.filter
 def is_reference(value):
     return isinstance(value, PhotoReference)
 
@@ -102,8 +108,20 @@ def meta_og(context):
         return context
 
 
+def _photo_context(photo: Photo, size: str, thumbnail: bool = False):
+    if not photo:
+        return {}
+
+    return {
+        "photo": photo,
+        "size": size,
+        "height": photo.thumbnail_height if thumbnail else photo.height,
+        "width": photo.thumbnail_width if thumbnail else photo.width,
+    }
+
+
 @register.inclusion_tag(
-    "photo_objects/inclusion_tag/site-preview-img.html",
+    "photo_objects/inclusion_tag/photo-img.html",
     takes_context=True)
 def site_preview_img(context):
     try:
@@ -112,13 +130,17 @@ def site_preview_img(context):
 
         settings = SiteSettings.objects.get(site)
 
-        return {
-            'request': request,
-            "title": site.name,
-            "photo": settings.preview_image,
-        }
+        return _photo_context(settings.preview_image, "sm", thumbnail=True)
     except Exception:
         return context
+
+
+@register.inclusion_tag(
+    "photo_objects/inclusion_tag/preview-link.html")
+def preview_link(link: PreviewLink):
+    return {
+        "link": link,
+    }
 
 
 @register.inclusion_tag(
@@ -130,12 +152,7 @@ def photo_img(
     if isinstance(photo, PhotoReference):
         photo = photo.photo
 
-    return {
-        "photo": photo,
-        "size": size,
-        "height": photo.thumbnail_height if thumbnail else photo.height,
-        "width": photo.thumbnail_width if thumbnail else photo.width,
-    }
+    return _photo_context(photo, size, thumbnail)
 
 
 @register.inclusion_tag(
